@@ -1,0 +1,4725 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsEquations_Dlg" script:language="StarBasic">&apos;
+&apos;    TexMathsEquations_Dlg
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+&apos;	 Macros used to create and manage the TexMaths Equation dialog
+
+&apos; Force variable declaration
+Option Explicit
+
+Private oDlgBaseMain as Variant
+Private oDlgMain as Variant
+
+&apos; Conversion factors map appFonts -&gt; pixels
+Private convX as Double
+Private convY as Double
+
+&apos; Counter used in gtk3 resizing workaround
+Private count as Integer
+
+
+&apos; Create and display dialog
+Sub TexMathsDialog( sEqSize as String, sEqType as String, sEqCode as String, sEqFormat as String, sEqDPI as String, sEqTransp as String, sEqName as String)
+
+	&apos; Counter for gtk3 resizing workaround
+	count = 0
+	
+	&apos; Parent window
+	Dim oParent as Variant
+	oParent = ThisComponent.getCurrentController().getFrame().getContainerWindow()
+
+	&apos; Create base outer window as modal dialog
+	oDlgBaseMain = CreateBaseDialog(oParent)
+
+	&apos; Set window title
+	oDlgBaseMain.setTitle(  _(&quot;TexMaths Equations&quot;) )
+
+	&apos; Embed inner dialog created with the dialog editor
+	Dim sURL as String
+	sURL = &quot;vnd.sun.star.script:TexMaths.TexMathsEquations_GUI?location=application&quot;
+	oDlgMain = CreateInnerDialog(oDlgBaseMain, sURL, sEqSize, sEqType, sEqCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+
+ 	&apos; Read registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	
+	&apos; Get symbol theme
+	glb_sSymbolColor = oSystemInfo.SymbolColor	
+
+	Dim aRect as New com.sun.star.awt.Rectangle
+	aRect = CreateUnoStruct(&quot;com.sun.star.awt.Rectangle&quot;)
+
+	&apos; Compute conversion factors between map appFonts and pixels
+	aRect = oDlgMain.getPosSize()
+	convX = aRect.Width / oDlgMain.Model.Width 
+	convY = aRect.Height / oDlgMain.Model.Height
+
+	&apos; Convert min width and height to pixels
+	Dim minW as Integer, minH as Integer
+	minW = DLG_MIN_WIDTH * convX
+	minH = DLG_MIN_HEIGHT * convY
+
+	&apos; Set outer window initial position and size
+	If oSystemInfo.PositionX &lt;&gt; &quot;&quot; Then
+		aRect.X = oSystemInfo.PositionX
+	Else
+		aRect.X = -1
+	End If
+		
+	If oSystemInfo.PositionY &lt;&gt; &quot;&quot; Then
+		aRect.Y = oSystemInfo.PositionY
+	Else
+		aRect.Y = -1
+	End If
+
+	If oSystemInfo.Width = &quot;&quot; Or Val(oSystemInfo.Width) &lt; minW Then
+		aRect.Width = minW
+	Else
+		aRect.Width = oSystemInfo.Width
+	End If
+
+	If oSystemInfo.Height = &quot;&quot; Or Val(oSystemInfo.Height) &lt; minH Then
+		aRect.Height = minH
+	Else
+		aRect.Height = oSystemInfo.Height
+	End If
+
+	If aRect.X &gt;= 0 And aRect.Y &gt;= 0 Then
+		oDlgBaseMain.setPosSize(aRect.X, aRect.Y, 0, 0, com.sun.star.awt.PosSize.POS)
+	End If
+	
+	If aRect.Width &gt; 0 And aRect.Height &gt; 0 Then
+		oDlgBaseMain.setPosSize(0, 0, aRect.Width, aRect.Height, com.sun.star.awt.PosSize.SIZE)
+	End If
+ 
+	&apos; Show the modal dialog, has to be done by the outer dialog
+	If oDlgBaseMain.execute() &gt; 0 Then
+		MsgBox _(&quot;Error: dialog box can&apos;t be created...&quot;)
+	End If
+
+	&apos; Get outer window position and size
+	aRect = oDlgBaseMain.GetPosSize()
+
+	&apos; Delete dialog
+	oDlgBaseMain.dispose()
+
+	&apos; Save outer window position and size to the registry
+	oSystemInfo.PositionX = aRect.X
+	oSystemInfo.PositionY = aRect.Y
+
+	&apos; Dialog is too narrow
+	If aRect.Width &lt;  minW Then
+		aRect.Width = minW	
+	End If
+		
+	&apos; Dialog is too short
+	If aRect.Height &lt;  minH Then
+		aRect.Height = minH
+	End If
+
+	oSystemInfo.Width = aRect.Width
+	oSystemInfo.Height = aRect.Height
+	
+	&apos; Apply changes
+	oSystemInfo.commitChanges()
+
+End Sub
+
+
+
+&apos; Create new outer base dialog
+&apos; oParent: parent window peer
+&apos; Return dialog window
+Function CreateBaseDialog(oParent as Variant) as Variant
+     
+	Dim oToolkit as Variant
+	oToolkit = oParent.getToolkit()
+	
+	Dim WA as Variant, aRect as Variant, oDesc as Variant
+	WA = com.sun.star.awt.WindowAttribute
+	aRect = CreateUnoStruct(&quot;com.sun.star.awt.Rectangle&quot;)
+	oDesc = CreateUnoStruct(&quot;com.sun.star.awt.WindowDescriptor&quot;)
+
+	With oDesc
+    	.Type = com.sun.star.awt.WindowClass.SIMPLE
+        .WindowServiceName = &quot;dialog&quot;
+        .Parent = oParent
+        .ParentIndex = -1
+        .Bounds = aRect
+        .WindowAttributes = WA.CLOSEABLE OR WA.MOVEABLE OR WA.SIZEABLE OR WA.BORDER
+	End With
+
+	Dim oDialog as Variant
+	oDialog = oToolkit.createWindow(oDesc)
+
+	&apos; Create listeners
+	oDialog.addTopWindowListener(CreateUnoListener(&quot;MainWindowListener_&quot;, &quot;com.sun.star.awt.XTopWindowListener&quot;))
+	oDialog.addWindowListener(CreateUnoListener(&quot;MainWindowListener_&quot;, &quot;com.sun.star.awt.XWindowListener&quot;))
+
+	CreateBaseDialog = oDialog
+
+End Function
+
+
+&apos; Create inner (child) dialog embedded
+&apos; oParent: parent window
+&apos; sURL: dialog URL, without toolbar
+&apos; Return dialog window
+Function CreateInnerDialog(oParent as Variant, sURL as String, sEqSize as String, sEqType as String, sEqCode as String, sEqFormat as String, sEqDPI as String, sEqTransp as String, sEqName as String) as Variant
+
+	&apos; Read config
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)	
+	
+	Dim oDP as Variant, oChildDialog as Variant
+	oDP = CreateUnoService(&quot;com.sun.star.awt.ContainerWindowProvider&quot;)
+	oChildDialog = oDP.createContainerWindow(sURL, &quot;&quot;, oParent, nothing)
+	oChildDialog.setVisible(True)
+
+	&apos; Dialog strings for translation
+	oChildDialog.getControl(&quot;EquationNameLabel&quot;).Model.Label = _(&quot;Name&quot;)
+	oChildDialog.getControl(&quot;EquationNameText&quot;).Model.HelpText = _(&quot;Enter equation name here (can be left blank)&quot;)
+	oChildDialog.getControl(&quot;EquationNameText&quot;).setText(sEqName)
+	oChildDialog.getControl(&quot;ImageformatFrame&quot;).Model.Label = _(&quot;Image Format&quot;)
+	oChildDialog.getControl(&quot;EquationtypeFrame&quot;).Model.Label = _(&quot;Equation Type&quot;)
+	oChildDialog.getControl(&quot;FontsizeFrame&quot;).Model.Label = _(&quot;Font Size&quot;)
+	oChildDialog.getControl(&quot;Format&quot;).Model.HelpText = _(&quot;Set image format&quot;)
+	oChildDialog.getControl(&quot;GraphicDPI&quot;).Model.HelpText = _(&quot;Set image resolution&quot;)
+	oChildDialog.getControl(&quot;Transparency&quot;).Model.Label = _(&quot;Transparency&quot;)
+	oChildDialog.getControl(&quot;Transparency&quot;).Model.HelpText = _(&quot;Toggle image transparency&quot;)
+	oChildDialog.getControl(&quot;Size&quot;).Model.HelpText = _(&quot;Set font size&quot;)
+	oChildDialog.getControl(&quot;TypeDisplay&quot;).Model.HelpText = _(&quot;Inline Display equation&quot;)
+	oChildDialog.getControl(&quot;TypeInline&quot;).Model.HelpText = _(&quot;Inline equation&quot;)
+	oChildDialog.getControl(&quot;TypeLatex&quot;).Model.HelpText = _(&quot;Regular LaTeX code&quot;)
+	oChildDialog.getControl(&quot;HelpButton&quot;).Model.Label = _(&quot;Help...&quot;)
+	oChildDialog.getControl(&quot;HelpButton&quot;).Model.HelpText = _(&quot;Display help text&quot;)	
+	oChildDialog.getControl(&quot;PreferencesButton&quot;).Model.Label = _(&quot;Preferences...&quot;)
+	oChildDialog.getControl(&quot;PreferencesButton&quot;).Model.HelpText = _(&quot;Set equation preferences&quot;)	
+	oChildDialog.getControl(&quot;PreambleButton&quot;).Model.Label = _(&quot;Preamble...&quot;)
+	oChildDialog.getControl(&quot;PreambleButton&quot;).Model.HelpText = _(&quot;Set preamble&quot;)	
+
+	If oSystemInfo.compiler = &quot;xelatex&quot; Then
+		oChildDialog.getControl(&quot;LatexButton&quot;).Model.Label = &quot;Xe~LaTeX&quot;
+		oChildDialog.getControl(&quot;LatexButton&quot;).Model.HelpText = _(&quot;Generate XeLaTeX equation&quot;)
+	Else
+		oChildDialog.getControl(&quot;LatexButton&quot;).Model.Label = &quot;~LaTeX&quot;
+		oChildDialog.getControl(&quot;LatexButton&quot;).Model.HelpText = _(&quot;Generate LaTeX equation&quot;)
+	End If	
+
+	oChildDialog.getControl(&quot;General&quot;).Model.Label = _(&quot;General&quot;)
+	oChildDialog.getControl(&quot;Arrays&quot;).Model.Label = _(&quot;Arrays&quot;)
+	oChildDialog.getControl(&quot;Alphabets&quot;).Model.Label = _(&quot;Alphabets&quot;)
+	oChildDialog.getControl(&quot;Arrows&quot;).Model.Label = _(&quot;Arrows&quot;)
+	oChildDialog.getControl(&quot;Functions&quot;).Model.Label = _(&quot;Functions&quot;)
+	oChildDialog.getControl(&quot;Relations&quot;).Model.Label = _(&quot;Relations&quot;)
+	oChildDialog.getControl(&quot;Operations&quot;).Model.Label = _(&quot;Operations&quot;)
+	oChildDialog.getControl(&quot;Misc&quot;).Model.Label = _(&quot;Misc&quot;)
+
+	&apos; Define list values 
+	oChildDialog.getControl(&quot;Format&quot;).addItems(Array(&quot;png&quot;,&quot;svg&quot;),0)
+	oChildDialog.getControl(&quot;GraphicDPI&quot;).addItems(Array(&quot;72&quot;,&quot;96&quot;,&quot;120&quot;,&quot;150&quot;,&quot;200&quot;,&quot;300&quot;,&quot;600&quot;,&quot;1200&quot;),0)
+	oChildDialog.getControl(&quot;Size&quot;).addItems(Array(&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;10.5&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;54&quot;,&quot;60&quot;,&quot;66&quot;,&quot;72&quot;,&quot;80&quot;,&quot;88&quot;,&quot;96&quot;),0)
+
+	&apos; Set the actual values
+	oChildDialog.getControl(&quot;Size&quot;).setText(sEqSize)
+	If sEqType = &quot;display&quot; Then oChildDialog.getControl(&quot;TypeDisplay&quot;).setState(1)
+	If sEqType = &quot;inline&quot; Then oChildDialog.getControl(&quot;TypeInline&quot;).setState(1)
+	If sEqType = &quot;latex&quot; Then oChildDialog.getControl(&quot;TypeLatex&quot;).setState(1)
+
+	&apos; Set text values
+	oChildDialog.getControl(&quot;LatexCode&quot;).setText(sEqCode)
+	oChildDialog.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+	oChildDialog.getControl(&quot;Format&quot;).setText(sEqFormat)
+	oChildDialog.getControl(&quot;GraphicDPI&quot;).setText(sEqDPI)
+
+	&apos; Set editor font size
+	oChildDialog.getControl(&quot;LatexCode&quot;).Model.FontName = glb_sEditorFontName
+
+	&apos; Set editor font size
+	oChildDialog.getControl(&quot;LatexCode&quot;).Model.FontHeight = glb_sEditorFontSize
+
+	&apos; Set transparency
+	If sEqTransp = &quot;TRUE&quot; Then
+		oChildDialog.getControl(&quot;Transparency&quot;).setState(1)
+	Else
+		oChildDialog.getControl(&quot;Transparency&quot;).setState(0)
+	End If
+	
+	&apos; Disable png and force svg if dvipng path is empty or if the compiler is xelatex or if dvipng does not exist
+	If glb_sCompiler = &quot;xelatex&quot; Or oSystemInfo.DvipngPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvipngPath) Then
+		
+		glb_sFormat = &quot;svg&quot;
+		sEqFormat = glb_sFormat
+		oChildDialog.getControl(&quot;Format&quot;).setText(&quot;svg&quot;)
+		oChildDialog.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+			
+	&apos; Disable svg and force png if dvisvgm path is empty or dvisvgm is not found
+	If oSystemInfo.DvisvgmPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvisvgmPath) Then
+		
+		glb_sFormat = &quot;png&quot; 
+		sEqFormat = glb_sFormat
+		oChildDialog.getControl(&quot;Format&quot;).setText(&quot;png&quot;)
+		oChildDialog.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+
+	&apos; Disable dpi if svg image format
+	If sEqFormat = &quot;svg&quot; Then 
+		oChildDialog.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oChildDialog.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+	&apos; Set the state of the tab buttons
+	oChildDialog.getControl(&quot;General&quot;).Model.State=1
+	oChildDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oChildDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oChildDialog.Model.Step = 1
+
+	&apos; Add listener
+	oChildDialog.addWindowListener(CreateUnoListener(&quot;MainChildWindowListener_&quot;, &quot;com.sun.star.awt.XWindowListener&quot;))
+	
+	CreateInnerDialog = oChildDialog
+
+End Function
+
+
+&apos; Resize inner dialog window
+&apos; This is called indirectly when resizing the outer base dialog      
+Sub MainChildWindowListener_windowResized(ev)
+
+	&apos; Inner dialog
+	Dim oDialog as Variant
+	oDialog = ev.Source
+	
+	&apos; Dialog size
+	Dim aRect as Variant
+	aRect = oDialog.getPosSize()
+	
+	&apos; Convert min width and height to pixels
+	Dim minW as Integer, minH as Integer
+	minW = DLG_MIN_WIDTH * convX
+	minH = DLG_MIN_HEIGHT * convY
+
+	&apos; Resize inner dialog if too narrow
+	If aRect.Width &lt; minW Then
+
+		aRect.Width = minW
+		oDialog.setPosSize(0, 0, aRect.Width, aRect.Height, com.sun.star.awt.PosSize.SIZE)
+
+	End If
+
+	&apos; Resize inner dialog if too short
+	If aRect.Height &lt; minH Then
+
+		aRect.Height = minH
+		oDialog.setPosSize(0, 0, aRect.Width, aRect.Height, com.sun.star.awt.PosSize.SIZE)
+
+	End If
+
+	Dim oWidget as Variant
+	Dim X as Integer, Y as Integer, W as Integer, H as Integer
+
+	&apos; Resize LaTeX code widget
+	oWidget = oDialog.getControl(&quot;LatexCode&quot;)
+	W = aRect.Width - (oDialog.Model.Width - oWidget.Model.Width ) * convX
+	H = aRect.Height - (oDialog.Model.Height - oWidget.Model.Height ) * convY
+	oWidget.setPosSize(0, 0, W, H, com.sun.star.awt.PosSize.SIZE)
+
+	&apos; Position Image format widgets
+	oWidget = oDialog.getControl(&quot;ImageformatFrame&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;Format&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;GraphicDPI&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;DpiLabel&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;Transparency&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position Fontsize widgets
+	oWidget = oDialog.getControl(&quot;FontsizeFrame&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;Size&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;PtsLabel&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position Equation type widgets
+	oWidget = oDialog.getControl(&quot;EquationtypeFrame&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;TypeLatex&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;TypeDisplay&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	oWidget = oDialog.getControl(&quot;TypeInline&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = oWidget.Model.PositionY * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position Help button
+	oWidget = oDialog.getControl(&quot;HelpButton&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = aRect.Height - (oDialog.Model.Height - oWidget.Model.PositionY ) * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position Preferences button
+	oWidget = oDialog.getControl(&quot;PreferencesButton&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = aRect.Height - (oDialog.Model.Height - oWidget.Model.PositionY ) * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position Preamble button
+	oWidget = oDialog.getControl(&quot;PreambleButton&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = aRect.Height - (oDialog.Model.Height - oWidget.Model.PositionY ) * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position LaTeX button
+	oWidget = oDialog.getControl(&quot;LatexButton&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oWidget.Model.PositionX) * convX
+	Y = aRect.Height - (oDialog.Model.Height - oWidget.Model.PositionY ) * convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Position state string
+	oWidget = oDialog.getControl(&quot;LogString&quot;)
+	X = oWidget.Model.PositionX * convX
+	Y = aRect.Height - (oDialog.Model.Height - oWidget.Model.PositionY )* convY
+	oWidget.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+End Sub
+
+
+&apos; Force resizing when dialog is too small
+Sub ForceResize()
+
+	&apos; Minimum width and height
+	Dim minW as Integer, minH as Integer
+	minW = DLG_MIN_WIDTH * convX
+	minH = DLG_MIN_HEIGHT * convY
+
+	&apos; Actual dialog size
+	Dim aSize as Variant
+	aSize = oDlgBaseMain.getSize()
+
+	&apos; If dialog too small, force resize
+	If aSize.Width &lt; minW Or aSize.Height &lt; minH Then
+		
+		aSize.Width = minW
+		aSize.Height = minH
+		oDlgBaseMain.setPosSize(0, 0, aSize.Width, aSize.Height, com.sun.star.awt.PosSize.SIZE)
+
+	End If
+
+End Sub
+
+
+&apos; Set image format and enable or disable dpi according to the image format
+Sub Format_Mod()
+
+	If oDlgMain.getControl(&quot;Format&quot;).getText() = &quot;svg&quot; Then
+		oDlgMain.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgMain.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+End Sub
+
+
+&apos; Set dpi value
+Sub DPI_Mod()
+
+	glb_sGraphicDPI = oDlgMain.getControl(&quot;GraphicDPI&quot;).getText()
+
+End Sub
+
+
+&apos; Set image transparency
+Sub Trans_Mod()
+
+	If oDlgMain.getControl(&quot;Transparency&quot;).getState() Then
+
+		If GetDocumentType(ThisComponent) = &quot;swriter&quot; Then &apos; Writer document
+			glb_sWriterTransparency = &quot;TRUE&quot;
+		End If
+	
+		If GetDocumentType(ThisComponent) = &quot;simpress&quot; Then &apos; Impress document
+			glb_sImpressTransparency = &quot;TRUE&quot;
+		End If
+	
+		If GetDocumentType(ThisComponent) = &quot;sdraw&quot; Then &apos; Draw document
+			glb_sDrawTransparency = &quot;TRUE&quot;
+		End If
+
+	Else
+
+		If GetDocumentType(ThisComponent) = &quot;swriter&quot; Then &apos; Writer document
+			glb_sWriterTransparency = &quot;FALSE&quot;
+		End If
+	
+		If GetDocumentType(ThisComponent) = &quot;simpress&quot; Then &apos; Impress document
+			glb_sImpressTransparency = &quot;FALSE&quot;
+		End If
+	
+		If GetDocumentType(ThisComponent) = &quot;sdraw&quot; Then &apos; Draw document
+			glb_sDrawTransparency = &quot;FALSE&quot;
+		End If
+
+	End If
+
+End Sub
+
+
+
+&apos; General tab button
+Sub GeneralButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=1
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 1
+
+End Sub
+
+
+&apos; Symbols tab button
+Sub ArraysButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=1
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 2
+
+	&apos; Set Arrays tab symbols and help texts
+	If 	oDialog.getControl(&quot;Arrays1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Arrays1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/align2x2.svg&quot;
+		oDialog.getControl(&quot;Arrays1&quot;).Model.HelpText = _(&quot;2 x 2 align* environment&quot;)
+	
+		oDialog.getControl(&quot;Arrays2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/align3x2.svg&quot;
+		oDialog.getControl(&quot;Arrays2&quot;).Model.HelpText = _(&quot;3 x 2 align* environment&quot;)
+
+		oDialog.getControl(&quot;Arrays3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/array2x1.svg&quot;
+		oDialog.getControl(&quot;Arrays3&quot;).Model.HelpText = _(&quot;2 x 1 array&quot;)
+	
+		oDialog.getControl(&quot;Arrays4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/array2x2.svg&quot;
+		oDialog.getControl(&quot;Arrays4&quot;).Model.HelpText = _(&quot;2 x 2 array&quot;)
+	
+		oDialog.getControl(&quot;Arrays5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/array3x1.svg&quot;
+		oDialog.getControl(&quot;Arrays5&quot;).Model.HelpText = _(&quot;3 x 1 array&quot;)
+	
+		oDialog.getControl(&quot;Arrays6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/array3x3.svg&quot;
+		oDialog.getControl(&quot;Arrays6&quot;).Model.HelpText = _(&quot;3 x 3 array&quot;)
+	
+		oDialog.getControl(&quot;Arrays7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/underset.svg&quot;
+		oDialog.getControl(&quot;Arrays7&quot;).Model.HelpText = &quot;\underset{}{}&quot;
+
+		oDialog.getControl(&quot;Arrays8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overset.svg&quot;
+		oDialog.getControl(&quot;Arrays8&quot;).Model.HelpText = &quot;\overset{}{}&quot;
+
+		oDialog.getControl(&quot;Arrays9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/pmatrix2x2.svg&quot;
+		oDialog.getControl(&quot;Arrays9&quot;).Model.HelpText = _(&quot;2 x 2 matrix with parentheses&quot;)
+
+		oDialog.getControl(&quot;Arrays10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/pmatrix3x3.svg&quot;
+		oDialog.getControl(&quot;Arrays10&quot;).Model.HelpText = _(&quot;3 x 3 matrix with parentheses&quot;)
+
+		oDialog.getControl(&quot;Arrays11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/pmatrixmxn.svg&quot;
+		oDialog.getControl(&quot;Arrays11&quot;).Model.HelpText = _(&quot;m x n matrix with parentheses&quot;)
+
+		oDialog.getControl(&quot;Arrays12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bmatrix2x2.svg&quot;
+		oDialog.getControl(&quot;Arrays12&quot;).Model.HelpText = _(&quot;2 x 2 matrix with brackets&quot;)
+
+		oDialog.getControl(&quot;Arrays13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bmatrix3x3.svg&quot;
+		oDialog.getControl(&quot;Arrays13&quot;).Model.HelpText = _(&quot;3 x 3 matrix with brackets&quot;)
+
+		oDialog.getControl(&quot;Arrays14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bmatrixmxn.svg&quot;
+		oDialog.getControl(&quot;Arrays14&quot;).Model.HelpText = _(&quot;m x n matrix with brackets&quot;)
+
+		oDialog.getControl(&quot;Arrays15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vmatrix2x2.svg&quot;
+		oDialog.getControl(&quot;Arrays15&quot;).Model.HelpText = _(&quot;2 x 2 matrix with verts&quot;)
+
+		oDialog.getControl(&quot;Arrays16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vmatrix3x3.svg&quot;
+		oDialog.getControl(&quot;Arrays16&quot;).Model.HelpText = _(&quot;3 x 3 matrix with verts&quot;)
+
+		oDialog.getControl(&quot;Arrays17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vmatrixmxn.svg&quot;
+		oDialog.getControl(&quot;Arrays17&quot;).Model.HelpText = _(&quot;m x n matrix with verts&quot;)
+
+	End If
+
+End Sub
+
+
+&apos; Alphabets tab button
+Sub AlphabetsButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=1
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 3
+
+	&apos; Set Alphabets tab symbols and help texts
+	If 	oDialog.getControl(&quot;Alphabets1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Alphabets1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/alpha.svg&quot;
+		oDialog.getControl(&quot;Alphabets1&quot;).Model.HelpText = &quot;\alpha&quot;
+	
+		oDialog.getControl(&quot;Alphabets2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/beta.svg&quot;
+		oDialog.getControl(&quot;Alphabets2&quot;).Model.HelpText = &quot;\beta&quot;
+	
+		oDialog.getControl(&quot;Alphabets3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/gamma.svg&quot;
+		oDialog.getControl(&quot;Alphabets3&quot;).Model.HelpText = &quot;\gamma&quot;
+	
+		oDialog.getControl(&quot;Alphabets4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/delta.svg&quot;
+		oDialog.getControl(&quot;Alphabets4&quot;).Model.HelpText = &quot;\delta&quot;
+	
+		oDialog.getControl(&quot;Alphabets5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/epsilon.svg&quot;
+		oDialog.getControl(&quot;Alphabets5&quot;).Model.HelpText = &quot;\epsilon&quot;
+	
+		oDialog.getControl(&quot;Alphabets6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varepsilon.svg&quot;
+		oDialog.getControl(&quot;Alphabets6&quot;).Model.HelpText = &quot;\varepsilon&quot;
+	
+		oDialog.getControl(&quot;Alphabets7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/zeta.svg&quot;
+		oDialog.getControl(&quot;Alphabets7&quot;).Model.HelpText = &quot;\zeta&quot;
+	
+		oDialog.getControl(&quot;Alphabets8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/eta.svg&quot;
+		oDialog.getControl(&quot;Alphabets8&quot;).Model.HelpText = &quot;\eta&quot;
+	
+		oDialog.getControl(&quot;Alphabets9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/theta.svg&quot;
+		oDialog.getControl(&quot;Alphabets9&quot;).Model.HelpText = &quot;\theta&quot;
+	
+		oDialog.getControl(&quot;Alphabets10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vartheta.svg&quot;
+		oDialog.getControl(&quot;Alphabets10&quot;).Model.HelpText = &quot;\vartheta&quot;
+	
+		oDialog.getControl(&quot;Alphabets11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/kappa.svg&quot;
+		oDialog.getControl(&quot;Alphabets11&quot;).Model.HelpText = &quot;\kappa&quot;
+	
+		oDialog.getControl(&quot;Alphabets12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/lambda.svg&quot;
+		oDialog.getControl(&quot;Alphabets12&quot;).Model.HelpText = &quot;\lambda&quot;
+	
+		oDialog.getControl(&quot;Alphabets13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mu.svg&quot;
+		oDialog.getControl(&quot;Alphabets13&quot;).Model.HelpText = &quot;\mu&quot;
+	
+		oDialog.getControl(&quot;Alphabets14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nu.svg&quot;
+		oDialog.getControl(&quot;Alphabets14&quot;).Model.HelpText = &quot;\nu&quot;
+	
+		oDialog.getControl(&quot;Alphabets15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/xi.svg&quot;
+		oDialog.getControl(&quot;Alphabets15&quot;).Model.HelpText = &quot;\xi&quot;
+	
+		oDialog.getControl(&quot;Alphabets16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/o.svg&quot;
+		oDialog.getControl(&quot;Alphabets16&quot;).Model.HelpText = &quot;\o&quot;
+	
+		oDialog.getControl(&quot;Alphabets17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/pi.svg&quot;
+		oDialog.getControl(&quot;Alphabets17&quot;).Model.HelpText = &quot;\pi&quot;
+	
+		oDialog.getControl(&quot;Alphabets18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varpi.svg&quot;
+		oDialog.getControl(&quot;Alphabets18&quot;).Model.HelpText = &quot;\varpi&quot;
+	
+		oDialog.getControl(&quot;Alphabets19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rho.svg&quot;
+		oDialog.getControl(&quot;Alphabets19&quot;).Model.HelpText = &quot;\rho&quot;
+	
+		oDialog.getControl(&quot;Alphabets20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varrho.svg&quot;
+		oDialog.getControl(&quot;Alphabets20&quot;).Model.HelpText = &quot;\varrho&quot;
+	
+		oDialog.getControl(&quot;Alphabets21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sigma.svg&quot;
+		oDialog.getControl(&quot;Alphabets21&quot;).Model.HelpText = &quot;\sigma&quot;
+	
+		oDialog.getControl(&quot;Alphabets22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varsigma.svg&quot;
+		oDialog.getControl(&quot;Alphabets22&quot;).Model.HelpText = &quot;\varsigma&quot;
+	
+		oDialog.getControl(&quot;Alphabets23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/tau.svg&quot;
+		oDialog.getControl(&quot;Alphabets23&quot;).Model.HelpText = &quot;\tau&quot;
+	
+		oDialog.getControl(&quot;Alphabets24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/upsilon.svg&quot;
+		oDialog.getControl(&quot;Alphabets24&quot;).Model.HelpText = &quot;\upsilon&quot;
+	
+		oDialog.getControl(&quot;Alphabets25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/phi.svg&quot;
+		oDialog.getControl(&quot;Alphabets25&quot;).Model.HelpText = &quot;\phi&quot;
+	
+		oDialog.getControl(&quot;Alphabets26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varphi.svg&quot;
+		oDialog.getControl(&quot;Alphabets26&quot;).Model.HelpText = &quot;\varphi&quot;
+	
+		oDialog.getControl(&quot;Alphabets27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/chi.svg&quot;
+		oDialog.getControl(&quot;Alphabets27&quot;).Model.HelpText = &quot;\chi&quot;
+	
+		oDialog.getControl(&quot;Alphabets28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/psi.svg&quot;
+		oDialog.getControl(&quot;Alphabets28&quot;).Model.HelpText = &quot;\psi&quot;
+	
+		oDialog.getControl(&quot;Alphabets29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/omega.svg&quot;
+		oDialog.getControl(&quot;Alphabets29&quot;).Model.HelpText = &quot;\omega&quot;
+	
+		oDialog.getControl(&quot;Alphabets30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Gamma.svg&quot;
+		oDialog.getControl(&quot;Alphabets30&quot;).Model.HelpText = &quot;\Gamma&quot;
+	
+		oDialog.getControl(&quot;Alphabets31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Delta.svg&quot;
+		oDialog.getControl(&quot;Alphabets31&quot;).Model.HelpText = &quot;\Delta&quot;
+	
+		oDialog.getControl(&quot;Alphabets32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Theta.svg&quot;
+		oDialog.getControl(&quot;Alphabets32&quot;).Model.HelpText = &quot;\Theta&quot;
+	
+		oDialog.getControl(&quot;Alphabets33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Lambda.svg&quot;
+		oDialog.getControl(&quot;Alphabets33&quot;).Model.HelpText = &quot;\Lambda&quot;
+	
+		oDialog.getControl(&quot;Alphabets34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Xi.svg&quot;
+		oDialog.getControl(&quot;Alphabets34&quot;).Model.HelpText = &quot;\Xi&quot;
+	
+		oDialog.getControl(&quot;Alphabets35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Pi.svg&quot;
+		oDialog.getControl(&quot;Alphabets35&quot;).Model.HelpText = &quot;\Pi&quot;
+	
+		oDialog.getControl(&quot;Alphabets36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Sigma.svg&quot;
+		oDialog.getControl(&quot;Alphabets36&quot;).Model.HelpText = &quot;\Sigma&quot;
+	
+		oDialog.getControl(&quot;Alphabets37&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Upsilon.svg&quot;
+		oDialog.getControl(&quot;Alphabets37&quot;).Model.HelpText = &quot;\Upsilon&quot;
+	
+		oDialog.getControl(&quot;Alphabets38&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Phi.svg&quot;
+		oDialog.getControl(&quot;Alphabets38&quot;).Model.HelpText = &quot;\Phi&quot;
+	
+		oDialog.getControl(&quot;Alphabets39&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Psi.svg&quot;
+		oDialog.getControl(&quot;Alphabets39&quot;).Model.HelpText = &quot;\Psi&quot;
+	
+		oDialog.getControl(&quot;Alphabets40&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Omega.svg&quot;
+		oDialog.getControl(&quot;Alphabets40&quot;).Model.HelpText = &quot;\Omega&quot;
+	
+		oDialog.getControl(&quot;Alphabets41&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/digamma.svg&quot;
+		oDialog.getControl(&quot;Alphabets41&quot;).Model.HelpText = &quot;\digamma&quot;
+	
+		oDialog.getControl(&quot;Alphabets42&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/aleph.svg&quot;
+		oDialog.getControl(&quot;Alphabets42&quot;).Model.HelpText = &quot;\aleph&quot;
+	
+		oDialog.getControl(&quot;Alphabets43&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/beth.svg&quot;
+		oDialog.getControl(&quot;Alphabets43&quot;).Model.HelpText = &quot;\beth&quot;
+	
+		oDialog.getControl(&quot;Alphabets44&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/daleth.svg&quot;
+		oDialog.getControl(&quot;Alphabets44&quot;).Model.HelpText = &quot;\daleth&quot;
+	
+		oDialog.getControl(&quot;Alphabets45&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/gimel.svg&quot;
+		oDialog.getControl(&quot;Alphabets45&quot;).Model.HelpText = &quot;\gimel&quot;
+	
+		oDialog.getControl(&quot;Alphabets46&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/N.svg&quot;
+		oDialog.getControl(&quot;Alphabets46&quot;).Model.HelpText = &quot;\mathbb{N}&quot;
+	
+		oDialog.getControl(&quot;Alphabets47&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Z.svg&quot;
+		oDialog.getControl(&quot;Alphabets47&quot;).Model.HelpText = &quot;\mathbb{Z}&quot;
+	
+		oDialog.getControl(&quot;Alphabets48&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Q.svg&quot;
+		oDialog.getControl(&quot;Alphabets48&quot;).Model.HelpText = &quot;\mathbb{Q}&quot;
+	
+		oDialog.getControl(&quot;Alphabets49&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/R.svg&quot;
+		oDialog.getControl(&quot;Alphabets49&quot;).Model.HelpText = &quot;\mathbb{R}&quot;
+	
+		oDialog.getControl(&quot;Alphabets50&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/C.svg&quot;
+		oDialog.getControl(&quot;Alphabets50&quot;).Model.HelpText = &quot;\mathbb{C}&quot;
+
+		oDlgMain.getControl(&quot;Alphabets51&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Re.svg&quot;
+		oDlgMain.getControl(&quot;Alphabets51&quot;).Model.HelpText = &quot;\Re&quot;
+	
+		oDlgMain.getControl(&quot;Alphabets52&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Im.svg&quot;
+		oDlgMain.getControl(&quot;Alphabets52&quot;).Model.HelpText = &quot;\Im&quot;
+
+	End If
+
+
+End Sub
+
+
+&apos; Arrows tab button
+Sub ArrowsButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=1
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 4
+
+
+	&apos; Set Arrows tab symbols and help texts
+	If 	oDialog.getControl(&quot;Arrows1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Arrows1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/leftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows1&quot;).Model.HelpText = &quot;\leftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Leftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows2&quot;).Model.HelpText = &quot;\Leftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows3&quot;).Model.HelpText = &quot;\rightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Rightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows4&quot;).Model.HelpText = &quot;\Rightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/leftrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows5&quot;).Model.HelpText = &quot;\leftrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Leftrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows6&quot;).Model.HelpText = &quot;\Leftrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/longleftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows7&quot;).Model.HelpText = &quot;\longleftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Longleftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows8&quot;).Model.HelpText = &quot;\Longleftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/longrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows9&quot;).Model.HelpText = &quot;\longrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Longrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows10&quot;).Model.HelpText = &quot;\Longrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/longleftrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows11&quot;).Model.HelpText = &quot;\longleftrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Longleftrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows12&quot;).Model.HelpText = &quot;\Longleftrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/uparrow.svg&quot;
+		oDialog.getControl(&quot;Arrows13&quot;).Model.HelpText = &quot;\uparrow&quot;
+
+		oDialog.getControl(&quot;Arrows14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Uparrow.svg&quot;
+		oDialog.getControl(&quot;Arrows14&quot;).Model.HelpText = &quot;\Uparrow&quot;
+
+		oDialog.getControl(&quot;Arrows15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/downarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows15&quot;).Model.HelpText = &quot;\downarrow&quot;
+
+		oDialog.getControl(&quot;Arrows16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Downarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows16&quot;).Model.HelpText = &quot;\Downarrow&quot;
+
+		oDialog.getControl(&quot;Arrows17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/updownarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows17&quot;).Model.HelpText = &quot;\updownarrow&quot;
+
+		oDialog.getControl(&quot;Arrows18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_Updownarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows18&quot;).Model.HelpText = &quot;\Updownarrow&quot;
+
+		oDialog.getControl(&quot;Arrows19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mapsto.svg&quot;
+		oDialog.getControl(&quot;Arrows19&quot;).Model.HelpText = &quot;\mapsto&quot;
+
+		oDialog.getControl(&quot;Arrows20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hookleftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows20&quot;).Model.HelpText = &quot;\hookleftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/leftharpoonup.svg&quot;
+		oDialog.getControl(&quot;Arrows21&quot;).Model.HelpText = &quot;\leftharpoonup&quot;
+
+		oDialog.getControl(&quot;Arrows22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/leftharpoondown.svg&quot;
+		oDialog.getControl(&quot;Arrows22&quot;).Model.HelpText = &quot;\leftharpoondown&quot;
+
+		oDialog.getControl(&quot;Arrows23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rightleftharpoons.svg&quot;
+		oDialog.getControl(&quot;Arrows23&quot;).Model.HelpText = &quot;\rightleftharpoons&quot;
+
+		oDialog.getControl(&quot;Arrows24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/longmapsto.svg&quot;
+		oDialog.getControl(&quot;Arrows24&quot;).Model.HelpText = &quot;\longmapsto&quot;
+
+		oDialog.getControl(&quot;Arrows25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hookrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows25&quot;).Model.HelpText = &quot;\hookrightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rightharpoonup.svg&quot;
+		oDialog.getControl(&quot;Arrows26&quot;).Model.HelpText = &quot;\rightharpoonup&quot;
+
+		oDialog.getControl(&quot;Arrows27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rightharpoondown.svg&quot;
+		oDialog.getControl(&quot;Arrows27&quot;).Model.HelpText = &quot;\rightharpoondown&quot;
+
+		oDialog.getControl(&quot;Arrows28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/leadsto.svg&quot;
+		oDialog.getControl(&quot;Arrows28&quot;).Model.HelpText = &quot;\leadsto&quot;
+
+		oDialog.getControl(&quot;Arrows29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nearrow.svg&quot;
+		oDialog.getControl(&quot;Arrows29&quot;).Model.HelpText = &quot;\nearrow&quot;
+
+		oDialog.getControl(&quot;Arrows30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/searrow.svg&quot;
+		oDialog.getControl(&quot;Arrows30&quot;).Model.HelpText = &quot;\searrow&quot;
+
+		oDialog.getControl(&quot;Arrows31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/swarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows31&quot;).Model.HelpText = &quot;\swarrow&quot;
+
+		oDialog.getControl(&quot;Arrows32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nwarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows32&quot;).Model.HelpText = &quot;\nwarrow&quot;
+
+		oDialog.getControl(&quot;Arrows33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rightleftarrows.svg&quot;
+		oDialog.getControl(&quot;Arrows33&quot;).Model.HelpText = &quot;\rightleftarrows&quot;
+
+		oDialog.getControl(&quot;Arrows34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nRightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows34&quot;).Model.HelpText = &quot;\nRightarrow&quot;
+
+		oDialog.getControl(&quot;Arrows35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nLeftarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows35&quot;).Model.HelpText = &quot;\nLeftarrow&quot;
+
+		oDialog.getControl(&quot;Arrows36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nLeftrightarrow.svg&quot;
+		oDialog.getControl(&quot;Arrows36&quot;).Model.HelpText = &quot;\nLeftrightarrow&quot;
+
+	End If
+
+End Sub
+
+
+&apos; Functions tab button
+Sub FunctionsButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=1
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.Model.Step = 5
+
+	&apos; Set Functions tab symbols and help texts
+	If 	oDialog.getControl(&quot;Functions1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Functions1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/arccos.svg&quot;
+		oDialog.getControl(&quot;Functions1&quot;).Model.HelpText = &quot;\arccos&quot;
+
+		oDialog.getControl(&quot;Functions2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/arcsin.svg&quot;
+		oDialog.getControl(&quot;Functions2&quot;).Model.HelpText = &quot;\arcsin&quot;
+
+		oDialog.getControl(&quot;Functions3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/arctan.svg&quot;
+		oDialog.getControl(&quot;Functions3&quot;).Model.HelpText = &quot;\arctan&quot;
+
+		oDialog.getControl(&quot;Functions4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/arg.svg&quot;
+		oDialog.getControl(&quot;Functions4&quot;).Model.HelpText = &quot;\arg&quot;
+
+		oDialog.getControl(&quot;Functions5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cos.svg&quot;
+		oDialog.getControl(&quot;Functions5&quot;).Model.HelpText = &quot;\cos&quot;
+
+		oDialog.getControl(&quot;Functions6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cosh.svg&quot;
+		oDialog.getControl(&quot;Functions6&quot;).Model.HelpText = &quot;\cosh&quot;
+
+		oDialog.getControl(&quot;Functions7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cot.svg&quot;
+		oDialog.getControl(&quot;Functions7&quot;).Model.HelpText = &quot;\cot&quot;
+
+		oDialog.getControl(&quot;Functions8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/coth.svg&quot;
+		oDialog.getControl(&quot;Functions8&quot;).Model.HelpText = &quot;\coth&quot;
+
+		oDialog.getControl(&quot;Functions9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/csc.svg&quot;
+		oDialog.getControl(&quot;Functions9&quot;).Model.HelpText = &quot;\csc&quot;
+
+		oDialog.getControl(&quot;Functions10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/deg.svg&quot;
+		oDialog.getControl(&quot;Functions10&quot;).Model.HelpText = &quot;\deg&quot;
+
+		oDialog.getControl(&quot;Functions11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/det.svg&quot;
+		oDialog.getControl(&quot;Functions11&quot;).Model.HelpText = &quot;\det&quot;
+
+		oDialog.getControl(&quot;Functions12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/dim.svg&quot;
+		oDialog.getControl(&quot;Functions12&quot;).Model.HelpText = &quot;\dim&quot;
+
+		oDialog.getControl(&quot;Functions13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/exp.svg&quot;
+		oDialog.getControl(&quot;Functions13&quot;).Model.HelpText = &quot;\exp&quot;
+
+		oDialog.getControl(&quot;Functions14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/gcd.svg&quot;
+		oDialog.getControl(&quot;Functions14&quot;).Model.HelpText = &quot;\gcd&quot;
+
+		oDialog.getControl(&quot;Functions15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hom.svg&quot;
+		oDialog.getControl(&quot;Functions15&quot;).Model.HelpText = &quot;\hom&quot;
+
+		oDialog.getControl(&quot;Functions16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/inf.svg&quot;
+		oDialog.getControl(&quot;Functions16&quot;).Model.HelpText = &quot;\inf&quot;
+
+		oDialog.getControl(&quot;Functions17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ker.svg&quot;
+		oDialog.getControl(&quot;Functions17&quot;).Model.HelpText = &quot;\ker&quot;
+
+		oDialog.getControl(&quot;Functions18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/lg.svg&quot;
+		oDialog.getControl(&quot;Functions18&quot;).Model.HelpText = &quot;\lg&quot;
+
+		oDialog.getControl(&quot;Functions19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/lim.svg&quot;
+		oDialog.getControl(&quot;Functions19&quot;).Model.HelpText = &quot;\lim&quot;
+
+		oDialog.getControl(&quot;Functions20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/liminf.svg&quot;
+		oDialog.getControl(&quot;Functions20&quot;).Model.HelpText = &quot;\liminf&quot;
+
+		oDialog.getControl(&quot;Functions21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/limsup.svg&quot;
+		oDialog.getControl(&quot;Functions21&quot;).Model.HelpText = &quot;\limsup&quot;
+
+		oDialog.getControl(&quot;Functions22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ln.svg&quot;
+		oDialog.getControl(&quot;Functions22&quot;).Model.HelpText = &quot;\ln&quot;
+
+		oDialog.getControl(&quot;Functions23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/log.svg&quot;
+		oDialog.getControl(&quot;Functions23&quot;).Model.HelpText = &quot;\log&quot;
+
+		oDialog.getControl(&quot;Functions24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/max.svg&quot;
+		oDialog.getControl(&quot;Functions24&quot;).Model.HelpText = &quot;\max&quot;
+
+		oDialog.getControl(&quot;Functions25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/min.svg&quot;
+		oDialog.getControl(&quot;Functions25&quot;).Model.HelpText = &quot;\min&quot;
+
+		oDialog.getControl(&quot;Functions26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Pr.svg&quot;
+		oDialog.getControl(&quot;Functions26&quot;).Model.HelpText = &quot;\Pr&quot;
+
+		oDialog.getControl(&quot;Functions27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sec.svg&quot;
+		oDialog.getControl(&quot;Functions27&quot;).Model.HelpText = &quot;\sec&quot;
+
+		oDialog.getControl(&quot;Functions28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sin.svg&quot;
+		oDialog.getControl(&quot;Functions28&quot;).Model.HelpText = &quot;\sin&quot;
+
+		oDialog.getControl(&quot;Functions29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sinh.svg&quot;
+		oDialog.getControl(&quot;Functions29&quot;).Model.HelpText = &quot;\sinh&quot;
+
+		oDialog.getControl(&quot;Functions30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sup.svg&quot;
+		oDialog.getControl(&quot;Functions30&quot;).Model.HelpText = &quot;\sup&quot;
+
+		oDialog.getControl(&quot;Functions31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/tan.svg&quot;
+		oDialog.getControl(&quot;Functions31&quot;).Model.HelpText = &quot;\tan&quot;
+
+		oDialog.getControl(&quot;Functions32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/tanh.svg&quot;
+		oDialog.getControl(&quot;Functions32&quot;).Model.HelpText = &quot;\tanh&quot;
+	
+	End If
+
+End Sub
+
+
+&apos; Relations tab button
+Sub RelationsButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=1
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 6
+
+	&apos; Set Relations tab symbols and help texts
+	If 	oDialog.getControl(&quot;Relations1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Relations1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/le.svg&quot;
+		oDialog.getControl(&quot;Relations1&quot;).Model.HelpText = &quot;\le&quot;
+
+		oDialog.getControl(&quot;Relations2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ge.svg&quot;
+		oDialog.getControl(&quot;Relations2&quot;).Model.HelpText = &quot;\ge&quot;
+
+		oDialog.getControl(&quot;Relations3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/equiv.svg&quot;
+		oDialog.getControl(&quot;Relations3&quot;).Model.HelpText = &quot;\equiv&quot;
+
+		oDialog.getControl(&quot;Relations4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/models.svg&quot;
+		oDialog.getControl(&quot;Relations4&quot;).Model.HelpText = &quot;\models&quot;
+
+		oDialog.getControl(&quot;Relations5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/prec.svg&quot;
+		oDialog.getControl(&quot;Relations5&quot;).Model.HelpText = &quot;\prec&quot;
+
+		oDialog.getControl(&quot;Relations6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/succ.svg&quot;
+		oDialog.getControl(&quot;Relations6&quot;).Model.HelpText = &quot;\succ&quot;
+
+		oDialog.getControl(&quot;Relations7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sim.svg&quot;
+		oDialog.getControl(&quot;Relations7&quot;).Model.HelpText = &quot;\sim&quot;
+
+		oDialog.getControl(&quot;Relations8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/perp.svg&quot;
+		oDialog.getControl(&quot;Relations8&quot;).Model.HelpText = &quot;\perp&quot;
+
+		oDialog.getControl(&quot;Relations9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/preceq.svg&quot;
+		oDialog.getControl(&quot;Relations9&quot;).Model.HelpText = &quot;\preceq&quot;
+
+		oDialog.getControl(&quot;Relations10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/succeq.svg&quot;
+		oDialog.getControl(&quot;Relations10&quot;).Model.HelpText = &quot;\succeq&quot;
+
+		oDialog.getControl(&quot;Relations11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/simeq.svg&quot;
+		oDialog.getControl(&quot;Relations11&quot;).Model.HelpText = &quot;\simeq&quot;
+
+		oDialog.getControl(&quot;Relations12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mid.svg&quot;
+		oDialog.getControl(&quot;Relations12&quot;).Model.HelpText = &quot;\mid&quot;
+
+		oDialog.getControl(&quot;Relations13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ll.svg&quot;
+		oDialog.getControl(&quot;Relations13&quot;).Model.HelpText = &quot;\ll&quot;
+
+		oDialog.getControl(&quot;Relations14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/gg.svg&quot;
+		oDialog.getControl(&quot;Relations14&quot;).Model.HelpText = &quot;\gg&quot;
+
+		oDialog.getControl(&quot;Relations15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/asymp.svg&quot;
+		oDialog.getControl(&quot;Relations15&quot;).Model.HelpText = &quot;\asymp&quot;
+
+		oDialog.getControl(&quot;Relations16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/parallel.svg&quot;
+		oDialog.getControl(&quot;Relations16&quot;).Model.HelpText = &quot;\parallel&quot;
+
+		oDialog.getControl(&quot;Relations17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/subset.svg&quot;
+		oDialog.getControl(&quot;Relations17&quot;).Model.HelpText = &quot;\subset&quot;
+
+		oDialog.getControl(&quot;Relations18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/notsubset.svg&quot;
+		oDialog.getControl(&quot;Relations18&quot;).Model.HelpText = &quot;\not\subset&quot;
+
+		oDialog.getControl(&quot;Relations19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/supset.svg&quot;
+		oDialog.getControl(&quot;Relations19&quot;).Model.HelpText = &quot;\supset&quot;
+
+		oDialog.getControl(&quot;Relations20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/approx.svg&quot;
+		oDialog.getControl(&quot;Relations20&quot;).Model.HelpText = &quot;\approx&quot;
+
+		oDialog.getControl(&quot;Relations21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bowtie.svg&quot;
+		oDialog.getControl(&quot;Relations21&quot;).Model.HelpText = &quot;\bowtie&quot;
+
+		oDialog.getControl(&quot;Relations22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/subseteq.svg&quot;
+		oDialog.getControl(&quot;Relations22&quot;).Model.HelpText = &quot;\subseteq&quot;
+
+		oDialog.getControl(&quot;Relations23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/supseteq.svg&quot;
+		oDialog.getControl(&quot;Relations23&quot;).Model.HelpText = &quot;\supseteq&quot;
+
+		oDialog.getControl(&quot;Relations24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cong.svg&quot;
+		oDialog.getControl(&quot;Relations24&quot;).Model.HelpText = &quot;\cong&quot;
+
+		oDialog.getControl(&quot;Relations25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Join.svg&quot;
+		oDialog.getControl(&quot;Relations25&quot;).Model.HelpText = &quot;\Join&quot;
+
+		oDialog.getControl(&quot;Relations26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqsubset.svg&quot;
+		oDialog.getControl(&quot;Relations26&quot;).Model.HelpText = &quot;\sqsubset&quot;
+
+		oDialog.getControl(&quot;Relations27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqsupset.svg&quot;
+		oDialog.getControl(&quot;Relations27&quot;).Model.HelpText = &quot;\sqsupset&quot;
+
+		oDialog.getControl(&quot;Relations28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ne.svg&quot;
+		oDialog.getControl(&quot;Relations28&quot;).Model.HelpText = &quot;\ne&quot;
+
+		oDialog.getControl(&quot;Relations29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/smile.svg&quot;
+		oDialog.getControl(&quot;Relations29&quot;).Model.HelpText = &quot;\smile&quot;
+
+		oDialog.getControl(&quot;Relations30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqsubseteq.svg&quot;
+		oDialog.getControl(&quot;Relations30&quot;).Model.HelpText = &quot;\sqsubseteq&quot;
+
+		oDialog.getControl(&quot;Relations31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqsupseteq.svg&quot;
+		oDialog.getControl(&quot;Relations31&quot;).Model.HelpText = &quot;\sqsupseteq&quot;
+
+		oDialog.getControl(&quot;Relations32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/doteq.svg&quot;
+		oDialog.getControl(&quot;Relations32&quot;).Model.HelpText = &quot;\doteq&quot;
+
+		oDialog.getControl(&quot;Relations33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/frown.svg&quot;
+		oDialog.getControl(&quot;Relations33&quot;).Model.HelpText = &quot;\frown&quot;
+
+		oDialog.getControl(&quot;Relations34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/in.svg&quot;
+		oDialog.getControl(&quot;Relations34&quot;).Model.HelpText = &quot;\in&quot;
+
+		oDialog.getControl(&quot;Relations35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/notin.svg&quot;
+		oDialog.getControl(&quot;Relations35&quot;).Model.HelpText = &quot;\notin&quot;
+
+		oDialog.getControl(&quot;Relations36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ni.svg&quot;
+		oDialog.getControl(&quot;Relations36&quot;).Model.HelpText = &quot;\ni&quot;
+
+		oDialog.getControl(&quot;Relations37&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vdash.svg&quot;
+		oDialog.getControl(&quot;Relations37&quot;).Model.HelpText = &quot;\vdash&quot;
+
+		oDialog.getControl(&quot;Relations38&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/dashv.svg&quot;
+		oDialog.getControl(&quot;Relations38&quot;).Model.HelpText = &quot;\dashv&quot;
+
+		oDialog.getControl(&quot;Relations39&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/propto.svg&quot;
+		oDialog.getControl(&quot;Relations39&quot;).Model.HelpText = &quot;\propto&quot;
+
+		oDialog.getControl(&quot;Relations40&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/triangleq.svg&quot;
+		oDialog.getControl(&quot;Relations40&quot;).Model.HelpText = &quot;\triangleq&quot;
+	
+	End If
+
+End Sub
+
+
+&apos; Operations tab button
+Sub OperationsButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=1
+	oDialog.getControl(&quot;Misc&quot;).Model.State=0
+	oDialog.Model.Step = 7
+
+	&apos; Set Operations tab symbols and help texts
+	If 	oDialog.getControl(&quot;Operations1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Operations1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/pm.svg&quot;
+		oDialog.getControl(&quot;Operations1&quot;).Model.HelpText = &quot;\pm&quot;
+
+		oDialog.getControl(&quot;Operations2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mp.svg&quot;
+		oDialog.getControl(&quot;Operations2&quot;).Model.HelpText = &quot;\mp&quot;
+
+		oDialog.getControl(&quot;Operations3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/times.svg&quot;
+		oDialog.getControl(&quot;Operations3&quot;).Model.HelpText = &quot;\times&quot;
+
+		oDialog.getControl(&quot;Operations4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/div.svg&quot;
+		oDialog.getControl(&quot;Operations4&quot;).Model.HelpText = &quot;\div&quot;
+
+		oDialog.getControl(&quot;Operations5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ast.svg&quot;
+		oDialog.getControl(&quot;Operations5&quot;).Model.HelpText = &quot;\ast&quot;
+
+		oDialog.getControl(&quot;Operations6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/star.svg&quot;
+		oDialog.getControl(&quot;Operations6&quot;).Model.HelpText = &quot;\star&quot;
+
+		oDialog.getControl(&quot;Operations7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/circ.svg&quot;
+		oDialog.getControl(&quot;Operations7&quot;).Model.HelpText = &quot;\circ&quot;
+
+		oDialog.getControl(&quot;Operations8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bullet.svg&quot;
+		oDialog.getControl(&quot;Operations8&quot;).Model.HelpText = &quot;\bullet&quot;
+
+		oDialog.getControl(&quot;Operations9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cdot.svg&quot;
+		oDialog.getControl(&quot;Operations9&quot;).Model.HelpText = &quot;\cdot&quot;
+
+		oDialog.getControl(&quot;Operations10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cap.svg&quot;
+		oDialog.getControl(&quot;Operations10&quot;).Model.HelpText = &quot;\cap&quot;
+
+		oDialog.getControl(&quot;Operations11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cup.svg&quot;
+		oDialog.getControl(&quot;Operations11&quot;).Model.HelpText = &quot;\cup&quot;
+
+		oDialog.getControl(&quot;Operations12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/uplus.svg&quot;
+		oDialog.getControl(&quot;Operations12&quot;).Model.HelpText = &quot;\uplus&quot;
+
+		oDialog.getControl(&quot;Operations13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqcap.svg&quot;
+		oDialog.getControl(&quot;Operations13&quot;).Model.HelpText = &quot;\sqcap&quot;
+
+		oDialog.getControl(&quot;Operations14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqcup.svg&quot;
+		oDialog.getControl(&quot;Operations14&quot;).Model.HelpText = &quot;\sqcup&quot;
+
+		oDialog.getControl(&quot;Operations15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vee.svg&quot;
+		oDialog.getControl(&quot;Operations15&quot;).Model.HelpText = &quot;\vee&quot;
+
+		oDialog.getControl(&quot;Operations16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/wedge.svg&quot;
+		oDialog.getControl(&quot;Operations16&quot;).Model.HelpText = &quot;\wedge&quot;
+
+		oDialog.getControl(&quot;Operations17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/setminus.svg&quot;
+		oDialog.getControl(&quot;Operations17&quot;).Model.HelpText = &quot;\setminus&quot;
+
+		oDialog.getControl(&quot;Operations18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/wr.svg&quot;
+		oDialog.getControl(&quot;Operations18&quot;).Model.HelpText = &quot;\wr&quot;
+
+		oDialog.getControl(&quot;Operations19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/diamond.svg&quot;
+		oDialog.getControl(&quot;Operations19&quot;).Model.HelpText = &quot;\diamond&quot;
+
+		oDialog.getControl(&quot;Operations20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigtriangleup.svg&quot;
+		oDialog.getControl(&quot;Operations20&quot;).Model.HelpText = &quot;\bigtriangleup&quot;
+
+		oDialog.getControl(&quot;Operations21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigtriangledown.svg&quot;
+		oDialog.getControl(&quot;Operations21&quot;).Model.HelpText = &quot;\bigtriangledown&quot;
+
+		oDialog.getControl(&quot;Operations22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/triangleleft.svg&quot;
+		oDialog.getControl(&quot;Operations22&quot;).Model.HelpText = &quot;\triangleleft&quot;
+
+		oDialog.getControl(&quot;Operations23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/triangleright.svg&quot;
+		oDialog.getControl(&quot;Operations23&quot;).Model.HelpText = &quot;\triangleright&quot;
+
+		oDialog.getControl(&quot;Operations24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/lhd.svg&quot;
+		oDialog.getControl(&quot;Operations24&quot;).Model.HelpText = &quot;\lhd&quot;
+
+		oDialog.getControl(&quot;Operations25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/rhd.svg&quot;
+		oDialog.getControl(&quot;Operations25&quot;).Model.HelpText = &quot;\rhd&quot;
+
+		oDialog.getControl(&quot;Operations26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/unlhd.svg&quot;
+		oDialog.getControl(&quot;Operations26&quot;).Model.HelpText = &quot;\unlhd&quot;
+
+		oDialog.getControl(&quot;Operations27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/unrhd.svg&quot;
+		oDialog.getControl(&quot;Operations27&quot;).Model.HelpText = &quot;\unrhd&quot;
+
+		oDialog.getControl(&quot;Operations28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/oplus.svg&quot;
+		oDialog.getControl(&quot;Operations28&quot;).Model.HelpText = &quot;\oplus&quot;
+
+		oDialog.getControl(&quot;Operations29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ominus.svg&quot;
+		oDialog.getControl(&quot;Operations29&quot;).Model.HelpText = &quot;\ominus&quot;
+
+		oDialog.getControl(&quot;Operations30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/otimes.svg&quot;
+		oDialog.getControl(&quot;Operations30&quot;).Model.HelpText = &quot;\otimes&quot;
+
+		oDialog.getControl(&quot;Operations31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/oslash.svg&quot;
+		oDialog.getControl(&quot;Operations31&quot;).Model.HelpText = &quot;\oslash&quot;
+
+		oDialog.getControl(&quot;Operations32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/odot.svg&quot;
+		oDialog.getControl(&quot;Operations32&quot;).Model.HelpText = &quot;\odot&quot;
+
+		oDialog.getControl(&quot;Operations33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigcirc.svg&quot;
+		oDialog.getControl(&quot;Operations33&quot;).Model.HelpText = &quot;\bigcirc&quot;
+
+		oDialog.getControl(&quot;Operations34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/dagger.svg&quot;
+		oDialog.getControl(&quot;Operations34&quot;).Model.HelpText = &quot;\dagger&quot;
+
+		oDialog.getControl(&quot;Operations35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ddagger.svg&quot;
+		oDialog.getControl(&quot;Operations35&quot;).Model.HelpText = &quot;\ddagger&quot;
+
+		oDialog.getControl(&quot;Operations36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/amalg.svg&quot;
+		oDialog.getControl(&quot;Operations36&quot;).Model.HelpText = &quot;\amalg&quot;
+	
+	End If
+
+End Sub
+
+&apos; Misc tab button
+Sub MiscButton_Clicked(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;General&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrays&quot;).Model.State=0
+	oDialog.getControl(&quot;Alphabets&quot;).Model.State=0
+	oDialog.getControl(&quot;Arrows&quot;).Model.State=0
+	oDialog.getControl(&quot;Functions&quot;).Model.State=0
+	oDialog.getControl(&quot;Relations&quot;).Model.State=0
+	oDialog.getControl(&quot;Operations&quot;).Model.State=0
+	oDialog.getControl(&quot;Misc&quot;).Model.State=1
+	oDialog.Model.Step = 8
+
+	&apos; Set Misc tab symbols and help texts
+	If 	oDialog.getControl(&quot;Misc1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		oDialog.getControl(&quot;Misc1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/eth.svg&quot;
+		oDialog.getControl(&quot;Misc1&quot;).Model.HelpText = &quot;\eth&quot;
+
+		oDialog.getControl(&quot;Misc2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/clubsuit.svg&quot;
+		oDialog.getControl(&quot;Misc2&quot;).Model.HelpText = &quot;\clubsuit&quot;
+
+		oDialog.getControl(&quot;Misc3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/diamondsuit.svg&quot;
+		oDialog.getControl(&quot;Misc3&quot;).Model.HelpText = &quot;\diamondsuit&quot;
+
+		oDialog.getControl(&quot;Misc4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/heartsuit.svg&quot;
+		oDialog.getControl(&quot;Misc4&quot;).Model.HelpText = &quot;\heartsuit&quot;
+
+		oDialog.getControl(&quot;Misc5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/spadesuit.svg&quot;
+		oDialog.getControl(&quot;Misc5&quot;).Model.HelpText = &quot;\spadesuit&quot;
+
+		oDialog.getControl(&quot;Misc6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/varnothing.svg&quot;
+		oDialog.getControl(&quot;Misc6&quot;).Model.HelpText = &quot;\varnothing&quot;
+
+		oDialog.getControl(&quot;Misc7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/imath.svg&quot;
+		oDialog.getControl(&quot;Misc7&quot;).Model.HelpText = &quot;\imath&quot;
+
+		oDialog.getControl(&quot;Misc8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/jmath.svg&quot;
+		oDialog.getControl(&quot;Misc8&quot;).Model.HelpText = &quot;\jmath&quot;
+
+		oDialog.getControl(&quot;Misc9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ell.svg&quot;
+		oDialog.getControl(&quot;Misc9&quot;).Model.HelpText = &quot;\ell&quot;
+
+		oDialog.getControl(&quot;Misc10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sharp.svg&quot;
+		oDialog.getControl(&quot;Misc10&quot;).Model.HelpText = &quot;\sharp&quot;
+
+		oDialog.getControl(&quot;Misc11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/flat.svg&quot;
+		oDialog.getControl(&quot;Misc11&quot;).Model.HelpText = &quot;\flat&quot;
+
+		oDialog.getControl(&quot;Misc12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/natural.svg&quot;
+		oDialog.getControl(&quot;Misc12&quot;).Model.HelpText = &quot;\natural&quot;
+
+		oDialog.getControl(&quot;Misc13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Bbbk.svg&quot;
+		oDialog.getControl(&quot;Misc13&quot;).Model.HelpText = &quot;\Bbbk&quot;
+
+		oDialog.getControl(&quot;Misc14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigstar.svg&quot;
+		oDialog.getControl(&quot;Misc14&quot;).Model.HelpText = &quot;\bigstar&quot;
+
+		oDialog.getControl(&quot;Misc15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/diagdown.svg&quot;
+		oDialog.getControl(&quot;Misc15&quot;).Model.HelpText = &quot;\diagdown&quot;
+
+		oDialog.getControl(&quot;Misc16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/diagup.svg&quot;
+		oDialog.getControl(&quot;Misc16&quot;).Model.HelpText = &quot;\diagup&quot;
+
+		oDialog.getControl(&quot;Misc17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Diamond.svg&quot;
+		oDialog.getControl(&quot;Misc17&quot;).Model.HelpText = &quot;\Diamond&quot;
+
+		oDialog.getControl(&quot;Misc18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Finv.svg&quot;
+		oDialog.getControl(&quot;Misc18&quot;).Model.HelpText = &quot;\Finv&quot;
+
+		oDialog.getControl(&quot;Misc19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/Game.svg&quot;
+		oDialog.getControl(&quot;Misc19&quot;).Model.HelpText = &quot;\Game&quot;
+
+		oDialog.getControl(&quot;Misc20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hbar.svg&quot;
+		oDialog.getControl(&quot;Misc20&quot;).Model.HelpText = &quot;\hbar&quot;
+
+		oDialog.getControl(&quot;Misc21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hslash.svg&quot;
+		oDialog.getControl(&quot;Misc21&quot;).Model.HelpText = &quot;\hslash&quot;
+
+		oDialog.getControl(&quot;Misc22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mho.svg&quot;
+		oDialog.getControl(&quot;Misc22&quot;).Model.HelpText = &quot;\mho&quot;
+
+		oDialog.getControl(&quot;Misc23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/prime.svg&quot;
+		oDialog.getControl(&quot;Misc23&quot;).Model.HelpText = &quot;\prime&quot;
+
+		oDialog.getControl(&quot;Misc24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/square.svg&quot;
+		oDialog.getControl(&quot;Misc24&quot;).Model.HelpText = &quot;\square&quot;
+
+		oDialog.getControl(&quot;Misc25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/surd.svg&quot;
+		oDialog.getControl(&quot;Misc25&quot;).Model.HelpText = &quot;\surd&quot;
+
+		oDialog.getControl(&quot;Misc26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/wp.svg&quot;
+		oDialog.getControl(&quot;Misc26&quot;).Model.HelpText = &quot;\wp&quot;
+
+		oDialog.getControl(&quot;Misc27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/measuredangle.svg&quot;
+		oDialog.getControl(&quot;Misc27&quot;).Model.HelpText = &quot;\measuredangle&quot;
+
+		oDialog.getControl(&quot;Misc28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sphericalangle.svg&quot;
+		oDialog.getControl(&quot;Misc28&quot;).Model.HelpText = &quot;\sphericalangle&quot;
+
+		oDialog.getControl(&quot;Misc29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/complement.svg&quot;
+		oDialog.getControl(&quot;Misc29&quot;).Model.HelpText = &quot;\complement&quot;
+
+		oDialog.getControl(&quot;Misc30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/triangledown.svg&quot;
+		oDialog.getControl(&quot;Misc30&quot;).Model.HelpText = &quot;\triangledown&quot;
+
+		oDialog.getControl(&quot;Misc31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/triangle.svg&quot;
+		oDialog.getControl(&quot;Misc31&quot;).Model.HelpText = &quot;\triangle&quot;
+
+		oDialog.getControl(&quot;Misc32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vartriangle.svg&quot;
+		oDialog.getControl(&quot;Misc32&quot;).Model.HelpText = &quot;\vartriangle&quot;
+
+		oDialog.getControl(&quot;Misc33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/blacklozenge.svg&quot;
+		oDialog.getControl(&quot;Misc33&quot;).Model.HelpText = &quot;\blacklozenge&quot;
+
+		oDialog.getControl(&quot;Misc34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/blacksquare.svg&quot;
+		oDialog.getControl(&quot;Misc34&quot;).Model.HelpText = &quot;\blacksquare&quot;
+
+		oDialog.getControl(&quot;Misc35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/blacktriangle.svg&quot;
+		oDialog.getControl(&quot;Misc35&quot;).Model.HelpText = &quot;\blacktriangle&quot;
+
+		oDialog.getControl(&quot;Misc36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/blacktriangledown.svg&quot;
+		oDialog.getControl(&quot;Misc36&quot;).Model.HelpText = &quot;\blacktriangledown&quot;
+
+		oDialog.getControl(&quot;Misc37&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/backprime.svg&quot;
+		oDialog.getControl(&quot;Misc37&quot;).Model.HelpText = &quot;\backprime&quot;
+
+		oDialog.getControl(&quot;Misc38&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/S.svg&quot;
+		oDialog.getControl(&quot;Misc38&quot;).Model.HelpText = &quot;\S&quot;
+
+		oDialog.getControl(&quot;Misc39&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/copyright.svg&quot;
+		oDialog.getControl(&quot;Misc39&quot;).Model.HelpText = &quot;\copyright&quot;
+		
+		oDialog.getControl(&quot;Misc40&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/emptyset.svg&quot;
+		oDialog.getControl(&quot;Misc40&quot;).Model.HelpText = &quot;\emptyset&quot;
+
+	End If
+
+End Sub
+
+&apos; LaTeX button clicked
+Sub LatexButton_Clicked()
+
+	Dim sEqCode as String, sEqType as String, iEqSize as Integer
+	Dim sEqFormat as String, sEqDPI as String, sEqTransp as String, sEqName as String
+
+	&apos; Get the general information used to compile the equation
+	&apos; Get the LaTeX code, the type of equation and the size of font
+	sEqCode = oDlgMain.getControl(&quot;LatexCode&quot;).getText()
+	sEqFormat = oDlgMain.getControl(&quot;Format&quot;).getText()
+	sEqDPI = oDlgMain.getControl(&quot;GraphicDPI&quot;).getText()
+
+	If oDlgMain.getControl(&quot;Transparency&quot;).getState() Then
+		sEqTransp = &quot;TRUE&quot;
+	Else
+		sEqTransp = &quot;FALSE&quot;
+	End If	
+
+	iEqSize = oDlgMain.getControl(&quot;Size&quot;).getText()
+	If oDlgMain.getControl(&quot;TypeDisplay&quot;).getState() Then sEqType = &quot;display&quot;
+	If oDlgMain.getControl(&quot;TypeInline&quot;).getState() Then sEqType = &quot;inline&quot;
+	If oDlgMain.getControl(&quot;TypeLatex&quot;).getState() Then sEqType = &quot;latex&quot;
+	sEqName = oDlgMain.getControl(&quot;EquationNameText&quot;).getText()
+		
+	&apos; Create the LaTeX equation and insert it
+	Dim ret as Integer
+	ret = MakeEquation(iEqSize , sEqType , sEqCode, sEqFormat, sEqDPI, sEqTransp, sEqName, null)
+	
+	&apos; If success, close modal window 
+	If ret = 0 Then
+		oDlgBaseMain.endExecute()
+	End If
+
+End Sub
+
+
+&apos; Help button clicked
+Sub HelpButton_Clicked()
+
+	glb_sStatus = &quot;&quot;
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+	HelpDialog()
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+
+End Sub
+
+
+&apos; Prefs button clicked
+Sub PrefsButton_Clicked()
+
+	glb_sStatus = &quot;&quot;
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+	PrefsDialog()
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+
+End Sub
+
+
+&apos; Preamble button clicked
+Sub PreambleButton_Clicked()
+
+	glb_sStatus = &quot;&quot;
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+	PreambleDialog()
+	oDlgMain.getControl(&quot;LogString&quot;).setText( glb_sStatus )
+
+End Sub
+
+
+Sub MainChildWindowListener_windowMoved(ev)
+End Sub
+
+Sub MainChildWindowListener_windowShown(ev)
+End Sub
+
+Sub MainChildWindowListener_windowHidden(ev)
+End Sub
+
+
+&apos; Invoked when a window is resized
+Sub MainWindowListener_windowResized(ev)
+      
+	&apos; Inner dialog size
+	Dim aSize as Variant
+	aSize = ev.Source.getSize()
+
+	&apos; Child window index is 0 for OpenOffice and 2 for LibreOffice
+	Dim i as Integer
+	If ev.Source.Windows(0).isVisible Then i = 0 Else i = 2
+
+	&apos; Workaround for a resizing issue with gtk3
+	count = count + 1 &apos; Counts the number of calls to this function
+	If count = 2 Then &apos; Don&apos;t resize if 3rd call and symbol icons not yet displayed
+		If oDlgMain.getControl(&quot;General1&quot;).Model.ImageURL &lt;&gt; &quot;&quot; Then
+			ev.Source.Windows(i).setPosSize(0, 0, aSize.Width, aSize.Height, com.sun.star.awt.PosSize.SIZE)
+		End If
+	
+	Else &apos; Resize in all other cases
+		ev.Source.Windows(i).setPosSize(0, 0, aSize.Width, aSize.Height, com.sun.star.awt.PosSize.SIZE)
+	End If
+
+End Sub
+
+
+&apos; Invoked when a window is in the process of being closed
+Sub MainWindowListener_windowClosing(ev)
+    
+	&apos; Close modal window
+	ev.Source.endExecute()
+
+End Sub
+
+&apos; Invoked when a window has been opened
+Sub MainWindowListener_windowOpened(ev)
+End Sub
+
+&apos; Invoked when a window has been closed
+Sub MainWindowListener_windowClosed(ev)
+End Sub
+
+&apos; Invoked when a window is iconified
+Sub MainWindowListener_windowMinimized(ev)
+End Sub
+
+&apos; Invoked when a window is de-iconified
+Sub MainWindowListener_windowNormalized(ev)
+End Sub
+
+&apos; Invoked when a window is activated
+Sub MainWindowListener_windowActivated(ev)
+
+	&apos; TexMaths window is now visible, so we can load icons of the first tab
+	If 	oDlgMain.getControl(&quot;General1&quot;).Model.ImageURL = &quot;&quot; Then
+
+		&apos; Avoid UI flickering
+		wait 2
+	
+		&apos; Set General tab symbols and help texts
+	
+		oDlgMain.getControl(&quot;General1&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/parentheses.svg&quot;
+		oDlgMain.getControl(&quot;General1&quot;).Model.HelpText = &quot;\left( \right)&quot;
+	
+		oDlgMain.getControl(&quot;General2&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/brackets.svg&quot;
+		oDlgMain.getControl(&quot;General2&quot;).Model.HelpText = &quot;\left[ \right]&quot;
+	
+		oDlgMain.getControl(&quot;General3&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/braces.svg&quot;
+		oDlgMain.getControl(&quot;General3&quot;).Model.HelpText = &quot;\left\{ \right\}&quot;
+	
+		oDlgMain.getControl(&quot;General4&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/verts.svg&quot;
+		oDlgMain.getControl(&quot;General4&quot;).Model.HelpText = &quot;\left\lvert \right\rvert&quot;
+	
+		oDlgMain.getControl(&quot;General5&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/angles.svg&quot;
+		oDlgMain.getControl(&quot;General5&quot;).Model.HelpText = &quot;\left\langle \right\rangle&quot;
+	
+		oDlgMain.getControl(&quot;General6&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/parallels.svg&quot;
+		oDlgMain.getControl(&quot;General6&quot;).Model.HelpText = &quot;\left\lVert \right\rVert&quot;
+	
+		oDlgMain.getControl(&quot;General7&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/floors.svg&quot;
+		oDlgMain.getControl(&quot;General7&quot;).Model.HelpText = &quot;\left\lfloor \right\rfloor&quot;
+	
+		oDlgMain.getControl(&quot;General8&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ceils.svg&quot;
+		oDlgMain.getControl(&quot;General8&quot;).Model.HelpText = &quot;\left\lceil \right\rceil&quot;
+	
+		oDlgMain.getControl(&quot;General9&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/_.svg&quot;
+		oDlgMain.getControl(&quot;General9&quot;).Model.HelpText = &quot;_{}&quot;
+
+		oDlgMain.getControl(&quot;General10&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/^.svg&quot;
+		oDlgMain.getControl(&quot;General10&quot;).Model.HelpText = &quot;^{}&quot;
+
+		oDlgMain.getControl(&quot;General11&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/frac.svg&quot;
+		oDlgMain.getControl(&quot;General11&quot;).Model.HelpText = &quot;\frac{}{}&quot;
+	
+		oDlgMain.getControl(&quot;General12&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqrt.svg&quot;
+		oDlgMain.getControl(&quot;General12&quot;).Model.HelpText = &quot;\sqrt{}&quot;
+	
+		oDlgMain.getControl(&quot;General13&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sqrtn.svg&quot;
+		oDlgMain.getControl(&quot;General13&quot;).Model.HelpText = &quot;\sqrt[]{}&quot;
+	
+		oDlgMain.getControl(&quot;General14&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/sum.svg&quot;
+		oDlgMain.getControl(&quot;General14&quot;).Model.HelpText = &quot;\sum_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General15&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/prod.svg&quot;
+		oDlgMain.getControl(&quot;General15&quot;).Model.HelpText = &quot;\prod_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General16&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/coprod.svg&quot;
+		oDlgMain.getControl(&quot;General16&quot;).Model.HelpText = &quot;\coprod_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General17&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/partial.svg&quot;
+		oDlgMain.getControl(&quot;General17&quot;).Model.HelpText = &quot;\partial&quot;
+	
+		oDlgMain.getControl(&quot;General18&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/int.svg&quot;
+		oDlgMain.getControl(&quot;General18&quot;).Model.HelpText = &quot;\int_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General19&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/oint.svg&quot;
+		oDlgMain.getControl(&quot;General19&quot;).Model.HelpText = &quot;\oint&quot;
+	
+		oDlgMain.getControl(&quot;General20&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/iint.svg&quot;
+		oDlgMain.getControl(&quot;General20&quot;).Model.HelpText = &quot;\iint&quot;
+	
+		oDlgMain.getControl(&quot;General21&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/iiint.svg&quot;
+		oDlgMain.getControl(&quot;General21&quot;).Model.HelpText = &quot;\iiint&quot;
+	
+		oDlgMain.getControl(&quot;General22&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/liminfty.svg&quot;
+		oDlgMain.getControl(&quot;General22&quot;).Model.HelpText = &quot;\lim_{{ }\rightarrow\infty}&quot;
+	
+		oDlgMain.getControl(&quot;General23&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nabla.svg&quot;
+		oDlgMain.getControl(&quot;General23&quot;).Model.HelpText = &quot;\nabla&quot;
+	
+		oDlgMain.getControl(&quot;General24&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/biguplus.svg&quot;
+		oDlgMain.getControl(&quot;General24&quot;).Model.HelpText = &quot;\biguplus_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General25&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigcap.svg&quot;
+		oDlgMain.getControl(&quot;General25&quot;).Model.HelpText = &quot;\bigcap_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General26&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigcup.svg&quot;
+		oDlgMain.getControl(&quot;General26&quot;).Model.HelpText = &quot;\bigcup_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General27&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigoplus.svg&quot;
+		oDlgMain.getControl(&quot;General27&quot;).Model.HelpText = &quot;\bigoplus_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General28&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigotimes.svg&quot;
+		oDlgMain.getControl(&quot;General28&quot;).Model.HelpText = &quot;\bigotimes_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General29&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigodot.svg&quot;
+		oDlgMain.getControl(&quot;General29&quot;).Model.HelpText = &quot;\bigodot_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General30&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigvee.svg&quot;
+		oDlgMain.getControl(&quot;General30&quot;).Model.HelpText = &quot;\bigvee_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General31&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bigsqcup.svg&quot;
+		oDlgMain.getControl(&quot;General31&quot;).Model.HelpText = &quot;\bigsqcup_{}^{}&quot;
+	
+		oDlgMain.getControl(&quot;General32&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overline.svg&quot;
+		oDlgMain.getControl(&quot;General32&quot;).Model.HelpText = &quot;\overline{}&quot;
+	
+		oDlgMain.getControl(&quot;General33&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/underline.svg&quot;
+		oDlgMain.getControl(&quot;General33&quot;).Model.HelpText = &quot;\underline{}&quot;
+	
+		oDlgMain.getControl(&quot;General34&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/widehat.svg&quot;
+		oDlgMain.getControl(&quot;General34&quot;).Model.HelpText = &quot;\widehat{}&quot;
+	
+		oDlgMain.getControl(&quot;General35&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/widetilde.svg&quot;
+		oDlgMain.getControl(&quot;General35&quot;).Model.HelpText = &quot;\widetilde{}&quot;
+	
+		oDlgMain.getControl(&quot;General36&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overrightarrow.svg&quot;
+		oDlgMain.getControl(&quot;General36&quot;).Model.HelpText = &quot;\overrightarrow{}&quot;
+	
+		oDlgMain.getControl(&quot;General37&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overleftarrow.svg&quot;
+		oDlgMain.getControl(&quot;General37&quot;).Model.HelpText = &quot;\overleftarrow{}&quot;
+	
+		oDlgMain.getControl(&quot;General38&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overleftrightarrow.svg&quot;
+		oDlgMain.getControl(&quot;General38&quot;).Model.HelpText = &quot;\overleftrightarrow{}&quot;
+	
+		oDlgMain.getControl(&quot;General39&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/overbrace.svg&quot;
+		oDlgMain.getControl(&quot;General39&quot;).Model.HelpText = &quot;\overbrace{}&quot;
+	
+		oDlgMain.getControl(&quot;General40&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/underbrace.svg&quot;
+		oDlgMain.getControl(&quot;General40&quot;).Model.HelpText = &quot;\underbrace{}&quot;
+	
+		oDlgMain.getControl(&quot;General41&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/hat.svg&quot;
+		oDlgMain.getControl(&quot;General41&quot;).Model.HelpText = &quot;\hat{}&quot;
+	
+		oDlgMain.getControl(&quot;General42&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/tilde.svg&quot;
+		oDlgMain.getControl(&quot;General42&quot;).Model.HelpText = &quot;\tilde{}&quot;
+	
+		oDlgMain.getControl(&quot;General43&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vec.svg&quot;
+		oDlgMain.getControl(&quot;General43&quot;).Model.HelpText = &quot;\vec{}&quot;
+	
+		oDlgMain.getControl(&quot;General44&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/acute.svg&quot;
+		oDlgMain.getControl(&quot;General44&quot;).Model.HelpText = &quot;\acute{}&quot;
+	
+		oDlgMain.getControl(&quot;General45&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/grave.svg&quot;
+		oDlgMain.getControl(&quot;General45&quot;).Model.HelpText = &quot;\grave{}&quot;
+	
+		oDlgMain.getControl(&quot;General46&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/breve.svg&quot;
+		oDlgMain.getControl(&quot;General46&quot;).Model.HelpText = &quot;\breve{}&quot;
+	
+		oDlgMain.getControl(&quot;General47&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/bar.svg&quot;
+		oDlgMain.getControl(&quot;General47&quot;).Model.HelpText = &quot;\bar{}&quot;
+	
+		oDlgMain.getControl(&quot;General48&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/check.svg&quot;
+		oDlgMain.getControl(&quot;General48&quot;).Model.HelpText = &quot;\check{}&quot;
+	
+		oDlgMain.getControl(&quot;General49&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/dot.svg&quot;
+		oDlgMain.getControl(&quot;General49&quot;).Model.HelpText = &quot;\dot{}&quot;
+	
+		oDlgMain.getControl(&quot;General50&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ddot.svg&quot;
+		oDlgMain.getControl(&quot;General50&quot;).Model.HelpText = &quot;\ddot{}&quot;
+	
+		oDlgMain.getControl(&quot;General51&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/mathring.svg&quot;
+		oDlgMain.getControl(&quot;General51&quot;).Model.HelpText = &quot;\mathring{}&quot;
+	
+		oDlgMain.getControl(&quot;General52&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/dots.svg&quot;
+		oDlgMain.getControl(&quot;General52&quot;).Model.HelpText = &quot;\dots&quot;
+	
+		oDlgMain.getControl(&quot;General53&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/cdots.svg&quot;
+		oDlgMain.getControl(&quot;General53&quot;).Model.HelpText = &quot;\cdots&quot;
+	
+		oDlgMain.getControl(&quot;General54&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/vdots.svg&quot;
+		oDlgMain.getControl(&quot;General54&quot;).Model.HelpText = &quot;\vdots&quot;
+	
+		oDlgMain.getControl(&quot;General55&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/ddots.svg&quot;
+		oDlgMain.getControl(&quot;General55&quot;).Model.HelpText = &quot;\ddots&quot;
+	
+		oDlgMain.getControl(&quot;General56&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/angle.svg&quot;
+		oDlgMain.getControl(&quot;General56&quot;).Model.HelpText = &quot;\angle&quot;
+		
+		oDlgMain.getControl(&quot;General57&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/infty.svg&quot;
+		oDlgMain.getControl(&quot;General57&quot;).Model.HelpText = &quot;\infty&quot;
+	
+		oDlgMain.getControl(&quot;General58&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/forall.svg&quot;
+		oDlgMain.getControl(&quot;General58&quot;).Model.HelpText = &quot;\forall&quot;
+	
+		oDlgMain.getControl(&quot;General59&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/exists.svg&quot;
+		oDlgMain.getControl(&quot;General59&quot;).Model.HelpText = &quot;\exists&quot;
+	
+		oDlgMain.getControl(&quot;General60&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/nexists.svg&quot;
+		oDlgMain.getControl(&quot;General60&quot;).Model.HelpText = &quot;\nexists&quot;
+
+		oDlgMain.getControl(&quot;General61&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/text.svg&quot;
+		oDlgMain.getControl(&quot;General61&quot;).Model.HelpText = _(&quot;Serif Text&quot;)
+
+		oDlgMain.getControl(&quot;General62&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/textsf.svg&quot;
+		oDlgMain.getControl(&quot;General62&quot;).Model.HelpText = _(&quot;Sans Serif Text&quot;)
+
+		oDlgMain.getControl(&quot;General63&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/&amp;.svg&quot;
+		oDlgMain.getControl(&quot;General63&quot;).Model.HelpText = _(&quot;Align&quot;)
+
+		oDlgMain.getControl(&quot;General64&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/space.svg&quot;
+		oDlgMain.getControl(&quot;General64&quot;).Model.HelpText = _(&quot;Space&quot;)
+
+		oDlgMain.getControl(&quot;General65&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/quad.svg&quot;
+		oDlgMain.getControl(&quot;General65&quot;).Model.HelpText = _(&quot;Double space&quot;)
+
+		oDlgMain.getControl(&quot;General66&quot;).Model.ImageURL = glb_sPkgPath &amp; &quot;/icons/&quot; &amp; glb_sSymbolColor &amp; &quot;/qquad.svg&quot;
+		oDlgMain.getControl(&quot;General66&quot;).Model.HelpText = _(&quot;Triple space&quot;)
+
+	End If
+
+End Sub
+
+&apos; Invoked when a window is de-activated
+Sub MainWindowListener_windowDeactivated(ev)
+End Sub
+
+Sub MainWindowListener_disposing(ev)
+End Sub
+
+Sub MainWindowListener_windowMoved(ev)
+End Sub
+
+Sub MainWindowListener_windowShown(ev)
+End Sub
+
+Sub MainWindowListener_windowHidden(ev)
+End Sub
+
+
+&apos; Symbols from General tab
+
+Sub General1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left( \right)&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left[ \right]&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\{ \right\}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\lvert \right\rvert&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\langle \right\rangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\lVert \right\rVert&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\lfloor \right\rfloor&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\left\lceil \right\rceil&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;_{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\frac{}{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqrt{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqrt[]{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sum_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\prod_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\coprod_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\partial&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\int_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\oint&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\iint&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\iiint&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\lim_{{ }\rightarrow\infty}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nabla&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\biguplus_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigcap_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigcup_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigoplus_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigotimes_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigodot_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigvee_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigsqcup_{}^{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overline{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\underline{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\widehat{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\widetilde{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overrightarrow{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General37_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overleftarrow{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General38_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overleftrightarrow{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General39_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overbrace{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General40_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\underbrace{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General41_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hat{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General42_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\tilde{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General43_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vec{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General44_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\acute{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General45_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\grave{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General46_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\breve{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General47_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bar{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General48_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\check{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General49_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\dot{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General50_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ddot{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General51_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathring{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General52_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\dots&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General53_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cdots&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General54_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vdots&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General55_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ddots&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General56_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\angle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General57_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\infty&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General58_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\forall&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General59_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\exists&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General60_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nexists&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General61_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\text{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General62_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\textsf{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General63_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;&amp;&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General64_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;~&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General65_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\quad&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub General66_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\qquad&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+&apos; Symbols from Arrays tab
+
+Sub Arrays1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{align*}&quot; &amp; chr(10) &amp; &quot;a &amp;= b \\&quot; &amp; chr(10) &amp; &quot;c &amp;= d\\&quot; &amp; chr(10) &amp; &quot;\end{align*}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{align*}&quot; &amp; chr(10) &amp; &quot;a &amp;= b \\&quot; &amp; chr(10) &amp; &quot;c &amp;= d \\&quot; &amp; chr(10) &amp; &quot;e &amp;= f\\&quot; &amp; chr(10) &amp; &quot;\end{align*}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{array}{c} a \\ b \end{array}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{array}{cc} a &amp; b \\ c &amp; d \end{array}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{array}{c} a \\ b \\ c \end{array}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{array}{ccc} a &amp; b &amp; c \\  d &amp; e &amp; f \\ g &amp; h &amp; i \end{array}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\underset{}{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\overset{}{}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{pmatrix} a_{11} &amp; a_{12} \\ a_{21} &amp; a_{22} \end{pmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{pmatrix} a_{11} &amp; a_{12} &amp; a_{13}\\ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end{pmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{pmatrix} a_{11} &amp; \cdots &amp; a_{1n}\\ \vdots &amp;  \ddots &amp; \vdots\\ a_{m1} &amp; \cdots &amp; a_{mn} \end{pmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{bmatrix} a_{11} &amp; a_{12} \\ a_{21} &amp; a_{22} \end{bmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{bmatrix} a_{11} &amp; a_{12} &amp; a_{13}\\ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end{bmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{bmatrix} a_{11} &amp; \cdots &amp; a_{1n}\\ \vdots &amp;  \ddots &amp; \vdots\\ a_{m1} &amp; \cdots &amp; a_{mn} \end{bmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrays15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{vmatrix} a_{11} &amp; a_{12} \\ a_{21} &amp; a_{22} \end{vmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{vmatrix} a_{11} &amp; a_{12} &amp; a_{13}\\ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end{vmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+Sub Arrays17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\begin{vmatrix} a_{11} &amp; \cdots &amp; a_{1n}\\ \vdots &amp;  \ddots &amp; \vdots\\ a_{m1} &amp; \cdots &amp; a_{mn} \end{vmatrix}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+&apos; Symbol from Alphabets tab
+
+Sub Alphabets1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\alpha&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\beta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\gamma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\delta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Alphabets5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\epsilon&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varepsilon&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\zeta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\eta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\theta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vartheta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\kappa&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\lambda&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mu&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nu&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\xi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\o&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\pi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varpi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rho&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varrho&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sigma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varsigma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\tau&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\upsilon&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\phi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varphi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\chi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\psi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\omega&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Gamma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Delta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Theta&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Lambda&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Xi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Pi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Sigma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets37_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Upsilon&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets38_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Phi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets39_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Psi&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets40_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Omega&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets41_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\digamma&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets42_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\aleph&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets43_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\beth&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets44_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\daleth&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets45_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\gimel&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets46_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathbb{N}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets47_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathbb{Z}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets48_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathbb{Q}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets49_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathbb{R}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets50_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mathbb{C}&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets51_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Re&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Alphabets52_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Im&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+&apos; Symbol from Functions tab
+
+Sub Functions1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\arccos&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\arcsin&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\arctan&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\arg&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Functions5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cos&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cosh&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cot&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\coth&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\csc&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\deg&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\det&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\dim&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\exp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\gcd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hom&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\inf&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ker&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\lg&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\lim&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\liminf&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\limsup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ln&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\log&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\max&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\min&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Pr&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sec&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sin&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sinh&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\tan&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Functions32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\tanh&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+&apos; Symbol from Arrows tab
+
+Sub Arrows1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\leftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Leftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Rightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Arrows5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\leftrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Leftrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\longleftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Longleftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\longrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Longrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\longleftrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Longleftrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\uparrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Uparrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\downarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Downarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\updownarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Updownarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mapsto&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hookleftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\leftharpoonup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\leftharpoondown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rightleftharpoons&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\longmapsto&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hookrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rightharpoonup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rightharpoondown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\leadsto&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nearrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\searrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\swarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nwarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rightleftarrows&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nRightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nLeftarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Arrows36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\nLeftrightarrow&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+&apos; Symbol from Relations tab
+
+Sub Relations1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\le&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ge&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\equiv&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\models&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Relations5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\prec&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\succ&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sim&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\perp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\preceq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\succeq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\simeq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mid&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ll&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\gg&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\asymp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\parallel&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\subset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\not\subset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\supset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\approx&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bowtie&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\subseteq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\supseteq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cong&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Join&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqsubset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqsupset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ne&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\smile&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqsubseteq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqsupseteq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\doteq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\frown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\in&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\notin&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ni&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations37_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vdash&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations38_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\dashv&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations39_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\propto&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Relations40_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\triangleq&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+&apos; Symbol from Operations tab
+
+Sub Operations1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\pm&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\times&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\div&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Operations5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ast&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\star&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\circ&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bullet&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cdot&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cap&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\cup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\uplus&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqcap&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sqcup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vee&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\wedge&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\setminus&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\wr&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\diamond&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigtriangleup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigtriangledown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\triangleleft&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\triangleright&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\lhd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\rhd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\unlhd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\unrhd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\oplus&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ominus&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\otimes&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\oslash&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\odot&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigcirc&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\dagger&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ddagger&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Operations36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\amalg&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+&apos; Symbol from Misc tab
+
+Sub Misc1_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\eth&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc2_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\clubsuit&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc3_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\diamondsuit&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc4_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\heartsuit&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+
+Sub Misc5_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\spadesuit&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc6_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\varnothing&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc7_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\imath&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc8_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\jmath&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc9_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\ell&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc10_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sharp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc11_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\flat&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc12_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\natural&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc13_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Bbbk&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc14_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\bigstar&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc15_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\diagdown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc16_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\diagup&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc17_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Diamond&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc18_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Finv&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc19_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\Game&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc20_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hbar&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc21_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\hslash&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc22_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\mho&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc23_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\prime&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc24_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\square&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc25_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\surd&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc26_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\wp&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc27_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\measuredangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc28_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\sphericalangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc29_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\complement&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc30_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\triangledown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc31_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\triangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc32_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\vartriangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc33_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\blacklozenge&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc34_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\blacksquare&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc35_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\blacktriangle&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc36_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\blacktriangledown&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc37_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\backprime&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc38_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\S&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc39_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\copyright&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+Sub Misc40_Clicked()
+
+	Dim oLatexCode as Variant
+ 	oLatexCode = oDlgMain.getControl(&quot;LatexCode&quot;)
+ 	oLatexCode.insertText(oLatexCode.getSelection(), &quot;\emptyset&quot;)
+	oLatexCode.setFocus()
+
+End Sub
+
+</script:module>

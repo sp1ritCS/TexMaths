@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# 7/11/2011
+# Shell script used (under Linux) to create the TexMaths-<version>.oxt package
+# The created package can be used on Linux, MacOS X and Windows
+# The version number must be passed at the command line and is used to update
+# the description.xml file
+
+
+# Display usage information
+usage(){
+echo "Usage: ./makepkg version_number"
+echo "Example: ./makepkg 0.48.1"
+exit 1
+}
+
+
+# Update po files
+update_po(){
+	
+echo
+echo Updating po files...
+cd po
+./xgettextbas ../TexMaths/*.xba > TexMaths.pot 2> /dev/null
+for File in `ls *.po 2>/dev/null`
+do
+  	echo $File
+	msgmerge -N $File TexMaths.pot > $File.tmp
+	mv $File.tmp $File
+done
+cd ..
+}
+
+
+# Create package
+make_package(){
+
+echo
+echo Making package release...
+cat description.xml \
+	| sed s/"<version value=\".*\""/"<version value=\"${ver}\""/ \
+	>  tmp.xml
+
+mv tmp.xml description.xml
+
+href="http://downloads.sourceforge.net/texmaths/TexMaths-${ver}.oxt"
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<description xmlns=\"http://openoffice.org/extensions/update/2006\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">
+  <identifier value=\"org.roland65.texmaths\"/>
+  <display-name>
+    <name>TexMaths</name>
+  </display-name>
+  <version value=\"${ver}\"/>
+  <update-download>
+   <src xlink:href=\"${href}\"/>
+  </update-download>
+</description>" > ../TexMaths.update.xml
+
+
+zip -r ../TexMaths-${ver}.oxt \
+	 AddonRegistry.{xcs,xcu} \
+	 Addons.xcu \
+	 ChangeLog \
+	 makepkg \
+	 description.xml \
+	 README \
+	 META-INF/manifest.xml \
+	 Office/UI/*.xcu \
+	 icons/*.{bmp,png,svg} \
+	 icons/symbols-black/*.svg \
+	 icons/symbols-white/*.svg \
+	 TexMaths/*.{xba,xdl,xlb} \
+	 license.txt \
+	 help/* \
+	 po/*
+}
+
+
+# Main part
+
+# Get package version from the description.xml file
+#ver=`grep "<version value=" description.xml | sed 's/<version value="//g' | sed 's/"\/>//' | sed 's/ //g'`
+
+# Version number must be entered at the command line
+[ "$1" = "" ] && usage
+ver=$1
+echo Version = $ver
+
+# Update po files
+update_po
+
+# Make package
+make_package
+
+# Display message
+echo
+echo Done!
+
+exit 0
+

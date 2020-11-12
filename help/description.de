@@ -1,0 +1,11 @@
+Ein LaTeX Gleichungseditor für LibreOffice
+ 
+http://roland65.free.fr/texmaths
+
+Copyright (c) 2012-2020 Roland Baudin (roland65@free.fr)
+ 
+Basiert auf OOoLatex, von Geoffroy Piroux (http://ooolatex.sourceforge.net)    
+
+TexMaths ist ein Addon zur Nutzung von LaTeX in LibreOffice.
+
+LaTeX-Gleichungen können als Bild (SVG- oder PNG-Format) eingefügt werden und der LaTeX-Code wird als Bildattribut zur weiteren Bearbeitung gespeichert.

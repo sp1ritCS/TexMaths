@@ -1,0 +1,12 @@
+
+Un éditeur d'équations LaTeX pour LibreOffice
+ 
+http://roland65.free.fr/texmaths
+
+Copyright (c) 2012-2020 Roland Baudin (roland65@free.fr)
+ 
+Basé sur OOoLatex, par Geoffroy Piroux (http://ooolatex.sourceforge.net)    
+
+TexMaths est une extension permettant de créer des équations LaTeX dans LibreOffice.
+
+Les équations peuvent être insérées sous forme d'images (formats SVG ou PNG) et le code LaTeX correspondant est enregistré dans les attributs d'image, ce qui permet d'éditer ultérieurement les équations.

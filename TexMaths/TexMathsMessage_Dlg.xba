@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsMessage_Dlg" script:language="StarBasic" script:moduleType="normal">&apos;
+&apos;    TexMathsMessage
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos;	 Macros used to create and manage the Message dialog
+
+
+&apos; Force variable declaration
+Option Explicit
+
+Private oDlgBaseMessage as Variant
+Private oDlgMessage as Variant
+
+&apos; Conversion factors map appFonts -&gt; pixels
+Private convX as Double
+Private convY as Double
+
+
+&apos; Modal error dialog
+Sub MessageDialog(sText as String, sTitle as String)
+      
+	&apos; Parent window
+    Dim oParent as Variant  
+	oParent = ThisComponent.getCurrentController().getFrame().getContainerWindow()
+      
+	&apos; Create base window as modal dialog
+	oDlgBaseMessage = CreateBaseDialog(oParent)
+	oDlgBaseMessage.setTitle(sTitle)
+
+	&apos; Embed the dialog created by the dialog editor
+	Dim sURL as String
+	sURL = &quot;vnd.sun.star.script:TexMaths.TexMathsMessage_GUI?location=application&quot;
+	oDlgMessage = CreateInnerDialog(oDlgBaseMessage, sURL, sText)
+       
+	&apos; Compute conversion factors between map appfonts and pixels
+	Dim aRect as Variant
+	aRect = oDlgMessage.getPosSize()
+	convX = aRect.Width / oDlgMessage.Model.Width 
+	convY = aRect.Height / oDlgMessage.Model.Height
+
+	&apos; Show the modal dialog, has to be done by the outer dialog
+	If oDlgBaseMessage.execute() &gt; 0 Then
+		MsgBox _(&quot;Error: dialog box can&apos;t be created...&quot;)
+	End If
+
+	oDlgBaseMessage.dispose()
+    
+End Sub
+
+
+&apos; Create new base modal dialog
+&apos; oParent: parent window peer
+&apos; Return dialog window
+Function CreateBaseDialog(oParent As Variant) As Variant
+     
+	Dim oToolkit as Variant, WA as Variant, aRect as Variant, oDesc as Variant
+	oToolkit = oParent.getToolkit()
+	WA = com.sun.star.awt.WindowAttribute
+	aRect = CreateUnoStruct(&quot;com.sun.star.awt.Rectangle&quot;)
+	oDesc = CreateUnoStruct(&quot;com.sun.star.awt.WindowDescriptor&quot;)
+
+	With oDesc
+    	.Type = com.sun.star.awt.WindowClass.SIMPLE
+        .WindowServiceName = &quot;dialog&quot;
+        .Parent = oParent
+        .ParentIndex = -1
+        .Bounds = aRect
+        .WindowAttributes = WA.CLOSEABLE OR WA.MOVEABLE OR WA.SIZEABLE OR WA.BORDER
+	End With
+
+	Dim oDialog as Variant
+	oDialog = oToolkit.createWindow(oDesc)
+	oDialog.addTopWindowListener(CreateUnoListener(&quot;MessageWindowListener_&quot;, &quot;com.sun.star.awt.XTopWindowListener&quot;))
+	oDialog.addWindowListener(CreateUnoListener(&quot;MessageWindowListener_&quot;, &quot;com.sun.star.awt.XWindowListener&quot;))
+	CreateBaseDialog = oDialog
+
+End Function
+
+
+&apos; Create child dialog embedded
+&apos; oParent: parent window
+&apos; sURL: dialog URL, without toolbar
+&apos; Return dialog window
+Function CreateInnerDialog(oParent As Variant, sURL As String, sText as String) As Variant
+
+	Dim PS as Variant, oDP as Variant, oChildDialog as Variant
+	PS = com.sun.star.awt.PosSize
+	oDP = CreateUnoService(&quot;com.sun.star.awt.ContainerWindowProvider&quot;)
+	oChildDialog = oDP.createContainerWindow(sURL, &quot;&quot;, oParent, nothing)
+	oChildDialog.setPosSize(0, 0, 0, 0, PS.POS)
+	oChildDialog.setVisible(True)
+
+	&apos; Dialog strings for translation
+	oChildDialog.getControl(&quot;CloseButton&quot;).Model.Label = _(&quot;Close&quot;)
+	oChildDialog.getControl(&quot;CloseButton&quot;).Model.HelpText = _(&quot;Close window&quot;)
+
+	Dim aSize as Variant
+	aSize = oChildDialog.getPosSize()
+	oParent.setPosSize(0, 0, aSize.Width, aSize.Height, PS.SIZE)
+	oChildDialog.addWindowListener(CreateUnoListener(&quot;MessageChildWindow_&quot;, &quot;com.sun.star.awt.XWindowListener&quot;))
+
+	&apos; Set text and background color
+	Dim oTextField as Variant
+	oTextField = oChildDialog.Model.MessageText
+	oTextField.Text = sText
+	&apos;oTextField.BackgroundColor = oChildDialog.StyleSettings.DialogColor
+
+	CreateInnerDialog = oChildDialog
+
+End Function
+
+
+&apos; Close base dialog
+Sub CloseDialog()
+
+	oDlgBaseMessage.endExecute()
+	
+End Sub
+
+
+&apos; Resize base dialog window
+&apos; This is called indirectly when resizing the outer dialog      
+Sub MessageChildWindow_windowResized(ev)
+
+	&apos; Inner dialog
+	Dim oDialog as Variant
+	oDialog = ev.Source
+	
+	&apos; Dialog size
+	Dim aRect as Variant
+	aRect = oDialog.getPosSize()
+	
+	Dim X as Integer, Y as Integer, W as Integer, H as Integer
+
+	&apos; Resize text field
+	Dim oTextField as Variant
+	oTextField = oDialog.getControl(&quot;MessageText&quot;)
+	W = aRect.Width - (oDialog.Model.Width - oTextField.Model.Width ) * convX
+	H = aRect.Height - (oDialog.Model.Height - oTextField.Model.Height ) * convY
+	oTextField.setPosSize(0, 0, W, H, com.sun.star.awt.PosSize.SIZE)
+
+	&apos; Position close button
+	Dim oButton as Variant
+	oButton = oDialog.getControl(&quot;CloseButton&quot;)
+	X = aRect.Width - (oDialog.Model.Width - oButton.Model.PositionX)*convX
+	Y = aRect.Height - (oDialog.Model.Height - oButton.Model.PositionY )*convY
+	oButton.setPosSize(X , Y, 0, 0, com.sun.star.awt.PosSize.POS)
+
+End Sub
+
+
+Sub MessageChildWindow_windowMoved(ev)
+End Sub
+
+Sub MessageChildWindow_windowShown(ev)
+End Sub
+
+Sub MessageChildWindow_windowHidden(ev)
+End Sub
+
+
+&apos;Invoked when a window is resized
+Sub MessageWindowListener_windowResized(ev)
+      
+	&apos; Window size
+	Dim aSize as Variant
+	aSize = ev.Source.getSize()
+
+	&apos; Child window index is 0 for OpenOffice and 2 for LibreOffice
+	Dim i as Integer
+	If ev.Source.Windows(0).isVisible Then i = 0 Else i = 2
+
+	&apos; Resize inner dialog as child window with number i
+	ev.Source.Windows(i).setPosSize(0, 0, aSize.Width, aSize.Height, com.sun.star.awt.PosSize.SIZE)
+
+End Sub
+
+
+&apos;Invoked when a window is in the process of being closed
+Sub MessageWindowListener_windowClosing(ev)
+    
+	&apos; Close window using the window bar close button
+	ev.Source.endExecute()
+
+End Sub
+
+
+&apos;Invoked when a window has been opened
+Sub MessageWindowListener_windowOpened(ev)
+End Sub
+
+&apos; Is invoked when a window has been closed
+Sub MessageWindowListener_windowClosed(ev)
+End Sub
+
+&apos; Is invoked when a window is iconified
+Sub MessageWindowListener_windowMinimized(ev)
+End Sub
+
+&apos; Is invoked when a window is de-iconified
+Sub MessageWindowListener_windowNormalized(ev)
+End Sub
+
+&apos;Invoked when a window is activated
+Sub MessageWindowListener_windowActivated(ev)
+End Sub
+
+&apos;Invoked when a window is de-activated
+Sub MessageWindowListener_windowDeactivated(ev)
+End Sub
+
+Sub MessageWindowListener_disposing(ev)
+End Sub
+
+Sub MessageWindowListener_windowMoved(ev)
+End Sub
+
+Sub MessageWindowListener_windowShown(ev)
+End Sub
+
+Sub MessageWindowListener_windowHidden(ev)
+End Sub
+
+
+
+
+</script:module>

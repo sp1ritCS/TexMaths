@@ -1,0 +1,9 @@
+#!/bin/sh
+# xgettextbas: extract strings from starbasic files (.xba). Need xgettext
+# Original author : Pierre Chef
+if [ -z "$1" ]; then
+    echo "Usage : $0 file.xba > file.pot"
+    exit 1
+fi
+
+grep '_(\s*&quot;.*&quot;\s*)' $* | sed 's/&quot;/"/g' | sed -r 's/_\(("[^"]*")\)/gettext\(\1\);/g' | sed "s/&apos;/'/g" | sed "s/&gt;/>/g" | sed "s/&lt;/</g" | sed "s/&amp;/\&/g" | xgettext -o - --from-code utf-8  --no-location -

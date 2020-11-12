@@ -1,0 +1,191 @@
+
+ 1. The TexMaths toolbar
+
+Once the TexMaths extension is installed into LibreOffice, you should see a new toolbar in Writer, Impress and Draw. This is the TexMaths toolbar. In Writer, this toolbar is made of four icons, while in Impress and Draw there are only three.
+
+In Writer, clicking on the left most icon (the one with the blue Pi symbol) launches the TexMaths Equations macro. The second icon is used for TexMaths Numbered Equations. The third icon opens the TexMaths Sysconfig dialog. Finally, the right most icon is bound to the TexMaths Recompile Equations macro. Note that in Impress and Draw, the second icon is not present.
+ 
+ 
+ 2. Getting started with TexMaths Equations
+
+If LaTeX is already installed on your system, all you have to do to start with TexMaths is to click on the Equations icon from the TexMaths toolbar. TexMaths will try to find the external programs it uses to generate LaTeX equations. Then type some LaTeX code in the text field of the TexMaths Equations editor and click on the LaTeX button to generate the equation image.
+
+Ex: x(t) = \mu ^2 (t) should produce the equation x(t)=µ²(t)
+
+Starting with TexMaths 0.46, the equation editor features tabs and buttons to enter LaTeX code for more than 300 symbols. Just click on the selected symbol and the corresponding LaTeX code will be inserted at the cursor position.
+
+
+ 3. Selecting the image format
+
+TexMaths can generate and insert two kinds of images in a LibreOffice document. To select the image format, use the selector located within the Image Format frame.
+
+The default image format is the SVG vector format. It allows LaTeX equations to be resized without precision loss and does not need any special math font to be installed in LibreOffice, because math symbols are simply drawn using curves. This is the preferred (and default) format but there can be some issues when exporting LibreOffice documents to MS Office old versions, like MS Office 2000 (see below).
+
+The other supported image format is PNG and is a raster image format. Thus, you have to select a resolution to use it. While 600 dpi is the default resolution, you can choose among several predefined values. There should be no compatibility issues when using PNG format for MS Office document export.
+
+Note that each format is only available if the corresponding external program (dvisvgm for SVG and dvipng for PNG) is installed in your system with its path set using the TexMaths System Configuration dialog (usually guessed at first run). At least one of these two programs is required to run TexMaths.
+
+
+ 4. Font size
+
+TexMaths can handle different character sizes for your equations. To change the font size, use the selector located within the font size frame.
+
+You can choose between predefined font sizes or type the one you prefer if it is not listed.
+
+
+ 5. Transparency
+ 
+You can toggle the equation image transparency by checking the Transparency checkbox in the TexMaths dialog box. This can be useful when the document background is not white. Transparency can now be used with both SVG and PNG image formats.
+ 
+
+ 6. Equation type
+
+TexMaths can generate three types of LaTeX equations:
+- display equations
+- inline display equations
+- LaTeX equations
+
+To select an equation type, just use the radio button located within the Equation Type frame. 
+
+To generate display equations or inline display equations, all you have to do is to select the appropriate equation type and then type the text of your equation in the text field of the TexMaths Equations dialog.
+
+Ex: To generate the Greek alpha symbol, just type \alpha
+
+Inline display equations are obtained by the same way, but the difference is the style of the generated equation which is better integrated within a text. For example, sum index and exponent are displayed besides the sum sign and not below or above.
+ 
+Both kinds of equations are ideal for simple one line equations and vertical alignment within text is correct, but they cannot handle multiline equations or more general LaTeX environments. For that kind of equations, select the LaTeX equation type and type your equation within \begin{} and \end{} instructions. You can use any LaTeX environment instructions.
+
+Ex: Type the following lines to display a three lines equation, aligned on the equal sign.
+\begin{align*}
+x &= 1 \\
+y &= 2x+1\\
+&= 3\\
+\end{align*}
+
+
+ 7. Equation name
+ 
+In the TexMaths Equations dialog, you can enter a label in the Name text field. This can be used to retrieve an equation by its name and could help when dealing with animations in Impress.
+
+ 
+ 8. Generate LaTeX equations
+
+Once you typed an equation, you can generate it by clicking on the LaTeX button of the TexMaths Equations dialog. This generates an image of your equation in the format, type and size you selected. You can choose between LaTeX and XeLaTeX compilers in the Sysconfig dialog.
+
+
+ 9. Numbering equations in Writer
+ 
+Numbering equations is as simple as clicking on the TexMaths Numbered Equations icon (or entering a keyboard shortcut if you have defined one), entering your equation and clicking on the LaTeX button. A centered, numbered equation (with left or right numbering) is then automatically inserted in your Writer document.
+
+You can also select the spacing you want and the equation caption in the Options Tab of the TexMaths System Configuration dialog. 
+ 
+ 
+ 10. Edit LaTeX equations
+
+Within a LibreOffice document, select an equation image (already generated using TexMaths) and click on the TexMaths Equations icon in the TexMaths toolbar (or use a keyboard shortcut if you have defined one). This shows up the TexMaths Equations dialog with the text of your equation selected. Just edit this text and click on the LateX button to generate the modified equation.
+
+You can of course close a document, open it again and edit your saved equations.
+
+ 
+ 11. Text to LaTeX in Writer
+ 
+Type some LaTeX code directly within a Writer document (i.e. without opening the TexMaths dialog), select the text and click on the TexMaths Equations icon (or use a keyboard shortcut if you have defined one). The selected text is then silently converted to a LaTeX equation image. The applied image format, equation size and equation type are the default ones defined in the TexMaths Preferences.
+
+
+ 12. Preferences
+
+TexMaths comes with some default settings. If these settings don't suit your needs, you can change them using the TexMaths Preferences dialog which is obtained by clicking on the Preferences button. This dialog allows to change the image format, font size, equation type, etc., for each type of LibreOffice document. You can then save your new settings, restore default ones or load already saved settings.
+
+
+ 13. LaTeX Preamble
+
+Clicking on the Preamble button shows the TexMaths Preamble dialog that allows to adjust your LaTeX preamble. For example, to generate colored equations, uncomment the following three lines of the default preamble, change the RGB color value as you prefer, and save the preamble.
+
+%\definecolor{fgcolor}{RGB}{0,0,255}
+%\definecolor{bgcolor}{RGB}{255,0,0}
+%\pagecolor{bgcolor}\color{fgcolor}
+
+Now, all new equations will have the color scheme you have defined in the preamble. Note that equations with a background color are not transparent anymore, even if the transparency option was checked. Therefore, you must remove the colored background if you want transparency.
+
+Starting with TexMaths 0.38, the preamble is stored into the document properties. This way each document can have its own preamble. Note the default preamble is global and can't be changed. Note that LaTeX and XeLaTeX have a different default preamble.
+
+
+ 14. \input, \include and \usepackage commands
+ 
+Starting with TexMaths 0.41, \input and \include LaTeX commands can be used to insert the content of a LaTeX (.tex) text file. The inserted .tex files are assumed to be located in the same directory as the document.
+
+Ex: In the document my_doc.odt, the LaTeX command:
+
+\include{my_equations}
+
+can be used to insert the content of the LaTeX file my_equations.tex provided that this file is located in the same directory as my_doc.odt. 
+
+There is also the possibility to use custom .sty files through the use of \usepackage commands. These commands have to be inserted in the preamble and then (if desired) stored in the current document. The .sty files have to be located in the same directory as the document.
+
+Ex: In the document my_doc.odt, the document style my_style.sty can be used by adding to the LaTeX preamble the command:
+
+\usepackage{my_style}
+
+The file my_style.sty has to be located in the same directory as my_doc.odt otherwise this won't work.
+
+
+ 15. Recompilation of TexMaths equations
+
+When a document (in Writer, Impress or Draw) contains many equations, it can be useful to change their font size, transparency, image format, etc., in a single shot. This is the purpose of the TexMaths Recompile Equations macro.
+
+Clicking on the related toolbar icon (the one with the gear) opens a dialog where you can change a number of equation parameters and the preamble. If you don't want to change a parameter from a list, then select the '---' entry of that list. For a check box, select the '-' state if you don't want to change the related parameter.
+
+In any of the three document types, you can recompile all equations from the document by selecting the Recompile All Equations option.
+
+In Writer documents, by selecting the Recompile Selected Equations option, you can choose to recompile only equations that are located within the selected text area. Note that, due to some limitations with selections in LibreOffice, this macro does not recompile equations located in tables, text frames, header and footer. If needed, you can recompile those equations one by one, by editing them the usual way. 
+
+In Impress and Draw documents, by selecting the Recompile Equations from Slide option, you can recompile only equations that are located within the current slide.
+
+When all parameters and options have been set, then click on the Run button and all or selected equations should be updated with the new parameter values. When dealing with hundreds of equations, this can take a while, so please be patient.
+
+
+ 16. Configuration dialog
+ 
+Clicking on the third icon opens the TexMaths Sysconfig dialog. Within the first tab of this dialog, you can change the file paths of the external programs. Since TexMaths 0.46, the complete file path has to be provided.
+
+The second tab allows to select the LaTeX compiler (LaTeX or XeLaTeX, if the latter one is installed and supported by the dvisvgm version you use. Note that XeLaTeX cannot be used to produce PNG equation images). It is also possible to select the font used in the equation editor. Options for equation numbering and compatibility with MS Word are also provided.
+
+The third tab of the Sysconfig dialog allows to define some keyboard shortcuts to launch TexMaths.
+ 
+ 
+ 17. Compatibility with ooolatex
+
+Starting with version 0.34, TexMaths is compatible with ooolatex. This means that if you have a document that contains ooolatex equations, you can edit those equations by selecting them (one by one) and calling the TexMaths Equation macro. You can then modify the LaTeX code and regenerate the equation either in either SVG or PNG format, as you prefer.
+
+
+ 18. Exporting documents to MS Office
+ 
+If you plan to export your documents to MS Office (Word and Powerpoint, whatever versions), you should save your LibreOffice documents to .doc and .ppt formats, *NOT* to .docx or .pptx formats. Indeed, while LibreOffice can produce these formats, the equation images are badly converted and there will be severe issues when rendering them in Word or Powerpoint.
+
+It is also recommended to set the Word vertical alignment compatibility option (in the TexMaths System Configuration dialog) if your Writer documents have to be exported to Word. This will greatly improve in Word the vertical alignment of in text equations. Note that it may even be necessary to manually adjust the vertical alignment of equations in Word.
+
+Starting with TexMaths 0.38, exported SVG equations are well rendered in Word and Powerpoint 2003 and above, but still not in Word and Powerpoint 2000. So if you're stuck with these rather old versions, you'll have to use the PNG format.
+
+
+ 19. Keyboard shortcuts
+
+To configure shortcuts to launch the TexMaths Equations with or without numbering, click on the TexMaths System Configuration button of the TexMaths toolbar and define your shortcuts. For equations without numbering, you can have a single shortcut for all applications or a different one for each. Since numbered equations can only be used in Writer, there is only one shortcut for them.
+
+Within the TexMaths Equations dialog, you can use the following shortcuts:
+- Esc to close the dialog without generating an equation
+- Alt-L or Ctrl-L to generate an equation
+- Alt-P or Ctrl-P to display the Preferences dialog
+- Alt-B or Ctrl-B to display the Preamble dialog
+
+
+ 20. Known Issues
+ 
+- SVG rendering is buggy in LibreOffice versions 3.x (equations appear as if they were written in bold face), but it works well in versions 4.x, 5.x and 6.x. So if you want to use SVG, it is recommended to upgrade LibreOffice to the newest versions 5.x or 6.x.
+
+- TexMaths can also be used in Apache Openoffice 3.4.x, but SVG rendering is completely broken. However, PNG equations are well rendered.
+
+- TexMaths works well (PNG and SVG formats) in Apache Openoffice 4.x.
+
+- Equations that include PSTricks commands cannot be rendered correctly as PNG images because of dvipng. You can safely use SVG format instead.
+
+- On Windows, it is recommended to disable OpenGL rendering in LibreOffice (in Linux, OpenGL does not work at all). Go to Tools / Options / View and disable the Use OpenGL for all rendering option. You will get a more stable LibreOffice and a better SVG rendering.

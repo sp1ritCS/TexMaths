@@ -1,0 +1,929 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsEquations" script:language="StarBasic">&apos;
+&apos;    TexMathsEquations
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos; 	 Macros used to create the LaTeX equation
+
+&apos; Force variable declaration
+Option Explicit
+
+
+&apos; Global constants
+Global Const DLG_MIN_WIDTH  = 402  &apos; In map Appfonts units
+Global Const DLG_MIN_HEIGHT = 327  &apos; In map Appfonts units
+Global Const ANCHOR_TO_PARA = 0
+Global Const ANCHOR_TO_CHAR = 1
+Global Const ANCHOR_TO_PAGE = 2
+Global Const ANCHOR_AT_CHAR = 4
+
+
+&apos; Global preferences variables
+Global glb_sUserPath as String, glb_sTmpPath as String, glb_sPkgPath as String, glb_sSymbolColor as String
+Global glb_sPreamble as String, glb_sFormat as String
+Global glb_bIgnorePreamble as Boolean
+Global glb_sWriterSize as String, glb_sWriterEqType as String
+Global glb_sImpressSize as String, glb_sImpressEqType as String
+Global glb_sDrawSize as String, glb_sDrawEqType as String
+Global glb_sGraphicDPI as String
+Global glb_sWriterTransparency as String
+Global glb_sImpressTransparency as String
+Global glb_sDrawTransparency as String
+Global glb_sStatus as String
+Global glb_WordVertAlign as Boolean
+Global glb_sEditorFontName as String
+Global glb_sEditorFontSize as String
+Global glb_sCompiler as String
+
+&apos; Global translation variables
+Global glb_PoFileRead as Integer
+Global glb_MsgId(0) as String
+Global glb_MsgStr(0) as String
+
+&apos; Variables related to the edit equation mode
+Public oShapePosition as Variant
+Public EditEquation as Boolean
+
+
+&apos; Main subroutine
+Sub Main
+  
+	&apos; The Draw component is required
+	If ComponentInstalled( &quot;Draw&quot; ) = FALSE Then
+
+  		MsgBox( _(&quot;Please install the Draw component to run TexMaths!&quot;) )
+  		Exit Sub
+
+	End If	 
+ 	
+	&apos; Set TexMaths configuration
+	SetConfig()
+	
+	&apos; Check program paths
+	CheckProgramPaths()
+	
+	&apos; Exit if configuration was not saved
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	If oSystemInfo.ConfigSaved = &quot;&quot; Then Exit Sub
+	
+	&apos; Get compiler
+	glb_sCompiler = oSystemInfo.Compiler
+	
+	&apos; Get Word vertical alignment compatibility option
+	If oSystemInfo.WordVertAlign = &quot;TRUE&quot; Then	glb_WordVertAlign = TRUE Else glb_WordVertAlign = FALSE
+
+	&apos; Get editor font name
+	glb_sEditorFontName = oSystemInfo.EditorFontName
+
+	&apos; Get editor font size
+	glb_sEditorFontSize = oSystemInfo.EditorFontSize
+
+	&apos; Get the current document and controller
+ 	Dim oDoc as Variant, oDocCtrl as Variant
+ 	oDoc = ThisComponent
+	oDocCtrl = oDoc.getCurrentController()
+
+	&apos; Test if we are in Writer, Impress or Draw and set the default user preferences
+	Dim sEqSize as String, sEqType as String, sEqLatexCode as String, sEqFormat as String, sEqDPI as String, sEqTransp as String, sEqName as String
+
+	&apos; Default image format, graphic DPI and transparency
+	sEqFormat = glb_sFormat
+	sEqDPI = glb_sGraphicDPI
+
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+
+		&apos; Get equation transparency
+		sEqTransp = glb_sWriterTransparency
+
+		&apos; If we are in Writer preview mode, just silently exit
+		If oDoc.getCurrentController.getFrame.LayoutManager.isElementVisible ( &quot;private:resource/toolbar/previewobjectbar&quot; ) Then Exit Sub
+
+		&apos; We are in a Writer doc, set default preferences
+		sEqSize = glb_sWriterSize
+		sEqType = glb_sWriterEqType
+		sEqLatexCode = &quot;&quot;
+
+	ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; Then
+
+		&apos; Get equation transparency
+		sEqTransp = glb_sImpressTransparency
+
+		&apos; We are in an Impress doc, set default preferences
+		sEqSize = glb_sImpressSize
+		sEqType = glb_sImpressEqType
+		sEqLatexCode = &quot;&quot;
+
+	ElseIf GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+
+		&apos; Get equation transparency
+		sEqTransp = glb_sDrawTransparency
+
+		&apos; We are in an Draw doc, set default preferences
+		sEqSize = glb_sDrawSize
+		sEqType = glb_sDrawEqType
+		sEqLatexCode = &quot;&quot;
+
+	Else
+
+		MsgBox GetDocumentType(oDoc) &amp; _(&quot;: document type not supported by TexMaths&quot;)
+		Exit Sub
+
+	End If
+
+	&apos; If there is something selected, then we are in the edit equation mode
+	&apos; and we have to get the equation attributes (font size, equation type, LaTeX code)
+	EditEquation = FALSE
+
+	If Not isEmpty(oDocCtrl.selection()) Then
+
+		Dim sDlgArg as String
+		Dim sArray() as String
+		Dim oSelection as Variant, oShape as Variant
+		oSelection = oDocCtrl.getSelection()
+		
+		&apos; We are in a Writer document
+		If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+
+			&apos; For Writer, check if the selected objet is a SwXTextGraphicObject
+	    	If oSelection.getImplementationName() = &quot;SwXTextGraphicObject&quot; Then
+		
+				oShape = oSelection
+				sDlgArg = ReadAttributes(oShape)
+				
+				If sDlgArg = &quot;&quot; Then
+	
+	    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	    			Exit Sub  			
+
+	    		End If
+	       		EditEquation = TRUE
+
+				sArray()=Split(sDlgArg,&quot;§&quot;)
+
+				&apos; Pre v0.39 equation
+				If Ubound(sArray) = 2 Then
+				
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+				
+				ElseIf Ubound(sArray) = 5 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=&quot;&quot;
+
+				ElseIf Ubound(sArray) = 6 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=sArray(6)
+				
+				Else
+				
+	    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	    			Exit Sub  			
+				
+				End If
+	    		
+	   			glb_sStatus = _(&quot;Edit equation...&quot;)	    		
+	    		TexMathsDialog(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+	    		Exit Sub
+	    		
+			&apos; Selected objet is a SvxShapeCollection
+	    	ElseIf oSelection.getImplementationName() = &quot;com.sun.star.drawing.SvxShapeCollection&quot; Then
+		
+				oShape = oSelection.getByIndex(0)
+				sDlgArg = ReadAttributes(oShape)
+				
+				If sDlgArg = &quot;&quot; Then
+	
+	    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	    			Exit Sub  			
+	
+	    		End If
+	       		EditEquation = TRUE
+
+				sArray()=Split(sDlgArg,&quot;§&quot;)
+
+				&apos; Pre v0.39 equation
+				If Ubound(sArray) = 2 Then
+				
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+				
+				ElseIf Ubound(sArray) = 5 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=&quot;&quot;
+				
+				ElseIf Ubound(sArray) = 6 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=sArray(6)
+
+				Else
+				
+	    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	    			Exit Sub  			
+				
+				End If
+				    		
+	   			glb_sStatus = _(&quot;Edit equation...&quot;)	    		
+	    		TexMathsDialog(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+	    		Exit Sub
+
+
+			&apos; Selected object is Text
+			ElseIf oSelection.supportsService(&quot;com.sun.star.text.TextRanges&quot;) Then
+
+				&apos; Call MakeEquation without dialog box
+				Dim oSel as Variant		
+      			oSel = oSelection.getByIndex(0)
+      			If oSel.supportsService(&quot;com.sun.star.text.TextRange&quot;) And oSel.String &lt;&gt; &quot;&quot; Then
+     					
+		 			&apos; Find if we allow an extra CR in MakeEquation
+		 			Dim oViewCursor as Variant
+		 			Dim oCursor as Variant
+		 			oViewCursor =  oDocCtrl.ViewCursor
+		 			
+		 			oCursor =  GetLeftMostCursor(oSel)
+					oViewCursor.gotoRange(oCursor, FALSE)
+	 	 			
+	 				oCursor =  GetRightMostCursor(oSel)
+					oViewCursor.gotoRange(oCursor, TRUE)
+	
+	 				&apos; Generate LaTeX equation
+	 				MakeEquation(CInt(sEqSize), sEqType, oSel.String, sEqFormat, sEqDPI, sEqTransp, &quot;&quot;, null)	      					
+	 				Exit Sub
+      				
+      			End If
+      				
+	    	End If
+	
+		&apos; We are in an Impress or Draw document
+		ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; Or  GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+		
+			&apos; For Impress or Draw, check if the selected object is in a SvxShapeCollection
+			If oSelection.getImplementationName() = &quot;com.sun.star.drawing.SvxShapeCollection&quot; Then
+			
+				oShape = oSelection.getByIndex(0)
+				sDlgArg = ReadAttributes(oShape)
+				If sDlgArg = &quot;&quot; Then
+				
+    				MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	   				Exit Sub
+	    					
+	    		End If
+				oShapePosition = oShape.position()
+	       		EditEquation = TRUE
+	    		
+				sArray()=Split(sDlgArg,&quot;§&quot;)
+
+				&apos; Pre v0.39 equation
+				If Ubound(sArray) = 2 Then
+				
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+				
+				ElseIf Ubound(sArray) = 5 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=&quot;&quot;
+
+				ElseIf Ubound(sArray) = 6 Then
+
+		    		sEqSize=sArray(0)
+		    		sEqType=sArray(1)
+		    		sEqLatexCode=sArray(2)
+		    		sEqFormat=sArray(3)
+		    		sEqDPI=sArray(4)
+		    		sEqTransp=sArray(5)
+		    		sEqName=sArray(6)
+				
+				Else
+				
+	    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+	    			Exit Sub  			
+				
+				End If
+   		
+	   			glb_sStatus = _(&quot;Edit equation...&quot;)
+	    		TexMathsDialog(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+	    		Exit Sub
+	
+	    	&apos; Selected object is text within a frame
+	    	ElseIf oSelection.getImplementationName() = &quot;SvxUnoTextCursor&quot; Then
+
+    			MsgBox _(&quot;The selected object is not a TexMaths equation...&quot;) &amp; chr(10) &amp;_
+	    				     	 _(&quot;Please unselect it and call the macro again...&quot;)
+    			Exit Sub
+    			
+    		End If
+
+		End If
+
+	End If
+
+	&apos; Open the dialog box with the default options
+	TexMathsDialog(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+
+End Sub
+
+
+&apos; Set configuration
+Sub SetConfig
+
+	&apos; Initialise state string
+	glb_sStatus = &quot;&quot;
+	
+	&apos; Set default system configuration (pkg, user and tmp paths)
+	DefaultSysConfig()
+
+	&apos; Set default equation preferences (image format, equation type, font size)
+	DefaultPrefs()
+
+	&apos; Apply saved config if it exists
+	If FileExists(glb_sUserPath &amp; &quot;TexMaths.cfg&quot; ) Then ReadPrefsFile()
+	
+	&apos; Set default preamble
+	DefaultPreamble()
+
+	&apos; Try to read a stored LaTeX preamble
+	ReadPreamble()
+	
+End Sub
+
+
+&apos; This is the core macro! It is called by the dialog box
+&apos; with the sEqCode, sEqType, iEqSize, sEqFormat, sEqDPI and sEqTransp variables
+&apos; It makes the image and inserts it in the document
+&apos; Returns -1 if an error has occurred, else 0
+Function MakeEquation(iEqSize as Integer, sEqType as String, sEqCode as String, sEqFormat as String, sEqDPI as String, sEqTransp as String, sEqName as String, oShape as Variant) as Integer
+
+	Dim iNumber as Integer
+	Dim cURL as String, sShellArg as String, sMsg as String, sLatexCode as String, sShellCommand as String
+	Dim sVersion as String
+
+	&apos; LibreOffice (or OpenOffice) major version
+	sVersion = Left(GetLOVersion(),1)
+
+	&apos; Save initial clipboard content because it will be lost when pasting the image
+	If Not (getGUIType() = 1 And sVersion = &quot;5&quot;) Then &apos; Doesn&apos;t work on Windows with Libreoffice 5.x
+	
+		Dim sClipContent as String
+		sClipContent = ClipboardToText()
+	
+	End If
+
+	&apos; We first test if there is LateX code
+	If sEqCode = &quot;&quot; Then 
+
+		MsgBox _(&quot;Please enter an equation...&quot;)
+		MakeEquation = -1
+		Exit Function
+
+	End If
+
+	&apos; Some environments only work in LaTeX mode 
+	If IsPrefixString(&quot;\begin{align&quot;,sEqCode) Or IsPrefixString(&quot;\begin{eqnarray&quot;,sEqCode) Or IsPrefixString(&quot;\begin{gather&quot;,sEqCode) _
+	Or isPrefixString(&quot;\begin{flalign&quot;,sEqCode) Or IsPrefixString(&quot;\begin{multline&quot;,sEqCode) Or IsPrefixString(&quot;\begin{minted&quot;,sEqCode) Then
+		sEqType = &quot;latex&quot; 
+	End If
+
+	&apos; Check if the LaTeX code has any dependencies that can be fulfilled easily by copying files from source dir to tmp dir
+	&apos; We check for include and input (with .tex files) and usepackage (with .sty files)
+	&apos; Note that we search in the preamble and in the latex code (we concatenate the two)
+	&apos; Patch by Daniel Fett
+
+	&apos; Document URL
+	Dim sUrl as String
+	sUrl = ThisComponent.getURL()
+	
+	&apos; Open service file and an output stream
+	Dim oFileAccess as Variant, oTextStream as Variant
+	oFileAccess = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	oTextStream  = createUnoService(&quot;com.sun.star.io.TextOutputStream&quot;)
+
+	Dim sPotentialFile as String
+	Dim sFilePath as String 
+	
+	Dim aSplittedURL() as String
+	Dim sCurrentDir as String
+	
+	aSplittedURL = split(sUrl, &quot;/&quot;)
+
+	For Each sPotentialFile in FindInLatexCommand(glb_sPreamble &amp; sEqCode, &quot;include&quot;)
+
+		&apos; Document not saved
+		If (sUrl = &quot;&quot;) Then	
+			MsgBox _(&quot;Please save the document before using an \include command...&quot;)
+			MakeEquation = -1
+			Exit Function
+		End If
+		
+		&apos; When using an \include command, the equation type must be set to &quot;latex&quot;
+		sEqType = &quot;latex&quot; 	
+		oDlgMain.getControl(&quot;TypeLatex&quot;).setState(1)
+
+		&apos; Copy tex file to the tmp directory
+		sCurrentDir = Left(sUrl, Len(sUrl) - Len(aSplittedUrl(UBound(aSplittedUrl))))
+		sFilePath = sCurrentDir &amp; &quot;/&quot; &amp; sPotentialFile &amp; &quot;.tex&quot;				
+		If oFileAccess.exists(sFilePath) Then
+			oFileAccess.copy(sFilePath, ConvertToURL( glb_sTmpPath &amp; sPotentialFile &amp; &quot;.tex&quot;))
+		End If
+
+	Next
+	
+	For Each sPotentialFile in FindInLatexCommand(glb_sPreamble &amp; sEqCode, &quot;input&quot;)
+
+		&apos; Document not saved
+		If (sUrl = &quot;&quot;) Then
+			MsgBox _(&quot;Please save the document before using an \input command...&quot;)
+			MakeEquation = -1
+			Exit Function
+		End If
+
+		&apos; Copy tex file to the tmp directory
+		sCurrentDir = Left(sUrl, Len(sUrl) - Len(aSplittedUrl(UBound(aSplittedUrl))))
+		sFilePath = sCurrentDir &amp; &quot;/&quot; &amp; sPotentialFile &amp; &quot;.tex&quot;
+		If oFileAccess.exists(sFilePath) Then
+			oFileAccess.copy(sFilePath, ConvertToURL( glb_sTmpPath &amp; sPotentialFile &amp; &quot;.tex&quot;))
+		End If
+	Next
+	
+	For Each sPotentialFile in FindInLatexCommand(glb_sPreamble &amp; sEqCode, &quot;usepackage&quot;)
+	
+		&apos; Document not saved
+		If (sUrl = &quot;&quot;) Then
+	
+			sFilePath = ConvertToURL( glb_sTmpPath &amp; sPotentialFile &amp; &quot;.sty&quot;) &apos; Path of sty file in tmp dir
+			If oFileAccess.exists(sFilePath) Then
+				oFileAccess.kill(sFilePath)
+			End If
+		
+		Else
+
+			sCurrentDir = Left(sUrl, Len(sUrl) - Len(aSplittedUrl(UBound(aSplittedUrl))))
+			sFilePath = sCurrentDir &amp; &quot;/&quot; &amp; sPotentialFile &amp; &quot;.sty&quot;
+			If oFileAccess.exists(sFilePath) Then
+				oFileAccess.copy(sFilePath, ConvertToURL( glb_sTmpPath &amp; sPotentialFile &amp; &quot;.sty&quot;))
+			End If
+		
+		End If
+
+	Next
+
+
+	&apos; Build the LaTeX code, depending on the selected mode
+	If sEqType = &quot;inline&quot;  Then
+		
+		sLatexCode = &quot;\begin{document}&quot; &amp; chr(10) &amp;_
+		&quot;\newsavebox{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\width}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\height}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\depth}&quot; &amp; chr(10) &amp; chr(10) &amp;_
+		&quot;\begin{lrbox}{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;{$ &quot; &amp; sEqCode &amp; &quot; $}&quot; &amp; chr(10) &amp;_
+		&quot;\end{lrbox}&quot; &amp; chr(10) &amp; chr(10) &amp;_
+		&quot;\settowidth {\width}  {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\settoheight{\height} {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\settodepth {\depth}  {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\newwrite\file&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\openout\file=\jobname.bsl&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Depth = \the\depth}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Height = \the\height}&quot; &amp; chr(10) &amp;_
+		&quot;\addtolength{\height} {\depth}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{TotalHeight = \the\height}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Width = \the\width}&quot; &amp; chr(10) &amp;_
+		&quot;\closeout\file&quot; &amp; chr(10) &amp;_
+		&quot;\usebox{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;\end{document}&quot; &amp; chr(10)
+		
+	ElseIf sEqType = &quot;display&quot;  Then
+		
+		sLatexCode = &quot;\begin{document}&quot; &amp; chr(10) &amp;_
+		&quot;\newsavebox{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\width}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\height}&quot; &amp; chr(10) &amp;_
+		&quot;\newlength{\depth}&quot; &amp; chr(10) &amp; chr(10) &amp;_
+		&quot;\begin{lrbox}{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;{$\displaystyle &quot; &amp; sEqCode &amp; &quot; $}&quot; &amp; chr(10) &amp;_
+		&quot;\end{lrbox}&quot; &amp; chr(10) &amp; chr(10) &amp;_
+		&quot;\settowidth {\width}  {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\settoheight{\height} {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\settodepth {\depth}  {\usebox{\eqbox}}&quot; &amp; chr(10) &amp;_
+		&quot;\newwrite\file&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\openout\file=\jobname.bsl&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Depth = \the\depth}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Height = \the\height}&quot; &amp; chr(10) &amp;_
+		&quot;\addtolength{\height} {\depth}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{TotalHeight = \the\height}&quot; &amp; chr(10) &amp;_
+		&quot;\immediate\write\file{Width = \the\width}&quot; &amp; chr(10) &amp;_
+		&quot;\closeout\file&quot; &amp; chr(10) &amp;_
+		&quot;\usebox{\eqbox}&quot; &amp; chr(10) &amp;_
+		&quot;\end{document}&quot; &amp; chr(10)
+
+	ElseIf sEqType = &quot;latex&quot; Then
+	
+		sLatexCode = sEqCode
+		
+	End If
+
+	&apos; Create the LaTeX file with the LatexCode
+	cURL = ConvertToURL( glb_sTmpPath &amp; &quot;tmpfile.tex&quot; )
+	If oFileAccess.exists( cURL ) Then oFileAccess.kill( cURL )
+    oTextStream.setOutputStream(oFileAccess.openFileWrite(cURL))
+	
+	If sEqType = &quot;latex&quot; Then
+	
+		If glb_bIgnorePreamble Then
+	
+			oTextStream.writeString(sLatexCode)
+	
+		Else
+	
+			oTextStream.writeString( _
+			    	&quot;\documentclass[10pt,dvips]{article}&quot; &amp; chr(10) &amp;_
+		    		glb_sPreamble &amp; chr(10) &amp; chr(10) &amp;_
+			    	&quot;\pagestyle{empty}&quot; &amp; chr(10) &amp;_
+			    	&quot;\begin{document}&quot; &amp; chr(10) &amp;_
+			    	sLatexCode &amp; chr(10) &amp;_
+			    	&quot;\end{document}&quot; )
+	
+		End If
+
+	Else
+	
+		oTextStream.writeString( _
+		    	&quot;\documentclass[10pt,dvips]{article}&quot; &amp; chr(10) &amp;_
+		    	glb_sPreamble &amp; chr(10) &amp; chr(10) &amp;_
+		    	&quot;\pagestyle{empty}&quot; &amp; chr(10) &amp;_
+		    	sLatexCode )
+	
+	End If
+
+	&apos; Close the file
+    oTextStream.closeOutput()
+    
+    &apos; Test the existence of the LaTeX file...
+    If CheckFile( glb_sTmpPath &amp; &quot;tmpfile.tex&quot; , _
+    		_(&quot;The file &quot;) &amp; ConvertFromURL(glb_sTmpPath) &amp; _(&quot;tmpfile.tex cannot be created&quot;) &amp; chr(10) &amp; _
+			_(&quot;Please check your installation...&quot;) ) Then 
+
+		ConfigDialog()
+		MakeEquation = -1
+		Exit Function
+
+	End If
+	
+	&apos; Windows
+	If getGUIType() = 1 Then
+
+		sShellCommand = ConvertToURL( GetScriptPath() )
+		sShellArg = sEqFormat &amp; &quot; &quot;  &amp; sEqDPI &amp; &quot; &quot;  &amp; sEqTransp &amp; &quot; &quot; &amp; glb_sTmpPath &amp; &quot; &quot; &amp; glb_sCompiler
+
+	&apos; Linux or Mac OS X
+	Else 					
+		
+		sShellCommand = &quot;/bin/bash&quot;
+		sShellArg = &quot;&apos;&quot; &amp; ConvertFromURL(GetScriptPath()) &amp; &quot;&apos; &quot; &amp; sEqFormat &amp;_
+				    &quot; &quot; &amp; sEqDPI &amp; &quot; &quot; &amp; sEqTransp &amp; &quot; &apos;&quot;  &amp; ConvertFromURL(glb_sTmpPath) &amp; &quot;&apos; &quot; &amp; glb_sCompiler
+	End If
+
+    &apos; Remove Latex output file
+	cURL = ConvertToURL( glb_sTmpPath &amp; &quot;tmpfile.out&quot; )
+	If oFileAccess.exists( cURL ) Then oFileAccess.kill( cURL )
+
+	&apos; Call the script
+	Shell(sShellCommand, 2, sShellArg, TRUE)
+
+	&apos; Check the result
+	Dim sDviFile as String
+	If glb_sCompiler = &quot;latex&quot; Then
+		sDviFile = &quot;tmpfile.dvi&quot;
+	Else
+		sDviFile = &quot;tmpfile.xdv&quot;
+	End If
+	 
+ 	If Not FileExists(glb_sTmpPath &amp; sDviFile) _
+ 	   and Not FileExists(glb_sTmpPath &amp; &quot;tmpfile.out&quot;)  Then
+		MsgBox ( _(&quot;No file created in the directory:&quot;) &amp; _
+  		       chr(10) &amp; ConvertFromURL(glb_sTmpPath) )
+  		MakeEquation = -1
+  		Exit Function
+
+ 	ElseIf Not FileExists(glb_sTmpPath &amp; sDviFile) _
+ 	       and FileExists(glb_sTmpPath &amp; &quot;tmpfile.out&quot;)  Then &apos; Latex error
+
+  		PrintError(&quot;tmpfile.out&quot;)
+  		MakeEquation = -1
+  		Exit Function
+
+ 	ElseIf CheckFile(glb_sTmpPath &amp; &quot;tmpfile.&quot; &amp; sEqFormat,_
+   		_(&quot;Script error: the dvi file was not converted to &quot;) &amp; sEqFormat &amp; &quot;! &quot; &amp; chr(10) &amp; chr(10) &amp;_
+   		_(&quot;Please check your system configuration...&quot;) ) Then
+   		
+	  		MakeEquation = -1
+	  		Exit Function
+
+ 	End If
+
+
+	&apos; Create the Controller and dispatcher for current document
+	Dim ret as Boolean
+	Dim oDoc as Variant, oDocCtrl as Variant, oDispatcher as Variant, oGraphic as Variant, oShapeSize as Variant
+	oDoc = ThisComponent
+	oDocCtrl = oDoc.getCurrentController()
+	oDispatcher = createUnoService(&quot;com.sun.star.frame.DispatchHelper&quot;)
+
+
+	&apos; ================== Current document is a Writer document ==================
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+
+		Dim oViewCursor as Variant, oCursor as Variant
+		Dim AnchorType as Integer
+
+		&apos; If there is already an equation image, remove it
+		If EditEquation Then
+
+			&apos; Select image (ensuring compatibility with previous TexMaths versions)
+			Dim oSelection as Variant
+			On Error Goto SelectionError
+			oSelection = oDocCtrl.getSelection().GetByIndex(0)		
+			
+			&apos; Get selected image anchor
+			Dim oAnchor as Variant
+			oAnchor = oSelection.getAnchor()
+			AnchorType = oSelection.AnchorType
+
+			&apos; Unselect image
+		 	oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:Escape&quot;, &quot;&quot;, 0, Array())
+		 	
+		 	&apos; Workaround for an issue with gtk3 backend
+		 	If isNull(oShape) Then
+		   	  	oDoc.drawPage.remove(oSelection)
+			Else
+				oDoc.drawPage.remove(oShape)
+			End If
+		 
+		 End If
+		 
+		&apos; Set vertical alignement to middle when Word compatibility is requested
+		If glb_WordVertAlign = TRUE Then
+			
+			dim args4(0) as new com.sun.star.beans.PropertyValue
+			args4(0).Name = &quot;VerticalParagraphAlignment&quot;
+			args4(0).Value = 3		
+			oDispatcher.executeDispatch(oDocCtrl.Frame, &quot;.uno:VerticalParagraphAlignment&quot;, &quot;&quot;, 0, args4())
+		
+		End If
+		
+		&apos; Set text cursor position to the view cursor position
+		oViewCursor = oDocCtrl.ViewCursor
+		oCursor = oViewCursor.Text.createTextCursorByRange(oViewCursor)
+		oCursor.gotoRange(oViewCursor,FALSE)
+								
+		&apos; Import the new image into the clipboard
+   		ret = ImportGraphicIntoClipboard(ConvertToURL( glb_sTmpPath &amp; &quot;tmpfile.&quot;&amp; sEqFormat), sEqFormat, sEqDPI, sEqTransp)
+   		If ret = FALSE Then
+   		
+	  		MakeEquation = -1
+	  		Exit Function
+   		
+   		 End If
+	
+		&apos; Paste image to the current document
+		oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:Paste&quot;, &quot;&quot;, 0, Array())
+	
+	  	&apos; Select image
+	   	oGraphic = oDocCtrl.getSelection().GetByIndex(0)
+
+		&apos; Set the graphic object name
+		oGraphic.Name = sEqname
+
+		&apos; Scale image
+		oShapeSize = oGraphic.Size
+		oShapeSize.Width = oShapeSize.Width * (iEqSize / 10)
+		oShapeSize.Height = oShapeSize.Height * (iEqSize / 10)
+		oGraphic.Size = oShapeSize	
+
+		&apos; In edit mode, anchor the image as it was
+		If EditEquation Then
+		
+			Select Case AnchorType
+
+				Case ANCHOR_TO_PARA
+					oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:SetAnchorToPara&quot;, &quot;&quot;, 0, Array())
+					oGraphic.setPosition(oImgPosition)
+				
+				Case ANCHOR_TO_CHAR
+					oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:SetAnchorToChar&quot;, &quot;&quot;, 0, Array())
+					&apos; Don&apos;t position image in this case
+				
+				Case ANCHOR_TO_PAGE
+					oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:SetAnchorToPage&quot;, &quot;&quot;, 0, Array())
+					oGraphic.setPosition(oImgPosition)					
+				
+				Case ANCHOR_AT_CHAR
+					oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:SetAnchorAtChar&quot;, &quot;&quot;, 0, Array())
+					oGraphic.setPosition(oImgPosition)
+			
+			End Select
+		
+		&apos; New equations are anchored to char
+		Else
+		
+			AnchorType = ANCHOR_TO_CHAR
+			oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:SetAnchorToChar&quot;, &quot;&quot;, 0, Array())
+			
+		End If
+	
+		 &apos; Set some image properties
+		oGraphic.TopMargin = 0
+		oGraphic.BottomMargin = 0
+		oGraphic.VertOrient = 0
+
+		&apos; Adjust vertical position for Inline or Display equations when image is anchored to char
+		If AnchorType = ANCHOR_TO_CHAR and ( sEqtype = &quot;inline&quot; or sEqType = &quot;display&quot; ) Then
+						
+			&apos; Get vertical shift coefficient
+			Dim coef as Double
+			coef = getVertShift()
+					
+			&apos; Adjust the vertical position to the baseline
+			oGraphic.VertOrientPosition = - coef * oShapeSize.Height
+
+		End If
+
+		&apos; Set image attributes (size, type LaTeX code) for further editing
+		SetAttributes( oGraphic, iEqSize, sEqType, sEqCode, sEqFormat, sEqDPI, sEqTransp, sEqName )
+
+		&apos; Save the paragraph style
+		Dim ParaStyleName as String
+		ParaStyleName = oViewCursor.ParaStyleName
+
+		&apos; Trick to ensure the image is located at the cursor position
+		&apos; =&gt; cut image, position cursor, then paste
+		&apos; =&gt; otherwise, the image can be anywhere within the paragraph 
+		oDispatcher.executeDispatch(oDocCtrl.Frame, &quot;.uno:Cut&quot;, &quot;&quot;, 0, Array())
+		oViewCursor.gotoRange(oCursor, FALSE)
+		oDispatcher.executeDispatch(oDocCtrl.Frame, &quot;.uno:Paste&quot;, &quot;&quot;, 0, Array())
+
+		&apos; Restore paragraph style if it changed
+		If ParaStyleName &lt;&gt; oViewCursor.ParaStyleName Then
+
+			oViewCursor.ParaStyleName = ParaStyleName
+
+		End If
+
+		&apos; Deselect image
+		oDispatcher.executeDispatch(oDocCtrl.Frame, &quot;.uno:Escape&quot;, &quot;&quot;, 0, Array())
+
+
+	&apos; ================== Current document is an Impress or Draw document ==================
+	ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; or GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+		
+ 		&apos; Edit equation: remove old image
+ 		If EditEquation Then 
+ 			
+ 			&apos; Fill in reference to original shape (used to keep animations and Z index)
+			Dim oOriginalShape as Variant
+			Dim oOriginalShapeZOrder as Long
+			oOriginalShape = oDocCtrl.getSelection().getByIndex(0)
+			oOriginalShapeZOrder = oOriginalShape.ZOrder
+ 			oDispatcher.executeDispatch(oDocCtrl.Frame,&quot;.uno:Cut&quot;,&quot;&quot;, 0, Array() )
+ 		
+ 		End If
+		
+		&apos; Import the new image to the clipboard
+   		ret = ImportGraphicIntoClipboard(ConvertToURL( glb_sTmpPath &amp; &quot;tmpfile.&quot; &amp; sEqFormat), sEqFormat, sEqDPI, sEqTransp)
+   		If ret = FALSE Then
+	  		MakeEquation = -1
+  			Exit Function
+   		End If
+
+		&apos; Paste image to the current document
+		oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:Paste&quot;, &quot;&quot;, 0, Array())
+
+		&apos; Select image
+		oGraphic = oDocCtrl.getSelection().getByIndex(0)
+
+		&apos; Set the graphic object name
+		oGraphic.Name = sEqname
+
+		&apos; Edit equation: set its position equal to the previous one
+		If EditEquation Then
+			oGraphic.setPosition(oShapePosition)
+		
+		&apos; New equation: Position the image at the center of the visible area
+		Else
+		
+			Dim oPosition as Variant
+			oPosition = createUnoStruct( &quot;com.sun.star.awt.Point&quot; ) 
+			oPosition.X = oDocCtrl.VisibleArea.X + oDocCtrl.VisibleArea.Width / 2 - (oGraphic.Size.Width*iEqSize/10) / 2
+			oPosition.Y = oDocCtrl.VisibleArea.Y + oDocCtrl.VisibleArea.Height / 2	- (oGraphic.Size.Height* iEqSize/10) / 2
+			oGraphic.setPosition(oPosition)
+
+		End If
+
+		&apos; Scale the image
+		oShapeSize = oGraphic.Size
+		oShapeSize.Width = oShapeSize.Width * iEqSize / 10
+		oShapeSize.Height = oShapeSize.Height * iEqSize / 10
+		oGraphic.Size = oShapeSize
+		
+		&apos; Set image attributes (size, type LaTeX code) for further editing
+		SetAttributes( oGraphic, iEqSize, sEqType, sEqCode, sEqFormat, sEqDPI, sEqTransp, sEqName)
+
+		&apos; Trick to allow undoing the equation insertion
+		oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:Cut&quot;, &quot;&quot;, 0, Array())
+		oDispatcher.executeDispatch( oDocCtrl.Frame, &quot;.uno:Paste&quot;, &quot;&quot;, 0, Array())
+
+		&apos; Select image
+		oGraphic = oDocCtrl.getSelection().getByIndex(0)
+
+		&apos; Edit equation: if in Normal view mode, transfer animations from old shape to new shape
+ 		If EditEquation and GetDocumentType(oDoc) = &quot;simpress&quot; and oDocCtrl.DrawViewMode = 0 Then
+			TransferAnimations(oDocCtrl.getCurrentPage(), oOriginalShape, oGraphic) 			
+			TransferAnimations(oDocCtrl.getCurrentPage(), oOriginalShape, oGraphic) 
+		End If
+
+		&apos; Preserve Z index of equation
+		If EditEquation Then
+			oGraphic.ZOrder = oOriginalShapeZOrder
+ 		End If
+
+	End If
+	
+	&apos; If Writer is installed, restore initial clipboard content
+	If Not (getGUIType() = 1 And sVersion = &quot;5&quot;) Then &apos; Doesn&apos;t work on Windows with Libreoffice 5.x
+
+		If ComponentInstalled( &quot;Writer&quot; ) Then
+			TextToClipboard(sClipContent)
+		End If
+	
+	End If
+
+	MakeEquation = 0
+	Exit Function
+
+	&apos; To ensure compatibility with previous TexMaths versions
+	SelectionError:
+		oSelection = oDocCtrl.getSelection
+		Resume Next
+
+End Function
+
+
+</script:module>

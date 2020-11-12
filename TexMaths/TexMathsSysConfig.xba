@@ -1,0 +1,1300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsSysConfig" script:language="StarBasic">&apos;
+&apos;    TexMathsSysConfig
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos; 	 Macros used to create and manage the Sysconfig dialog 
+
+&apos; Force variable declaration
+Option Explicit
+
+
+&apos; Dialog declaration
+Private oDlgSysConfig as Variant
+
+
+&apos; Main subroutine
+Sub Main()
+
+	&apos; The Draw component is required
+	If ComponentInstalled( &quot;Draw&quot; ) = FALSE Then
+
+  		MsgBox( _(&quot;Please install the Draw component to run TexMaths!&quot;) )
+  		Exit Sub
+
+	End If	 
+ 
+ 	DefaultSysConfig()
+	SysConfigDialog()
+
+End Sub
+
+
+&apos; Create and show the config dialog
+Sub SysConfigDialog()
+
+	&apos; Load the library TexMaths
+	DialogLibraries.LoadLibrary( &quot;TexMaths&quot; )
+	
+	&apos; Create the dialog object
+	oDlgSysConfig = createUnoDialog( DialogLibraries.GetByName(&quot;TexMaths&quot;).GetByName(&quot;TexMathsSysConfig_GUI&quot;) )
+	
+	&apos; Dialog strings for translation
+	oDlgSysConfig.setTitle( _(&quot;TexMaths System Configuration&quot;) )
+	oDlgSysConfig.getControl(&quot;ShortcutFrame1&quot;).Model.Label = _(&quot;Equations Shortcuts&quot;)
+	oDlgSysConfig.getControl(&quot;ShortcutFrame2&quot;).Model.Label = _(&quot;Numbered Equations Shortcut&quot;)
+	oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).Model.Label = _(&quot;Same shortcut for Writer, Impress and Draw&quot;)
+	oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).Model.HelpText = _(&quot;Use the same shortcut for Writer, Impress and Draw&quot;)
+	oDlgSysConfig.getControl(&quot;SystempathsFrame&quot;).Model.Label = _(&quot;System Paths&quot;)
+	oDlgSysConfig.getControl(&quot;AllFrame&quot;).Model.Label = _(&quot;All&quot;)
+	oDlgSysConfig.getControl(&quot;Key1&quot;).Model.HelpText = _(&quot;Keyboard shortcut&quot;)
+	oDlgSysConfig.getControl(&quot;Key2&quot;).Model.HelpText = _(&quot;Keyboard shortcut&quot;)
+	oDlgSysConfig.getControl(&quot;Key3&quot;).Model.HelpText = _(&quot;Keyboard shortcut&quot;)
+	oDlgSysConfig.getControl(&quot;Key4&quot;).Model.HelpText = _(&quot;Keyboard shortcut&quot;)
+	oDlgSysConfig.getControl(&quot;LatexPath&quot;).Model.HelpText = _(&quot;Path of the latex program&quot;)
+	oDlgSysConfig.getControl(&quot;XelatexPath&quot;).Model.HelpText = _(&quot;Path of the xelatex program&quot;)
+	oDlgSysConfig.getControl(&quot;DvipngPath&quot;).Model.HelpText = _(&quot;Path of the dvipng program&quot;)
+	oDlgSysConfig.getControl(&quot;DvisvgmPath&quot;).Model.HelpText = _(&quot;Path of the dvisvgm program&quot;)
+	oDlgSysConfig.getControl(&quot;HelpButton&quot;).Model.Label = _(&quot;Help...&quot;)
+	oDlgSysConfig.getControl(&quot;HelpButton&quot;).Model.HelpText = _(&quot;Display help text&quot;)	
+	oDlgSysConfig.getControl(&quot;SaveButton&quot;).Model.Label = _(&quot;Save&quot;)
+	oDlgSysConfig.getControl(&quot;SaveButton&quot;).Model.HelpText = _(&quot;Save system configuration&quot;)
+	oDlgSysConfig.getControl(&quot;NumLevelLabel&quot;).Model.Label = _(&quot;Numbering Level&quot;)
+	oDlgSysConfig.getControl(&quot;NumLevelLabel&quot;).Model.HelpText = _(&quot;Chapter level number to be included in equation numbers&quot;)
+	oDlgSysConfig.getControl(&quot;NumLevel&quot;).addItems(Array(&quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;),0)
+	oDlgSysConfig.getControl(&quot;NumLevel&quot;).Model.HelpText = _(&quot;Level number&quot;)
+	oDlgSysConfig.getControl(&quot;LeftAlignRadio&quot;).Model.Label = _(&quot;Caption left alignment&quot;)
+	oDlgSysConfig.getControl(&quot;LeftAlignRadio&quot;).Model.HelpText = _(&quot;Set equation caption alignment to left&quot;)
+	oDlgSysConfig.getControl(&quot;RightAlignRadio&quot;).Model.Label = _(&quot;Caption right alignment&quot;)
+	oDlgSysConfig.getControl(&quot;RightAlignRadio&quot;).Model.HelpText = _(&quot;Set equation caption alignment to right&quot;)
+	oDlgSysConfig.getControl(&quot;CompilerFrame&quot;).Model.Label = _(&quot;Compiler&quot;)
+	oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).Model.HelpText = _(&quot;Equations will be compiled using the LaTeX compiler&quot;)
+	oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).Model.HelpText = _(&quot;Equations will be compiled using the XeLaTeX compiler&quot;)
+	oDlgSysConfig.getControl(&quot;PathsButton&quot;).Model.Label =  _(&quot;Paths&quot;)
+	oDlgSysConfig.getControl(&quot;PathsButton&quot;).Model.HelpText = _(&quot;Display the Paths tab&quot;)
+	oDlgSysConfig.getControl(&quot;OptionsButton&quot;).Model.Label = _(&quot;Options&quot;)
+	oDlgSysConfig.getControl(&quot;OptionsButton&quot;).Model.HelpText = _(&quot;Display the Options tab&quot;)
+	oDlgSysConfig.getControl(&quot;InterfaceButton&quot;).Model.Label = _(&quot;Interface&quot;)
+	oDlgSysConfig.getControl(&quot;InterfaceButton&quot;).Model.HelpText = _(&quot;Display the Interface tab&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontFrame&quot;).Model.Label = _(&quot;Editor Font&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontName&quot;).Model.HelpText = _(&quot;Font name&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontNameLabel&quot;).Model.Label = _(&quot;Name&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontNameLabel&quot;).Model.HelpText = _(&quot;Name of the font used in the equation editor window&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontSize&quot;).addItems(Array(&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;30&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;50&quot;),0)
+	oDlgSysConfig.getControl(&quot;EditorFontSize&quot;).Model.HelpText = _(&quot;Font size&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontSizeLabel&quot;).Model.Label = _(&quot;Size&quot;)
+	oDlgSysConfig.getControl(&quot;EditorFontSizeLabel&quot;).Model.HelpText = _(&quot;Size of the font used in the equation editor window&quot;)
+	oDlgSysConfig.getControl(&quot;SymbolColorFrame&quot;).Model.Label = _(&quot;Symbol Color&quot;)
+	oDlgSysConfig.getControl(&quot;BlackSymbolsRadio&quot;).Model.Label = _(&quot;Black symbols&quot;)
+	oDlgSysConfig.getControl(&quot;BlackSymbolsRadio&quot;).Model.HelpText = _(&quot;Set LaTeX symbol color to black (for light themes)&quot;)
+	oDlgSysConfig.getControl(&quot;WhiteSymbolsRadio&quot;).Model.Label = _(&quot;White symbols&quot;)
+	oDlgSysConfig.getControl(&quot;WhiteSymbolsRadio&quot;).Model.HelpText = _(&quot;Set LaTeX symbol color to white (for dark themes)&quot;)
+	oDlgSysConfig.getControl(&quot;ShortcutsButton&quot;).Model.Label = _(&quot;Shortcuts&quot;)
+	oDlgSysConfig.getControl(&quot;ShortcutsButton&quot;).Model.HelpText = _(&quot;Display the Shortcuts tab&quot;)
+	oDlgSysConfig.getControl(&quot;NumberedEquationsFrame&quot;).Model.Label = _(&quot;Numbered Equations&quot;)
+	oDlgSysConfig.getControl(&quot;CompatibilityFrame&quot;).Model.Label = _(&quot;Compatibility&quot;)
+	oDlgSysConfig.getControl(&quot;VertAlign&quot;).Model.Label = _(&quot;Vertical alignment for Word export&quot;)
+	oDlgSysConfig.getControl(&quot;VertAlign&quot;).Model.HelpText = _(&quot;Improve vertical alignment of Writer equations for Word export&quot;)
+	oDlgSysConfig.getControl(&quot;BreakBeforeNumCheck&quot;).Model.Label = _(&quot;Paragraph break before numbered equations&quot;)
+	oDlgSysConfig.getControl(&quot;BreakBeforeNumCheck&quot;).Model.HelpText = _(&quot;Add a paragraph break before numbered equations&quot;)
+	oDlgSysConfig.getControl(&quot;BreakAfterNumCheck&quot;).Model.Label = _(&quot;Paragraph break after numbered equations&quot;)
+	oDlgSysConfig.getControl(&quot;BreakAfterNumCheck&quot;).Model.HelpText = _(&quot;Add a paragraph break after numbered equations&quot;)
+	oDlgSysConfig.getControl(&quot;CaptionLabel&quot;).Model.Label = _(&quot;Equation Caption&quot;)
+	oDlgSysConfig.getControl(&quot;CaptionTextField&quot;).Model.HelpText = _(&quot;Display text before equation number (leave blank if no text desired)&quot;)
+
+	&apos; MacOSX uses Cmd key instead of Ctrl key for shortcuts
+	If getGUIType() &lt;&gt; 1 Then
+		If GetUname() = &quot;Darwin&quot; Then
+			oDlgSysConfig.getControl(&quot;Ctrl1Label&quot;).Model.Label = &quot;Cmd +&quot;
+			oDlgSysConfig.getControl(&quot;Ctrl2Label&quot;).Model.Label = &quot;Cmd +&quot;
+			oDlgSysConfig.getControl(&quot;Ctrl3Label&quot;).Model.Label = &quot;Cmd +&quot;
+			oDlgSysConfig.getControl(&quot;Ctrl4Label&quot;).Model.Label = &quot;Cmd +&quot;
+		End If
+	End If
+
+	Dim msg as String
+	msg = _(&quot;The TexMaths macro uses some external programs to generate the equation images. Enter below the paths of these programs. Note that only one of the dvisvgm or dvipng programs is required to generate equation images.&quot;)
+
+	&apos; Windows
+	If getGUIType() = 1 Then
+
+			oDlgSysConfig.getControl(&quot;Description&quot;).setText( msg &amp; chr(10) &amp; chr(10) &amp;_
+					_(&quot;Ex: For a standard MiKTeX 2.9 install on Windows, enter the following path into the latex.exe field:&quot;) &amp; chr(10) &amp;_
+					&quot;C:\Program Files\MiKTeX 2.9\miktex\bin\latex.exe&quot;)
+	
+			oDlgSysConfig.getControl(&quot;LatexLabel&quot;).setText( _(&quot;latex.exe (mandatory)&quot;) )
+			oDlgSysConfig.getControl(&quot;XelatexLabel&quot;).setText( _(&quot;xelatex.exe (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvipngLabel&quot;).setText( _(&quot;dvipng.exe (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvisvgmLabel&quot;).setText( _(&quot;dvisvgm.exe (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;CompatibilityFrame&quot;).Model.Height = 34		
+
+	&apos; Linux or Mac OS X
+	Else
+	
+		&apos; Mac OS X
+		If GetUname() = &quot;Darwin&quot; Then
+		
+			oDlgSysConfig.getControl(&quot;Description&quot;).setText( msg &amp; chr(10) &amp; chr(10) &amp;_
+					_(&quot;Ex: For a standard MacTeX install on Mac OS, enter the following path into the latex field:&quot;) &amp; chr(10) &amp;_
+					&quot;/Library/TeX/texbin/latex&quot;)
+					
+			oDlgSysConfig.getControl(&quot;LatexLabel&quot;).setText( _(&quot;latex (mandatory)&quot;) )
+			oDlgSysConfig.getControl(&quot;XelatexLabel&quot;).setText( _(&quot;xelatex (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvipngLabel&quot;).setText( _(&quot;dvipng (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvisvgmLabel&quot;).setText( _(&quot;dvisvgm (optional)&quot;) )
+		
+		&apos; Linux
+		Else
+		
+			oDlgSysConfig.getControl(&quot;Description&quot;).setText( msg &amp; chr(10) &amp; chr(10) &amp;_
+					_(&quot;Ex: For a standard LaTeX install on Linux, enter the following path into the latex field:&quot;) &amp; chr(10) &amp;_
+					&quot;/usr/bin/latex&quot;)
+					
+			oDlgSysConfig.getControl(&quot;LatexLabel&quot;).setText( _(&quot;latex (mandatory)&quot;) )
+			oDlgSysConfig.getControl(&quot;XelatexLabel&quot;).setText( _(&quot;xelatex (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvipngLabel&quot;).setText( _(&quot;dvipng (optional)&quot;) )
+			oDlgSysConfig.getControl(&quot;DvisvgmLabel&quot;).setText( _(&quot;dvisvgm (optional)&quot;) )
+		
+		End If
+			
+	End If
+
+	&apos; Fill the file path values from the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	oDlgSysConfig.getControl(&quot;LatexPath&quot;).setText(ConvertFromURL(oSystemInfo.LatexPath))
+	oDlgSysConfig.getControl(&quot;XelatexPath&quot;).setText(ConvertFromURL(oSystemInfo.XelatexPath))
+	oDlgSysConfig.getControl(&quot;DvipngPath&quot;).setText(ConvertFromURL(oSystemInfo.DvipngPath))
+	oDlgSysConfig.getControl(&quot;DvisvgmPath&quot;).setText(ConvertFromURL(oSystemInfo.DvisvgmPath))
+
+	&apos; Set compiler
+	If oSystemInfo.Compiler = &quot;latex&quot; Then oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).setState(1)
+	If oSystemInfo.Compiler = &quot;xelatex&quot; Then oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).setState(1)
+
+	&apos; Set symbol color
+	If oSystemInfo.SymbolColor = &quot;symbols-black&quot; Then
+		oDlgSysConfig.getControl(&quot;BlackSymbolsRadio&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;WhiteSymbolsRadio&quot;).setState(0)
+	else
+		oDlgSysConfig.getControl(&quot;BlackSymbolsRadio&quot;).setState(0)
+		oDlgSysConfig.getControl(&quot;WhiteSymbolsRadio&quot;).setState(1)
+	End If
+	
+	&apos; Set the break before num and break after num options
+	If oSystemInfo.BreakBeforeNum = &quot;TRUE&quot; Then
+		oDlgSysConfig.getControl(&quot;BreakBeforeNumCheck&quot;).setState(1)
+	Else
+		oDlgSysConfig.getControl(&quot;BreakBeforeNumCheck&quot;).setState(0)
+	End If
+	If oSystemInfo.BreakAfterNum = &quot;TRUE&quot; Then
+		oDlgSysConfig.getControl(&quot;BreakAfterNumCheck&quot;).setState(1)
+	Else
+		oDlgSysConfig.getControl(&quot;BreakAfterNumCheck&quot;).setState(0)
+	End If
+
+	&apos; Set the equation caption
+	oDlgSysConfig.getControl(&quot;CaptionTextField&quot;).setText(oSystemInfo.EquationCaption)
+
+	&apos; Set the caption alignment
+	If oSystemInfo.CaptionLeftAlign = &quot;TRUE&quot; Then
+		oDlgSysConfig.getControl(&quot;LeftAlignRadio&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;RightAlignRadio&quot;).setState(0)
+	Else
+		oDlgSysConfig.getControl(&quot;LeftAlignRadio&quot;).setState(0)
+		oDlgSysConfig.getControl(&quot;RightAlignRadio&quot;).setState(1)
+	End If
+
+	&apos; Set the vertical alignment compatibility option
+	If oSystemInfo.WordVertAlign = &quot;TRUE&quot; Then
+		oDlgSysConfig.getControl(&quot;VertAlign&quot;).setState(1)
+	Else
+		oDlgSysConfig.getControl(&quot;VertAlign&quot;).setState(0)
+	End If
+
+	&apos; Set the numbering level
+	oDlgSysConfig.getControl(&quot;NumLevel&quot;).setText(oSystemInfo.NumLevel)
+
+	&apos; Set editor font name
+	If oSystemInfo.EditorFontName = &quot;&quot; Then
+		oDlgSysConfig.getControl(&quot;EditorFontName&quot;).setText(_(&quot;(Default)&quot;))
+	Else
+		oDlgSysConfig.getControl(&quot;EditorFontName&quot;).setText(oSystemInfo.EditorFontName)
+	End If
+
+	&apos; Set editor font size
+	oDlgSysConfig.getControl(&quot;EditorFontSize&quot;).setText(oSystemInfo.EditorFontSize)
+
+	&apos; Set the shortcuts 
+	Dim iKey1 as Integer, iKey2 as Integer, iKey3 as Integer, iKey4 as Integer
+	iKey1 = oSystemInfo.EqWriterKey
+	If iKey1 &lt;&gt; 0 Then oDlgSysConfig.getControl(&quot;Key1&quot;).setText(Chr(iKey1-447)) Else oDlgSysConfig.getControl(&quot;Key1&quot;).setText(&quot;&quot;)
+	iKey2 = oSystemInfo.EqImpressKey
+	If iKey2 &lt;&gt; 0 Then oDlgSysConfig.getControl(&quot;Key2&quot;).setText(Chr(iKey2-447)) Else oDlgSysConfig.getControl(&quot;Key2&quot;).setText(&quot;&quot;)
+	iKey3 = oSystemInfo.EqDrawKey
+	If iKey3 &lt;&gt; 0 Then oDlgSysConfig.getControl(&quot;Key3&quot;).setText(Chr(iKey3-447)) Else oDlgSysConfig.getControl(&quot;Key3&quot;).setText(&quot;&quot;)
+	iKey4 = oSystemInfo.NumEqWriterKey
+	If iKey4 &lt;&gt; 0 Then oDlgSysConfig.getControl(&quot;Key4&quot;).setText(Chr(iKey4-447)) Else oDlgSysConfig.getControl(&quot;Key4&quot;).setText(&quot;&quot;)
+	
+	&apos; Check if same Equations shortcuts for all apps
+	If iKey1 = iKey2 and iKey1 = iKey3 Then
+
+		oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).setState(1)
+		SetEquationsShortcutControl(FALSE)
+
+	Else
+
+		oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).setState(0)
+		SetEquationsShortcutControl(TRUE)
+
+	End If
+
+	&apos; Set the state of the tab buttons
+	oDlgSysConfig.getControl(&quot;PathsButton&quot;).Model.State=1
+	oDlgSysConfig.getControl(&quot;OptionsButton&quot;).Model.State=0
+	oDlgSysConfig.getControl(&quot;InterfaceButton&quot;).Model.State=0
+	oDlgSysConfig.getControl(&quot;ShortcutsButton&quot;).Model.State=0
+	oDlgSysConfig.Model.Step = 1
+	
+	&apos; Show the dialog window
+    oDlgSysConfig.Execute()
+    
+End Sub
+
+
+&apos; Paths tab button was pressed
+Sub PathsButtonPressed(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;PathsButton&quot;).Model.State=1
+	oDialog.getControl(&quot;OptionsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;InterfaceButton&quot;).Model.State=0
+	oDialog.getControl(&quot;ShortcutsButton&quot;).Model.State=0
+	oDialog.Model.Step = 1
+
+End Sub
+
+
+&apos; Options tab button was pressed
+Sub OptionsButtonPressed(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;PathsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;OptionsButton&quot;).Model.State=1
+	oDialog.getControl(&quot;InterfaceButton&quot;).Model.State=0
+	oDialog.getControl(&quot;ShortcutsButton&quot;).Model.State=0
+	oDialog.Model.Step = 2
+
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+
+	&apos; xelatex path is empty
+	If oDlgSysConfig.getControl(&quot;XelatexPath&quot;).getText() = &quot;&quot; Then
+	
+		oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).setEnable(FALSE)
+		oSystemInfo.Compiler = &quot;latex&quot;
+		oSystemInfo.commitChanges()
+	
+	&apos; xelatex doesn&apos;t exist
+	ElseIf Not FileExists(oSystemInfo.XelatexPath) Then
+
+		&apos; Warn the user
+		oDlgSysConfig.getControl(&quot;XelatexSupport&quot;).Model.Label = &quot;[&quot; &amp; _(&quot;xelatex not found, XeLateX is disabled&quot;) &amp; &quot;]&quot;
+		
+		&apos; Set compiler to latex
+		oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).setEnable(FALSE)
+
+		oSystemInfo.Compiler = &quot;latex&quot;
+		oSystemInfo.commitChanges()
+
+	&apos; dvisvgm doesn&apos;t exist
+	ElseIf Not FileExists(oSystemInfo.DvisvgmPath) Then
+	
+		&apos; Warn the user if dvisvgm doesn&apos;t support XeLaTeX
+		oDlgSysConfig.getControl(&quot;XelatexSupport&quot;).Model.Label = &quot;[&quot; &amp; _(&quot;dvisvgm not found, XeLateX is disabled&quot;) &amp; &quot;]&quot;
+		
+		&apos; Set compiler to latex
+		oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).setEnable(FALSE)
+
+		oSystemInfo.Compiler = &quot;latex&quot;
+		oSystemInfo.commitChanges()
+
+	&apos; dvisvgm does not support XeLaTeX
+	ElseIf dvisvgmSupportsXelatex() = FALSE Then
+
+		&apos; Warn the user if dvisvgm doesn&apos;t support XeLaTeX
+		oDlgSysConfig.getControl(&quot;XelatexSupport&quot;).Model.Label = &quot;[&quot; &amp; _(&quot;dvisvgm too old, XeLateX is disabled&quot;) &amp; &quot;]&quot;
+		
+		&apos; Set compiler to latex
+		oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).setState(1)
+		oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).setEnable(FALSE)
+
+		oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+		oSystemInfo.Compiler = &quot;latex&quot;
+		oSystemInfo.commitChanges()
+
+	&apos; dvisvgm supports XeLaTeX
+	Else
+
+		oDlgSysConfig.getControl(&quot;XelatexSupport&quot;).Model.Label = &quot;&quot;
+	
+	End If
+
+End Sub
+
+
+
+&apos; Interface tab button was pressed
+Sub InterfaceButtonPressed(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;PathsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;OptionsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;InterfaceButton&quot;).Model.State=1
+	oDialog.getControl(&quot;ShortcutsButton&quot;).Model.State=0
+	oDialog.Model.Step = 3
+
+End Sub
+
+&apos; Shortcut tab button was pressed
+Sub ShortcutsButtonPressed(oEvent as Variant)
+
+	&apos; Change the state of the tab buttons
+	Dim oDialog as Variant
+	oDialog = oEvent.Source.Context.View
+	oDialog.getControl(&quot;PathsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;OptionsButton&quot;).Model.State=0
+	oDialog.getControl(&quot;InterfaceButton&quot;).Model.State=0
+	oDialog.getControl(&quot;ShortcutsButton&quot;).Model.State=1
+	oDialog.Model.Step = 4
+
+	&apos; Refresh items related to the shortcut check box
+	If oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).getState() Then
+		SetEquationsShortcutControl(FALSE)
+	Else		
+		SetEquationsShortcutControl(TRUE)
+	End If
+
+End Sub
+
+&apos; Test the existence of the different external programs in the paths saved in the registry
+Sub CheckProgramPaths
+
+	Dim str0 as String, str1 as String, str2 as String, str3 as String, str4 as String
+	Dim pgm1 as String, pgm2 as String, pgm3 as String, pgm4 as String
+	Dim prevLatexPath as String, prevXelatexPath as String, prevDvipngPath as String, prevDviSvgmPath as String
+
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+
+	&apos; All systems
+	str1 = _(&quot;Please configure first TexMaths before using it...&quot;)
+	str2 = _(&quot;Can&apos;t find the external program &quot;)
+	str3 = _(&quot;Please check the file paths in your TexMaths system configuration...&quot;)
+	str4 = _(&quot;Can&apos;t find at least one of the external programs &quot;)
+	
+	&apos; Windows
+	If getGUIType() = 1 Then
+	
+		pgm1 = &quot;latex.exe&quot;
+		pgm2 = &quot;xelatex.exe&quot;
+		pgm3 = &quot;dvipng.exe&quot;
+		pgm4 = &quot;dvisvgm.exe&quot;
+
+	
+	&apos; Linux or MacOSX
+	Else
+	
+		pgm1 = &quot;latex&quot;
+		pgm2 = &quot;xelatex&quot;
+		pgm3 = &quot;dvipng&quot;
+		pgm4 = &quot;dvisvgm&quot;
+	
+	End If
+
+	&apos; Initial values of the external program paths
+	prevLatexPath = oSystemInfo.LatexPath
+	prevXelatexPath = oSystemInfo.XelatexPath
+	prevDvipngPath = oSystemInfo.DvipngPath
+	prevDvisvgmPath = oSystemInfo.DvisvgmPath
+	
+	&apos; If program paths are empty or are directories, check if programs are in the system path
+	If oSystemInfo.LatexPath = &quot;&quot; Or oSystemInfo.LatexPath = GetBaseDir(oSystemInfo.LatexPath) Then oSystemInfo.LatexPath =	ConvertFromURL( ReadPgmPath( pgm1 ) )
+	If oSystemInfo.XelatexPath = &quot;&quot; Or oSystemInfo.XelatexPath = GetBaseDir(oSystemInfo.XelatexPath) Then oSystemInfo.XelatexPath =	ConvertFromURL( ReadPgmPath( pgm2 ) )
+	If oSystemInfo.DvipngPath = &quot;&quot; Or oSystemInfo.DvipngPath = GetBaseDir(oSystemInfo.DvipngPath) Then	oSystemInfo.DvipngPath = ConvertFromURL( ReadPgmPath( pgm3 ) )
+	If oSystemInfo.DvisvgmPath = &quot;&quot; Or oSystemInfo.DvisvgmPath = GetBaseDir(oSystemInfo.DvisvgmPath) Then oSystemInfo.DvisvgmPath = ConvertFromURL( ReadPgmPath( pgm4 ) )
+
+	&apos; If the paths changed, save the registry, recreate the script and set default preferences
+	If  oSystemInfo.LatexPath &lt;&gt; prevLatexPath Or oSystemInfo.XelatexPath &lt;&gt; prevXelatexPath Or oSystemInfo.DvipngPath &lt;&gt; prevDvipngPath Or oSystemInfo.DvisvgmPath &lt;&gt; prevDvisvgmPath Then
+		oSystemInfo.commitChanges()
+		WriteScript(oSystemInfo.LatexPath, oSystemInfo.XelatexPath, oSystemInfo.DvipngPath, oSystemInfo.DvisvgmPath)
+		DefaultPrefs()
+	End If	
+
+	&apos; Latex program doesn&apos;t exist
+	If Not FileExists(oSystemInfo.LatexPath) Then ProgramNotFound(str2 &amp; pgm1 &amp; chr(10) &amp; str3)
+	
+	&apos; Read again the registry because it may have changed
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+
+	&apos; Both dvipng and dvisvgm programs don&apos;t exist
+	If Not FileExists(oSystemInfo.DvipngPath) And Not FileExists(oSystemInfo.DvisvgmPath) Then ProgramNotFound(str4 &amp; pgm3 &amp;  _(&quot; or &quot;) &amp; pgm4 &amp; chr(10) &amp; str3)
+
+	&apos; Programs still don&apos;t exist =&gt; stop
+	If Not FileExists(oSystemInfo.LatexPath) Or ( Not FileExists(oSystemInfo.DvipngPath) And Not FileExists(oSystemInfo.DvisvgmPath) ) Then Stop
+
+	&apos; Script doesn&apos;t exist
+	If Not FileExists(GetScriptPath()) Then	WriteScript(oSystemInfo.LatexPath, oSystemInfo.XelatexPath, oSystemInfo.DvipngPath, oSystemInfo.DvisvgmPath)
+
+	&apos; Flag to say config was saved
+	If oSystemInfo.ConfigSaved = &quot;&quot; Then oSystemInfo.ConfigSaved = &quot;TRUE&quot;
+	
+	&apos; Save the registry
+	oSystemInfo.commitChanges()
+
+End Sub
+
+
+&apos; Display an appropriate &apos;Program not found&apos; message
+&apos; and launch the config dialog
+Sub ProgramNotFound(message as String)
+
+	MsgBox(message)
+	SysConfigDialog()
+
+End Sub
+
+
+&apos; Exit dialog
+Sub QuitSysConfig()
+
+	oDlgSysConfig.endExecute()
+
+end sub
+
+
+Sub SetEquationsShortcutControl( b as Boolean )
+
+		oDlgSysConfig.getControl(&quot;AllFrame&quot;).Visible = Not b
+		oDlgSysConfig.getControl(&quot;WriterFrame&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;ImpressFrame&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;DrawFrame&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;Ctrl2Label&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;Ctrl3Label&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;Key2&quot;).Visible = b
+		oDlgSysConfig.getControl(&quot;Key3&quot;).Visible = b
+
+End Sub
+
+
+Sub SameShortcutKeyChanged()
+
+	If oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).getState() Then
+		SetEquationsShortcutControl(FALSE)
+	Else		
+		SetEquationsShortcutControl(TRUE)
+	End If
+
+End Sub
+
+
+&apos; Save configuration
+Sub SaveSysConfig()
+
+	Dim sKey1 as String, sKey2 as String, sKey3 as String, sKey4 as String
+	sKey1 = oDlgSysConfig.getControl(&quot;Key1&quot;).getText()
+	
+	If oDlgSysConfig.getControl(&quot;SameShortcutKey&quot;).getState() Then
+		sKey2 = sKey1
+		sKey3 = sKey1
+	Else
+		sKey2 = oDlgSysConfig.getControl(&quot;Key2&quot;).getText()
+		sKey3 = oDlgSysConfig.getControl(&quot;Key3&quot;).getText()
+	End If
+
+	If sKey1 = &quot; &quot; or sKey1 = &quot;&quot; Then 
+		RemoveShortcut( &quot;EqWriter&quot; )
+	ElseIf TestKey(sKey1) &lt;&gt; 0 Then 
+		SetShortcut( TestKey(sKey1), sKey1, &quot;EqWriter&quot;)
+	Else
+		Exit Sub
+	End If
+	
+	If sKey2 = &quot; &quot; or sKey2 = &quot;&quot; Then 
+		RemoveShortcut( &quot;EqImpress&quot; )
+	ElseIf TestKey(sKey2) &lt;&gt; 0 Then 
+		SetShortcut( TestKey(sKey2), sKey2, &quot;EqImpress&quot;)
+	Else
+		Exit Sub
+	End If
+
+	If sKey3 = &quot; &quot; or sKey3 = &quot;&quot; Then 
+		RemoveShortcut( &quot;EqDraw&quot; )
+	ElseIf TestKey(sKey3) &lt;&gt; 0 Then 
+		SetShortcut( TestKey(sKey3), sKey3, &quot;EqDraw&quot;)
+	Else
+		Exit Sub
+	End If
+
+	sKey4 = oDlgSysConfig.getControl(&quot;Key4&quot;).getText()
+	If sKey4 = &quot; &quot; or sKey4 = &quot;&quot; Then 
+		RemoveShortcut( &quot;NumEqWriter&quot; )
+	ElseIf TestKey(sKey4) &lt;&gt; 0 Then 
+
+		&apos; Check if shortcuts are equal
+		If (TestKey(sKey4) = TestKey(sKey1)) Or (TestKey(sKey4) = TestKey(sKey2)) Or (TestKey(sKey4) = TestKey(sKey3)) Then
+			MsgBox(_(&quot;Shortcuts assigned to the Equations and NumberedEquations modules must be different!&quot;) &amp; chr(10) &amp;_
+			_(&quot;Please check your shortcuts...&quot;) )
+			Exit Sub
+		End If
+
+		SetShortcut( TestKey(sKey4), sKey4, &quot;NumEqWriter&quot;)
+	Else
+		Exit Sub
+	End If
+
+	&apos; Create the TexMaths script
+	&apos; Get the variables from the sysconfig dialog
+	Dim sLatexPath as String, sXelatexPath as String, sDvipngPath as String, sDvisvgmPath as String
+	Dim oFileAccess as Variant
+
+	sLatexPath = oDlgSysConfig.getControl(&quot;LatexPath&quot;).getText()
+	sXelatexPath = oDlgSysConfig.getControl(&quot;XelatexPath&quot;).getText()
+	sDvipngPath = oDlgSysConfig.getControl(&quot;DvipngPath&quot;).getText()
+	sDvisvgmPath = oDlgSysConfig.getControl(&quot;DvisvgmPath&quot;).getText()
+
+	If sLatexPath = &quot;&quot; Then
+		
+		MsgBox _(&quot;Please set the latex path...&quot;)
+		Exit Sub
+		
+	End If
+	
+	If sDvipngPath = &quot;&quot; and sDvisvgmPath = &quot;&quot; Then
+		
+		MsgBox _(&quot;Please set at least one dvipng path or the dvisvgm path...&quot;)
+		Exit Sub
+		
+	End If
+	
+	&apos; Windows
+	If getGUIType() = 1 Then 	
+
+		If CheckFile( sLatexPath, _(&quot;The program latex.exe was not found&quot;) ) Then Exit Sub
+
+		If sXelatexPath &lt;&gt;  &quot;&quot; And oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).getState() Then
+			If CheckFile( sXelatexPath, _(&quot;The program xelatex.exe was not found, please check its path&quot;) ) Then Exit Sub
+		End If
+
+		If sDvipngPath &lt;&gt;  &quot;&quot; Then
+			 If CheckFile(sDvipngPath, _(&quot;The program dvipng.exe was not found, please check its path&quot;) &amp; sDvipngPath ) Then Exit Sub
+		End If
+
+		If sDvisvgmPath &lt;&gt;  &quot;&quot; Then
+			If CheckFile(sDvisvgmPath, _(&quot;The program dvisvgm.exe was not found, please check its path&quot;) &amp; sDvisvgmPath ) Then Exit Sub
+		End If
+
+	&apos; Linux or MacOSX
+	Else
+	
+		If CheckFile( sLatexPath, _(&quot;The program latex was not found, please check its path&quot;) ) Then Exit Sub
+
+		If sXelatexPath &lt;&gt;  &quot;&quot; And oDlgSysConfig.getControl(&quot;XelatexCompiler&quot;).getState() Then
+			If CheckFile( sXelatexPath,  _(&quot;The program xelatex was not found, please check its path&quot;) ) Then Exit Sub
+		End If
+
+		If sDvipngPath &lt;&gt;  &quot;&quot; Then
+			If CheckFile(sDvipngPath,  _(&quot;The program dvipng was not found, please check its path&quot;) ) Then Exit Sub
+		End If
+
+		If sDvisvgmPath &lt;&gt;  &quot;&quot; Then
+			If CheckFile( sDvisvgmPath,  _(&quot;The program dvisvgm was not found, please check its path&quot;) ) Then Exit Sub
+		End If
+
+	End If
+
+	&apos; Open service file and an output stream
+	Dim cURL as String
+	oFileAccess = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)		
+	cURL = ConvertToURL( GetScriptPath() )
+
+	&apos; Get the path saved in the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)	
+	
+	If sLatexPath &lt;&gt; oSystemInfo.LatexPath _
+	Or sXelatexPath &lt;&gt; oSystemInfo.XelatexPath _
+	Or sDvipngPath &lt;&gt; oSystemInfo.DvipngPath _
+	Or sDvisvgmPath &lt;&gt; oSystemInfo.DvisvgmPath _
+	Or Not oFileAccess.exists(cURL) Then
+		WriteScript(sLatexPath, sXelatexPath, sDvipngPath, sDvisvgmPath)	
+	End If
+
+	oDlgSysConfig.endExecute()
+
+	&apos; Set compiler
+	If oDlgSysConfig.getControl(&quot;LatexCompiler&quot;).getState() Then
+		oSystemInfo.Compiler = &quot;latex&quot;
+	Else
+		oSystemInfo.Compiler = &quot;xelatex&quot;
+	End If
+	
+	&apos; Set symbol color
+	If oDlgSysConfig.getControl(&quot;BlackSymbolsRadio&quot;).getState(1) Then
+		oSystemInfo.SymbolColor = &quot;symbols-black&quot;
+	Else
+		oSystemInfo.SymbolColor = &quot;symbols-white&quot;
+	End If
+
+	&apos; Set vertical alignment compatibility option
+	If oDlgSysConfig.getControl(&quot;VertAlign&quot;).getState() Then oSystemInfo.WordVertAlign = &quot;TRUE&quot; Else oSystemInfo.WordVertAlign = &quot;FALSE&quot;
+
+	&apos; Set caption alignment
+	If oDlgSysConfig.getControl(&quot;LeftAlignRadio&quot;).getState() Then oSystemInfo.CaptionLeftAlign = &quot;TRUE&quot; Else	oSystemInfo.CaptionLeftAlign = &quot;FALSE&quot;
+	
+	&apos; Set break before num and break after num options
+	If oDlgSysConfig.getControl(&quot;BreakBeforeNumCheck&quot;).getState() Then oSystemInfo.BreakBeforeNum = &quot;TRUE&quot; Else	oSystemInfo.BreakBeforeNum = &quot;FALSE&quot;
+	If oDlgSysConfig.getControl(&quot;BreakAfterNumCheck&quot;).getState() Then oSystemInfo.BreakAfterNum = &quot;TRUE&quot; Else oSystemInfo.BreakAfterNum = &quot;FALSE&quot;
+
+	&apos; Set equation caption
+	oSystemInfo.EquationCaption = oDlgSysConfig.getControl(&quot;CaptionTextField&quot;).getText()	
+
+	&apos; Set numbering level
+	oSystemInfo.NumLevel = oDlgSysConfig.getControl(&quot;NumLevel&quot;).getText()	
+
+	&apos; Set editor font name
+	If oDlgSysConfig.getControl(&quot;EditorFontName&quot;).getText() = _(&quot;(Default)&quot;) Then
+		oSystemInfo.EditorFontName = &quot;&quot;
+	Else
+		oSystemInfo.EditorFontName = oDlgSysConfig.getControl(&quot;EditorFontName&quot;).getText()
+	End If
+	
+	&apos; Set editor font size
+	oSystemInfo.EditorFontSize = oDlgSysConfig.getControl(&quot;EditorFontSize&quot;).getText()	
+
+	&apos; Config was saved
+	oSystemInfo.ConfigSaved = &quot;TRUE&quot;
+	oSystemInfo.commitChanges()
+
+	&apos; Set configuration in case we were called by TexMathsEquations
+	TexMathsEquations.SetConfig()
+
+End Sub
+
+
+&apos; Test shortcut validity
+Function TestKey(sKey as String) as Integer
+
+	If sKey = &quot;&quot; Then
+	
+		TestKey = 0
+	
+	Else
+	
+		Dim i as Integer
+		i = Asc(sKey)
+	
+		If 96 &lt; i and i &lt; 123 Then 
+			TestKey = i + 415 
+		ElseIf 64 &lt; i and i &lt; 91  Then 
+			TestKey = i + 447
+		ElseIf sKey &lt;&gt; &quot; &quot; Then
+			MsgBox( _(&quot;Only characters from A to Z are allowed for shortcuts!&quot;) )
+			TestKey = 0 
+		End If
+		
+	End If
+
+End Function
+
+
+&apos; Add shortcut to the registry
+Sub SetShortcut(iKey as Integer, sKey as String, sRegId)
+
+	Dim sNewCommand as String, sCommand as String, sModule as String, sDoc as String
+	
+	&apos; Retrieve the module configuration manager from central module configuration manager supplier
+	Dim oModuleCfgMgrSupplier as Variant 
+	oModuleCfgMgrSupplier = createUnoService(&quot;com.sun.star.ui.ModuleUIConfigurationManagerSupplier&quot;)
+
+	&apos; Retrieve the module configuration manager based on the registry identifier
+	Dim oModuleCfgMgr as Variant
+	
+	If sRegId = &quot;EqWriter&quot; or sRegId = &quot;NumEqWriter&quot; Then
+
+		&apos; Writer installed
+		If ComponentInstalled( &quot;Writer&quot; ) Then
+			sDoc = &quot;Writer&quot;
+			oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.text.TextDocument&quot;)
+		
+		&apos; Writer not installed
+		Else
+ 			Exit Sub
+		End If
+
+	
+	ElseIf sRegId = &quot;EqImpress&quot; Then
+    
+		&apos; Impress installed
+		If ComponentInstalled( &quot;Impress&quot; ) Then
+			sDoc = &quot;Impress&quot;
+			oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.presentation.PresentationDocument&quot;)
+		
+		&apos; Impress not installed
+		Else
+ 			Exit Sub
+		End If
+
+
+	ElseIf sRegId = &quot;EqDraw&quot; Then
+
+		&apos; Draw installation was already checked in Main()
+		sDoc = &quot;Draw&quot;
+		oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.drawing.DrawingDocument&quot;)
+	
+	End If
+	
+	Dim oShortcutMgr as Variant
+	oShortcutMgr = oModuleCfgMgr.getShortcutManager
+	
+	Dim aKeyEvent as New com.sun.star.awt.KeyEvent
+	With aKeyEvent
+		.Modifiers = com.sun.star.awt.KeyModifier.MOD1
+		.KeyCode = iKey  &apos; com.sun.star.awt.Key.E
+	End With
+		
+	&apos; Get the actual command for the shortcut &quot;iKey&quot;
+	On Error Resume Next
+	sCommand = oShortcutMgr.getCommandByKeyEvent(aKeyEvent)
+	On Error GoTo 0 &apos; Restore the error handler
+
+	&apos; Set the TexMaths module name
+	If sRegId = &quot;NumEqWriter&quot; Then
+		sModule = &quot;NumberedEquations&quot;
+	Else
+		sModule = &quot;Equations&quot;
+	End If	
+
+	&apos; Set the new command for the appropriate TexMaths module (Equations or NumberedEquations)
+	sNewCommand = &quot;vnd.sun.star.script:TexMaths.TexMaths&quot; &amp; sModule &amp; &quot;.main?language=Basic&amp;location=application&quot;
+
+	&apos; Get the shortcut repository
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot; , TRUE)	
+
+	If len(sCommand) = 0 Then &apos; New command
+	
+		&apos; Restore the previous shortcut command
+		If (sRegId = &quot;EqWriter&quot; And oSystemInfo.EqWriterKey &gt; 0)_
+		Or (sRegId = &quot;NumEqWriter&quot; And oSystemInfo.NumEqWriterKey &gt; 0)_
+		Or (sRegId = &quot;EqImpress&quot; And oSystemInfo.EqImpressKey &gt; 0)_
+		Or (sRegId = &quot;EqDraw&quot; And oSystemInfo.EqDrawKey &gt; 0)  Then
+			RemoveShortcut( sRegId )
+		End If				
+
+		oShortcutMgr.setKeyEvent( aKeyEvent, sNewCommand )
+		oShortcutMgr.store
+		
+		&apos; Store the current command
+		If (sRegId = &quot;EqWriter&quot;) Then
+			oSystemInfo.EqWriterCmd = &quot;&quot;
+		ElseIf (sRegId = &quot;NumEqWriter&quot;) Then
+			oSystemInfo.NumEqWriterCmd = &quot;&quot;
+		ElseIf (sRegId = &quot;EqImpress&quot;) Then
+			oSystemInfo.EqImpressCmd = &quot;&quot;
+		ElseIf (sRegId = &quot;EqDraw&quot;) Then
+			oSystemInfo.EqDrawCmd = &quot;&quot;
+		End If				
+
+	ElseIf sCommand &lt;&gt; sNewCommand Then &apos; The key event is already used by another command
+
+		Dim sMsg as String
+		sMsg = sDoc &amp; Chr(10) &amp; Chr(10)
+		sMsg = sMsg &amp; _(&quot;The key combination CTRL + &quot;) &amp; sKey &amp;  _(&quot; is already assigned to the command &quot;) &amp; &quot;&apos;&quot; &amp; sCommand &amp; &quot;&apos;&quot; &amp; Chr(10) &amp; Chr(10)
+		sMsg = sMsg &amp; _(&quot;Do you want to set the command&quot;) &amp; &quot; TexMaths&quot; &amp; sModule &amp; &quot;.main ?&quot;
+					   
+		Dim iMsgResult as Variant
+		iMsgResult = MsgBox( sMsg, 1)
+		If iMsgResult &lt;&gt; 1 Then Exit Sub
+
+		&apos; Remove the previous shortcut command
+		If (sRegId = &quot;EqWriter&quot; And oSystemInfo.EqWriterKey &gt; 0)_
+		Or (sRegId = &quot;NumEqWriter&quot; And oSystemInfo.NumEqWriterKey &gt; 0)_
+		Or (sRegId = &quot;EqImpress&quot; And oSystemInfo.EqImpressKey &gt; 0)_
+		Or (sRegId = &quot;EqDraw&quot; And oSystemInfo.EqDrawKey &gt; 0)  Then
+			RemoveShortcut( sRegId )
+		End If
+
+		oShortcutMgr.removeKeyEvent(aKeyEvent)
+		oShortcutMgr.setKeyEvent(aKeyEvent, sNewCommand )
+		oShortcutMgr.store
+		
+		&apos; Store the current command
+		If sRegId = &quot;EqWriter&quot; Then
+			oSystemInfo.EqWriterCmd = sCommand
+		ElseIf sRegId = &quot;NumEqWriter&quot; Then
+			oSystemInfo.NumEqWriterCmd = sCommand
+		ElseIf sRegId = &quot;EqImpress&quot; Then
+			oSystemInfo.EqImpressCmd = sCommand
+		ElseIf sRegId = &quot;EqDraw&quot; Then
+			oSystemInfo.EqDrawCmd = sCommand
+		End If				
+
+	Else &apos; Same command
+
+		&apos; Commmand previously set outside TexMaths =&gt; put it at spaces
+		If (sRegId = &quot;EqWriter&quot; And oSystemInfo.EqWriterCmd = sCommand)_
+		Or (sRegId = &quot;NumEqWriter&quot; And oSystemInfo.NumEqWriterCmd = sCommand)_
+		Or (sRegId = &quot;EqImpress&quot; And oSystemInfo.EqImpressCmd = sCommand)_
+		Or (sRegId = &quot;EqDraw&quot; And oSystemInfo.EqDrawCmd = sCommand) Then
+			sCommand = &quot;&quot;	
+		End If				
+
+	End if
+
+	&apos; Save to the registry the new shortcut with the previous command
+	If sRegId = &quot;EqWriter&quot; Then
+		oSystemInfo.EqWriterKey = iKey
+	ElseIf sRegId = &quot;NumEqWriter&quot; Then
+		oSystemInfo.NumEqWriterKey = iKey
+	ElseIf sRegId = &quot;EqImpress&quot; Then
+		oSystemInfo.EqImpressKey = iKey
+	ElseIf sRegId = &quot;EqDraw&quot; Then
+		oSystemInfo.EqDrawKey = iKey
+	End If				
+	oSystemInfo.commitChanges()
+
+End Sub
+
+
+&apos; Remove shortcut from the registry
+Sub RemoveShortcut(sRegId as String)
+
+	Dim iKey as Integer
+	Dim sCommand as String, sPrevCommand as String, sDoc as String
+
+	&apos; Get the current shortcut and previous command from the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo/&quot;, TRUE)
+
+	If sRegId = &quot;EqWriter&quot; Then
+
+		iKey = oSystemInfo.EqWriterKey
+		sPrevCommand = oSystemInfo.EqWriterCmd
+		oSystemInfo.EqWriterKey = &quot;&quot;
+		oSystemInfo.EqWriterCmd = &quot;&quot;
+		sDoc = &quot;Writer&quot;
+
+	ElseIf sRegId = &quot;NumEqWriter&quot; Then
+
+		iKey = oSystemInfo.NumEqWriterKey
+		sPrevCommand = oSystemInfo.NumEqWriterCmd
+		oSystemInfo.NumEqWriterKey = &quot;&quot;
+		oSystemInfo.NumEqWriterCmd = &quot;&quot;
+		sDoc = &quot;Writer&quot;
+
+	ElseIf sRegId = &quot;EqImpress&quot; Then
+
+		iKey = oSystemInfo.EqImpressKey
+		sPrevCommand = oSystemInfo.EqImpressCmd
+		oSystemInfo.EqImpressKey = &quot;&quot;
+		oSystemInfo.EqImpressCmd = &quot;&quot;
+		sDoc = &quot;Impress&quot;
+
+	ElseIf sRegId = &quot;EqDraw&quot; Then
+
+		iKey = oSystemInfo.EqDrawKey
+		sPrevCommand = oSystemInfo.EqDrawCmd
+		oSystemInfo.EqDrawKey = &quot;&quot;
+		oSystemInfo.EqDrawCmd = &quot;&quot;
+		sDoc = &quot;Draw&quot;
+
+	End If				
+
+	&apos; If no shortcut defined in the registry =&gt; exit sub
+	If iKey = 0 or iKey = &quot;&quot; Then Exit Sub
+	
+	&apos; Retrieve the module configuration manager from central module configuration manager supplier
+	Dim oModuleCfgMgrSupplier as Variant
+	oModuleCfgMgrSupplier = createUnoService(&quot;com.sun.star.ui.ModuleUIConfigurationManagerSupplier&quot;)
+
+	&apos; Retrieve the module configuration manager with module identifier
+	Dim oModuleCfgMgr as Variant
+
+	If sDoc = &quot;Writer&quot; Then
+
+		&apos; Writer installed
+		If ComponentInstalled( &quot;Writer&quot; ) Then
+			oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.text.TextDocument&quot;)
+		
+		&apos; Writer not installed
+		Else
+ 			Exit Sub
+		End If
+
+	ElseIf sDoc = &quot;Impress&quot; Then
+
+		&apos; Impress installed
+		If ComponentInstalled( &quot;Impress&quot; ) Then
+			oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.presentation.PresentationDocument&quot;)
+		
+		&apos; Impress not installed
+		Else
+ 			Exit Sub
+		End If
+
+	ElseIf sDoc = &quot;Draw&quot; Then 
+		
+		&apos; Draw installation was already checked in Main()
+		oModuleCfgMgr = oModuleCfgMgrSupplier.getUIConfigurationManager(&quot;com.sun.star.drawing.DrawingDocument&quot;)
+	
+	End If
+	
+	Dim oShortcutMgr as Variant
+	oShortcutMgr = oModuleCfgMgr.getShortcutManager
+		
+	Dim aKeyEvent as New com.sun.star.awt.KeyEvent
+	With aKeyEvent
+		.Modifiers = com.sun.star.awt.KeyModifier.MOD1
+		.KeyCode = iKey
+	End With
+	
+	On Error Resume Next
+	sCommand = oShortcutMgr.getCommandByKeyEvent(aKeyEvent)
+	On Error GoTo 0 &apos; Restore the error handler
+
+	&apos; Remove the current shortcut
+	If len(sCommand) &lt;&gt; 0 Then
+		oShortcutMgr.removeKeyEvent(aKeyEvent)
+		oShortcutMgr.store
+	End If
+	
+	&apos; Set the previous shortcut
+	If len(sPrevCommand) &lt;&gt; 0 Then 
+		oShortcutMgr.setKeyEvent( aKeyEvent, sPrevCommand )
+		oShortcutMgr.store
+	End If
+
+	&apos; Save change in the registry
+	oSystemInfo.commitChanges()	
+
+End Sub
+
+
+&apos; Create the TexMaths script depending on the system
+&apos; Note : on Windows, for LibreOffice &lt; 6.2.4.1 the Shell() command is buggy and does not work correctly
+&apos; if the script path contains spaces. As a workaround, we put the script in a
+&apos; directory named C:\texmaths-&lt;username_without_spaces&gt; and we set it as a
+&apos; hidden directory. For LibreOffice &gt;= 6.2.4.1, the bug is fixed and we use
+&apos; the standard place C:\Users\[username]\AppData\Roaming\LibreOffice\4\user
+Sub WriteScript(sLatexPath as String, sXelatexPath as String, sDvipngPath as String, sDvisvgmPath as String)
+
+	Dim cURL as String, sPath as String, sTexMaths as String
+	Dim sDvipngCmd as String, sDvisvgmCmd as String, sXelatexCmd as String
+
+	&apos; Save the paths to the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	oSystemInfo.LatexPath = sLatexPath
+	oSystemInfo.XelatexPath = sXelatexPath
+	oSystemInfo.DvipngPath = sDvipngPath
+	oSystemInfo.DvisvgmPath = sDvisvgmPath
+	oSystemInfo.commitChanges()
+
+	&apos; Get the base directory of the latex program
+	Dim sBasePath as String
+	sBasePath = GetBaseDir(sLatexPath)
+
+	&apos; Open service file and an output stream
+	Dim oFileAccess as Variant, oTextStream as Variant
+	oFileAccess = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	oTextStream  = createUnoService(&quot;com.sun.star.io.TextOutputStream&quot;)
+
+	&apos; Generate the TexMaths script in the appropriate directory
+	cURL = ConvertToURL( GetScriptPath() )
+
+	If oFileAccess.exists( cURL ) Then oFileAccess.kill( cURL )
+
+	&apos; =&gt; Windows: generate a .bat script
+	If getGUIType() = 1 Then
+
+		&apos; Path
+		sPath = &quot;set PATH=&quot; &amp; sBasePath &amp; &quot;;%PATH%&quot; &amp; chr(10)
+	
+		&apos; Script
+		If sDvipngPath = &quot;&quot; Then
+
+			sDvipngCmd = &quot;&quot;
+
+		Else
+
+			sDvipngCmd = &quot;rem Conversion of the DVI file to a PNG image&quot; &amp; chr(10) &amp;_
+			&quot;if &quot;&quot;%EXT%&quot;&quot; == &quot;&quot;png&quot;&quot; (&quot; &amp; chr(10) &amp;_
+			&quot;if &quot;&quot;%TRANS%&quot;&quot; == &quot;&quot;TRUE&quot;&quot; (&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvipngpath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -q -T tight -bg Transparent --width --height --depth -D %DPI% -o %FILENAME%.png %FILENAME%.dvi &gt; %FILENAME%.dat&quot; &amp; chr(10) &amp;_
+			&quot;) else (&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvipngpath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -q -T tight --width --height --depth -D %DPI% -o %FILENAME%.png %FILENAME%.dvi &gt; %FILENAME%.dat&quot; &amp; chr(10) &amp;_
+			&quot;)&quot; &amp; chr(10) &amp;_
+			&quot;)&quot; &amp; chr(10)
+
+		End If
+		
+		If sDvisvgmPath = &quot;&quot; Then
+
+			sDvisvgmCmd = &quot;&quot;
+
+		Else
+
+			sDvisvgmCmd = &quot;rem Conversion of the DVI file to a SVG image&quot; &amp; chr(10) &amp;_
+			&quot;if &quot;&quot;%EXT%&quot;&quot; == &quot;&quot;svg&quot;&quot; (&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvisvgmPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -n1 -e %FILENAME%.dvi 2&gt; %FILENAME%.dat&quot; &amp; chr(10) &amp;_
+			&quot;)&quot; &amp; chr(10)
+	
+		End If
+
+		If sXelatexPath = &quot;&quot; Then
+
+			sXelatexCmd = &quot;)&quot;
+
+		Else
+
+			sXelatexCmd = &quot;rem Compile using xelatex&quot; &amp; chr(10) &amp;_
+			&quot;) else (&quot; &amp; chr(10) &amp;_
+			chr(10) &amp;_
+			&quot;rem Creation of the XDV file&quot; &amp; chr(10) &amp;_
+			&quot;&quot;&quot;&quot; &amp; sXelatexPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -no-pdf -shell-escape -interaction=nonstopmode %FILENAME%.tex  &gt; %FILENAME%.out&quot; &amp; chr(10) &amp;_
+			 chr(10) &amp;_
+			&quot;rem Conversion of the DVI file to a SVG image&quot; &amp; chr(10) &amp;_
+			&quot;&quot;&quot;&quot; &amp; sDvisvgmPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -n1 -e %FILENAME%.xdv 2&gt; %FILENAME%.dat&quot; &amp; chr(10) &amp;_
+			&quot;)&quot;
+			
+		End If
+
+		sTexMaths = &quot;@echo off&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem This script is part of the TexMaths package&quot; &amp; chr(10) &amp;_
+		&quot;rem http://roland65.free.fr/texmaths&quot; &amp; chr(10) &amp;_
+		&quot;rem&quot; &amp; chr(10) &amp;_
+		&quot;rem Roland Baudin (roland65@free.fr)&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Process the options&quot; &amp; chr(10) &amp;_
+		&quot;set EXT=%1&quot; &amp; chr(10) &amp;_
+		&quot;set DPI=%2&quot; &amp; chr(10) &amp;_
+		&quot;set TRANS=%3&quot; &amp; chr(10) &amp;_
+		&quot;set TMPPATH=%4&quot; &amp; chr(10) &amp;_
+		&quot;set FILENAME=tmpfile&quot; &amp; chr(10) &amp;_
+		&quot;set COMPILER=%5&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Convert TMPPATH from URL to path&quot; &amp; chr(10) &amp;_
+		&quot;setlocal enabledelayedexpansion&quot; &amp; chr(10) &amp;_
+		&quot;set TMPPATH=%TMPPATH:file:///=%&quot; &amp; chr(10) &amp;_
+		&quot;set TMPPATH=%TMPPATH:/=\%&quot; &amp; chr(10) &amp;_
+		&quot;set TMPPATH=!TMPPATH:%%20= !&quot; &amp; chr(10) &amp;_
+		&quot;set TMPPATH=&quot;&quot;%TMPPATH%&quot;&quot;&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Set Paths&quot; &amp; chr(10) &amp;_
+		sPath &amp; chr(10) &amp;_
+		&quot;rem Generate system log&quot; &amp; chr(10) &amp;_
+		&quot;call :SystemLog&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Go to the tmp directory&quot; &amp; chr(10) &amp;_
+		&quot;if not %TMPPATH% == &quot;&quot;&quot;&quot; (&quot; &amp; chr(10) &amp;_
+		&quot;   if not exist %TMPPATH% (&quot; &amp; chr(10) &amp;_
+		&quot;      mkdir %TMPPATH%&quot; &amp; chr(10) &amp;_
+		&quot;   )&quot; &amp; chr(10) &amp;_
+		&quot;	cd /D %TMPPATH%&quot; &amp; chr(10) &amp;_
+		&quot;)&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Silently remove old files but not the tex file&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.aux &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.bsl &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.dvi &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.xdv &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.log &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.out &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.dat &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.png &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		&quot;del /Q *.svg &gt;nul 2&gt;&amp;1&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Compile using latex&quot; &amp; chr(10) &amp;_
+		&quot;if &quot;&quot;%COMPILER%&quot;&quot; == &quot;&quot;latex&quot;&quot; (&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Creation of the DVI file&quot; &amp; chr(10) &amp;_
+		&quot;&quot;&quot;&quot; &amp; sLatexPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -shell-escape -interaction=nonstopmode %FILENAME%.tex  &gt; %FILENAME%.out&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		sDvisvgmCmd &amp; chr(10) &amp;_
+		sDvipngCmd &amp; chr(10) &amp;_
+		sXelatexCmd &amp; chr(10) &amp;_
+		&quot;Goto :EOF&quot;&amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;rem Function used to generate system log&quot; &amp; chr(10) &amp;_
+		&quot;:SystemLog&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;set SYSLOG=%TMPPATH%..\System.log&quot; &amp; chr(10) &amp;_
+		&quot;rem del %SYSLOG%&quot; &amp; chr(10) &amp;_
+		&quot;for /f &quot;&quot;tokens=*&quot;&quot; %%a in (&apos;VER&apos;) do set VERSION=%%a&quot; &amp; chr(10) &amp;_
+		&quot;echo osType= %VERSION% &gt; %SYSLOG%&quot; &amp; chr(10) &amp;_
+		&quot;echo. &gt;&gt; %SYSLOG%&quot; &amp; chr(10) &amp;_
+		&quot;echo PATH= %PATH% &gt;&gt; %SYSLOG%&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;Goto :EOF&quot;
+
+	&apos; =&gt; Linux or MacOSX: generate a shell script
+	Else
+		
+		&apos; Paths
+		sPath = &quot;cpu=$(uname -p)&quot; &amp; chr(10) &amp;_
+		&quot;mac=$(uname -m)&quot; &amp; chr(10) &amp;_
+		&quot;sys=$(uname -s)&quot; &amp; chr(10) &amp;_
+		&quot;[ &quot;&quot;$cpu&quot;&quot; = &quot;&quot;powerpc&quot;&quot; -o &quot;&quot;$mac&quot;&quot; = &quot;&quot;ppc&quot;&quot; ] &amp;&amp; cpuType=ppc || cpuType=i386 &quot; &amp; chr(10) &amp;_
+		&quot;[ &quot;&quot;$sys&quot;&quot; = &quot;&quot;Darwin&quot;&quot; ] &amp;&amp; osType=MacOSX || osType=Linux &quot; &amp; chr(10) &amp;_
+		&quot;UserDir=&quot;&quot;&quot; &amp; ConvertFromURL(glb_sUserPath) &amp; &quot;&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;PkgDir=&quot;&quot;&quot; &amp; ConvertFromURL(glb_sPkgPath) &amp; &quot;&quot;&quot;&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;PATH=&quot;&quot;${PkgDir}bin/${osType}${cpuType}:$PATH&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;PATH=&quot;&quot;&quot; &amp; sBasePath &amp; &quot;:$PATH&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;export PATH&quot; &amp; chr(10) &amp;_
+		chr(10)
+		
+		&apos; Script
+		If sDvipngPath = &quot;&quot; Then
+			sDvipngCmd = &quot;&quot;
+		Else
+			sDvipngCmd = &quot;# Conversion of the DVI file to a PNG image&quot; &amp; chr(10) &amp;_
+			&quot;if [ -f ${filename}.dvi ]&quot; &amp; chr(10) &amp;_
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;if [ &quot;&quot;${ext}&quot;&quot; = &quot;&quot;png&quot;&quot; ]&quot; &amp; chr(10) &amp;_
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;if [ &quot;&quot;${Trans}&quot;&quot; = &quot;&quot;TRUE&quot;&quot; ]&quot; &amp; chr(10) &amp;_
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvipngPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -q -T tight -bg Transparent --width --height --depth -D ${dpi} -o ${filename}.png ${filename}.dvi &gt; ${filename}.dat&quot; &amp; chr(10) &amp;_
+			&quot;else&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvipngPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -q -T tight --width --height --depth -D ${dpi} -o ${filename}.png ${filename}.dvi &gt; ${filename}.dat&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot;
+
+		End If
+		
+		If sDvisvgmPath = &quot;&quot; Then
+			sDvisvgmCmd = &quot;&quot;
+		Else
+			sDvisvgmCmd = &quot;# Conversion of the DVI file to a SVG image&quot; &amp; chr(10) &amp;_
+			&quot;if [ -f ${filename}.dvi ]&quot; &amp; chr(10) &amp;_
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;if [ &quot;&quot;${ext}&quot;&quot; = &quot;&quot;svg&quot;&quot; ]&quot; &amp; chr(10) &amp;_
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;   &quot; &amp; &quot;&quot;&quot;&quot; &amp; sDvisvgmPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -n1 -e ${filename}.dvi &amp;&gt; ${filename}.dat&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot;
+		End If
+
+		If sXelatexPath = &quot;&quot; Then
+			sXelatexCmd = &quot;fi&quot;
+		Else
+			sXelatexCmd = &quot;# Compile using xelatex&quot; &amp; chr(10) &amp;_
+			&quot;else&quot; &amp; chr(10) &amp;_
+			&quot;&quot;&quot;&quot; &amp; sXelatexPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -no-pdf -shell-escape -interaction=nonstopmode ${filename}.tex  &gt; ${filename}.out&quot; &amp; chr(10) &amp;_
+			&quot;# Conversion of the XDV file to a SVG image&quot; &amp; chr(10) &amp;_
+			&quot;if [ -f ${filename}.xdv ]&quot; &amp; chr(10) &amp;_ 
+			&quot;then&quot; &amp; chr(10) &amp;_
+			&quot;&quot;&quot;&quot; &amp; sDvisvgmPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -n1 -e ${filename}.xdv &amp;&gt; ${filename}.dat&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot; &amp; chr(10) &amp;_
+			&quot;fi&quot;
+		End If
+		
+		sTexMaths = &quot;#!/bin/bash&quot; &amp; chr(10) &amp;_
+		&quot;#&quot; &amp; chr(10) &amp;_
+		&quot;# This script is part of the TexMaths package&quot; &amp; chr(10) &amp;_
+		&quot;# http://roland65.free.fr/texmaths&quot; &amp; chr(10) &amp;_
+		&quot;#&quot; &amp; chr(10) &amp;_
+		&quot;# Roland Baudin (roland65@free.fr)&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Function used to generate system log&quot; &amp; chr(10) &amp;_
+		&quot;SystemLog(){&quot; &amp; chr(10) &amp;_
+		&quot;syslog=${UserDir}System.log&quot; &amp; chr(10) &amp;_
+		&quot;uname -a &gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;osType=$osType&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;cpuType=$cpuType&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;PATH=$PATH&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;echo &quot;&quot;&quot;&quot; &gt;&gt; &quot;&quot;$syslog&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;}&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Definition of PATH and binary paths&quot; &amp; chr(10) &amp;_
+		sPath &amp; chr(10) &amp;_
+		&quot;# Process the options&quot; &amp; chr(10) &amp;_
+		&quot;ext=$1&quot; &amp; chr(10) &amp;_
+		&quot;dpi=$2&quot; &amp; chr(10) &amp;_
+		&quot;Trans=&quot;&quot;$3&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;tmpPath=&quot;&quot;$4&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;filename=tmpfile&quot; &amp; chr(10) &amp;_
+		&quot;compiler=$5&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Generate system log&quot; &amp; chr(10) &amp;_
+		&quot;SystemLog&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Go to the tmp directory&quot; &amp; chr(10) &amp;_
+		&quot;if [ &quot;&quot;$tmpPath&quot;&quot; != &quot;&quot;&quot;&quot; ] &quot; &amp; chr(10) &amp;_
+		&quot;then&quot; &amp; chr(10) &amp;_
+		&quot;   [ ! -d &quot;&quot;$tmpPath&quot;&quot; ]  &amp;&amp; mkdir -p &quot;&quot;$tmpPath&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;   cd &quot;&quot;$tmpPath&quot;&quot;&quot; &amp; chr(10) &amp;_
+		&quot;fi&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Remove old files but not the tex file&quot; &amp; chr(10) &amp;_
+		&quot;rm ${filename}.{dvi,xdv,out,bsl,dat,log,aux,png,svg} &amp;&gt; /dev/null&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		&quot;# Compile using latex&quot; &amp; chr(10) &amp;_
+		&quot;if [ &quot;&quot;${compiler}&quot;&quot; = &quot;&quot;latex&quot;&quot; ]&quot; &amp; chr(10) &amp;_
+		&quot;then&quot; &amp; chr(10) &amp;_
+		&quot;&quot;&quot;&quot; &amp; sLatexPath &amp; &quot;&quot;&quot;&quot; &amp; &quot; -shell-escape -interaction=nonstopmode ${filename}.tex  &gt; ${filename}.out&quot; &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		sDvisvgmCmd &amp; chr(10) &amp;_
+		sDvipngCmd &amp; chr(10) &amp;_
+		chr(10) &amp;_
+		sXelatexCmd &amp; chr(10) &amp;_
+		chr(10)
+
+ 	End if
+		
+	oTextStream.setOutputStream(oFileAccess.openFileWrite(cURL))
+	oTextStream.writeString( sTexMaths )
+	oTextStream.closeOutput()
+	
+	&apos; On Windows, hide the script file because it is located in C:\ and the user should not see it
+	If getGUIType() = 1 Then
+
+		SetAttr( GetScriptDir() ,2 )  &apos; 2 =&gt; hidden attribute
+
+	End If
+
+End Sub
+
+</script:module>

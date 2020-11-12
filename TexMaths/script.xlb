@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE library:library PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "library.dtd">
+<library:library xmlns:library="http://openoffice.org/2000/library" library:name="TexMaths" library:readonly="false" library:passwordprotected="false">
+ <library:element library:name="TexMathsEquations"/>
+ <library:element library:name="TexMathsEquations_Dlg"/>
+ <library:element library:name="TexMathsPrefs_Dlg"/>
+ <library:element library:name="TexMathsTools"/>
+ <library:element library:name="TexMathsPreamble"/>
+ <library:element library:name="TexMathsPrefs"/>
+ <library:element library:name="TexMathsAbout"/>
+ <library:element library:name="TexMathsSysConfig"/>
+ <library:element library:name="TexMathsHelp"/>
+ <library:element library:name="TexMathsNumberedEquations"/>
+ <library:element library:name="TexMathsRecompileEquations"/>
+ <library:element library:name="TexMathsError_Dlg"/>
+ <library:element library:name="TexMathsMessage_Dlg"/>
+</library:library>

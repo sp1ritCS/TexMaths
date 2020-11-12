@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsPrefs_Dlg" script:language="StarBasic">&apos;
+&apos;    TexMathsPrefs_Dlg
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos;	 Macros used to create and manage the Preferences dialog
+
+&apos; Force variable declaration
+Option Explicit
+
+&apos; Dialog declaration
+Private oDlgPrefs as Variant
+
+
+&apos; Create and display dialog
+Sub PrefsDialog()
+
+	&apos; Load the library TexMaths
+	DialogLibraries.LoadLibrary(&quot;TexMaths&quot;)
+
+	&apos; Create the dialog object
+	oDlgPrefs = createUnoDialog( DialogLibraries.GetByName(&quot;TexMaths&quot;).GetByName(&quot;TexMathsPrefs_GUI&quot;) )
+
+	&apos; Set the combo box values
+	oDlgPrefs.getControl(&quot;Format&quot;).addItems(Array(&quot;png&quot;,&quot;svg&quot;),0)
+	oDlgPrefs.getControl(&quot;GraphicDPI&quot;).addItems(Array(&quot;72&quot;,&quot;96&quot;,&quot;120&quot;,&quot;150&quot;,&quot;200&quot;,&quot;300&quot;,&quot;600&quot;,&quot;1200&quot;),0)
+	oDlgPrefs.getControl(&quot;ImpressSize&quot;).addItems(Array(&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;10.5&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;54&quot;,&quot;60&quot;,&quot;66&quot;,&quot;72&quot;,&quot;80&quot;,&quot;88&quot;,&quot;96&quot;),0)
+	oDlgPrefs.getControl(&quot;WriterSize&quot;).addItems(Array(&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;10.5&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;54&quot;,&quot;60&quot;,&quot;66&quot;,&quot;72&quot;,&quot;80&quot;,&quot;88&quot;,&quot;96&quot;),0)
+	oDlgPrefs.getControl(&quot;DrawSize&quot;).addItems(Array(&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;10.5&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;54&quot;,&quot;60&quot;,&quot;66&quot;,&quot;72&quot;,&quot;80&quot;,&quot;88&quot;,&quot;96&quot;),0)
+
+	&apos; Dialog strings for translation
+	oDlgPrefs.setTitle( _(&quot;TexMaths Preferences&quot;) )
+	oDlgPrefs.getControl(&quot;ImageFrame&quot;).Model.Label = _(&quot;Image parameters&quot;)
+	oDlgPrefs.getControl(&quot;DefaultButton&quot;).Model.Label = _(&quot;Default&quot;)
+	oDlgPrefs.getControl(&quot;DefaultButton&quot;).Model.HelpText = _(&quot;Load default preferences&quot;)
+	oDlgPrefs.getControl(&quot;LoadButton&quot;).Model.Label = _(&quot;Load&quot;)
+	oDlgPrefs.getControl(&quot;LoadButton&quot;).Model.HelpText = _(&quot;Load saved preferences&quot;)
+	oDlgPrefs.getControl(&quot;SaveButton&quot;).Model.Label = _(&quot;Save&quot;)
+	oDlgPrefs.getControl(&quot;SaveButton&quot;).Model.HelpText = _(&quot;Apply and save current preferences&quot;)
+	oDlgPrefs.getControl(&quot;WriterSize&quot;).Model.HelpText = _(&quot;Writer font size&quot;)
+	oDlgPrefs.getControl(&quot;ImpressSize&quot;).Model.HelpText = _(&quot;Impress font size&quot;)
+	oDlgPrefs.getControl(&quot;DrawSize&quot;).Model.HelpText = _(&quot;Draw font size&quot;)
+	oDlgPrefs.getControl(&quot;PointsLabel1&quot;).Model.Label = _(&quot;points&quot;)
+	oDlgPrefs.getControl(&quot;PointsLabel2&quot;).Model.Label = _(&quot;points&quot;)
+	oDlgPrefs.getControl(&quot;PointsLabel3&quot;).Model.Label = _(&quot;points&quot;)
+	oDlgPrefs.getControl(&quot;WriterDisplay&quot;).Model.HelpText = _(&quot;Inline display equation&quot;)
+	oDlgPrefs.getControl(&quot;ImpressDisplay&quot;).Model.HelpText = _(&quot;Inline display equation&quot;)
+	oDlgPrefs.getControl(&quot;DrawDisplay&quot;).Model.HelpText = _(&quot;Inline display equation&quot;)
+	oDlgPrefs.getControl(&quot;WriterInline&quot;).Model.HelpText = _(&quot;Inline equation&quot;)
+	oDlgPrefs.getControl(&quot;ImpressInline&quot;).Model.HelpText = _(&quot;Inline equation&quot;)
+	oDlgPrefs.getControl(&quot;DrawInline&quot;).Model.HelpText = _(&quot;Inline equation&quot;)
+	oDlgPrefs.getControl(&quot;WriterLatex&quot;).Model.HelpText = _(&quot;Regular LaTeX code&quot;)
+	oDlgPrefs.getControl(&quot;ImpressLatex&quot;).Model.HelpText = _(&quot;Regular LaTeX code&quot;)
+	oDlgPrefs.getControl(&quot;DrawLatex&quot;).Model.HelpText = _(&quot;Regular LaTeX code&quot;)
+	oDlgPrefs.getControl(&quot;FormatLabel&quot;).Model.Label = _(&quot;Format&quot;)
+	oDlgPrefs.getControl(&quot;Format&quot;).Model.HelpText = _(&quot;Image format&quot;)
+	oDlgPrefs.getControl(&quot;GraphicDPI&quot;).Model.HelpText = _(&quot;Image resolution&quot;)
+	oDlgPrefs.getControl(&quot;WriterTransparency&quot;).Model.Label = _(&quot;Transparency&quot;)
+	oDlgPrefs.getControl(&quot;WriterTransparency&quot;).Model.HelpText = _(&quot;Toggle image transparency&quot;)
+	oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).Model.Label = _(&quot;Transparency&quot;)
+	oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).Model.HelpText = _(&quot;Toggle image transparency&quot;)
+	oDlgPrefs.getControl(&quot;DrawTransparency&quot;).Model.Label = _(&quot;Transparency&quot;)
+	oDlgPrefs.getControl(&quot;DrawTransparency&quot;).Model.HelpText = _(&quot;Toggle image transparency&quot;)
+
+	SetPrefsDialogValues(FALSE)
+
+ 	&apos; Display the dialog, this routine call does not return until the dialog is dismissed
+	oDlgPrefs.Execute()
+
+End Sub
+
+
+&apos; Set dialog values
+Sub SetPrefsDialogValues(ForceDefault as Boolean)
+
+	&apos; The load button is activated if the preferences file exists
+	If FileExists(glb_sUserPath &amp; &quot;TexMaths.cfg&quot; ) Then 
+		oDlgPrefs.getControl(&quot;LoadButton&quot;).setEnable(TRUE)
+		
+		If ForceDefault = FALSE Then ReadPrefsFile() Else DefaultPrefs()
+
+	Else
+		oDlgPrefs.getControl(&quot;LoadButton&quot;).setEnable(FALSE)
+		DefaultPrefs()
+	End If
+
+	&apos; Image
+	oDlgPrefs.getControl(&quot;Format&quot;).setText(glb_sFormat)
+	oDlgPrefs.getControl(&quot;GraphicDPI&quot;).setText(glb_sGraphicDPI)
+
+	&apos; Writer preferences
+	If glb_sWriterTransparency = &quot;TRUE&quot; Then
+		oDlgPrefs.getControl(&quot;WriterTransparency&quot;).setState(1)
+	Else
+		oDlgPrefs.getControl(&quot;WriterTransparency&quot;).setState(0)
+	End If
+	oDlgPrefs.getControl(&quot;WriterSize&quot;).setText(glb_sWriterSize)
+	If glb_sWriterEqType = &quot;display&quot; Then oDlgPrefs.getControl(&quot;WriterDisplay&quot;).setState(1)
+	If glb_sWriterEqType = &quot;inline&quot;  Then oDlgPrefs.getControl(&quot;WriterInline&quot;).setState(1)
+	If glb_sWriterEqType = &quot;latex&quot;    Then oDlgPrefs.getControl(&quot;WriterLatex&quot;).setState(1)
+
+	&apos; Impress preferences
+	If glb_sImpressTransparency = &quot;TRUE&quot; Then
+		oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).setState(1)
+	Else
+		oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).setState(0)
+	End If
+	oDlgPrefs.getControl(&quot;ImpressSize&quot;).setText(glb_sImpressSize)
+	If glb_sImpressEqType = &quot;display&quot; Then oDlgPrefs.getControl(&quot;ImpressDisplay&quot;).setState(1)
+	If glb_sImpressEqType = &quot;inline&quot;  Then oDlgPrefs.getControl(&quot;ImpressInline&quot;).setState(1)
+	If glb_sImpressEqType = &quot;latex&quot;    Then oDlgPrefs.getControl(&quot;ImpressLatex&quot;).setState(1)
+
+	&apos; Draw preferences
+	If glb_sDrawTransparency = &quot;TRUE&quot; Then
+		oDlgPrefs.getControl(&quot;DrawTransparency&quot;).setState(1)
+	Else
+		oDlgPrefs.getControl(&quot;DrawTransparency&quot;).setState(0)
+	End If
+	oDlgPrefs.getControl(&quot;DrawSize&quot;).setText(glb_sDrawSize)
+	If glb_sDrawEqType = &quot;display&quot; Then oDlgPrefs.getControl(&quot;DrawDisplay&quot;).setState(1)
+	If glb_sDrawEqType = &quot;inline&quot;  Then oDlgPrefs.getControl(&quot;DrawInline&quot;).setState(1)
+	If glb_sDrawEqType = &quot;latex&quot;    Then oDlgPrefs.getControl(&quot;DrawLatex&quot;).setState(1)
+	
+
+	&apos; Get the dvipng and dvisvgm paths saved in the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)	
+
+	&apos; Disable png and force svg if dvisvgm path is empty or if the compiler is xelatex or if dvipng does not exist
+	If glb_sCompiler = &quot;xelatex&quot; Or oSystemInfo.DvipngPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvipngPath) Then
+		
+		glb_sFormat = &quot;svg&quot; 
+		oDlgPrefs.getControl(&quot;Format&quot;).setText(&quot;svg&quot;)
+		oDlgPrefs.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+			
+	&apos; Disable svg and force png if dvisvgm path is empty or dvisvgm doesn&apos;t exist
+	If oSystemInfo.DvisvgmPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvipngPath) Then
+		
+		glb_sFormat = &quot;png&quot; 
+		oDlgPrefs.getControl(&quot;Format&quot;).setText(&quot;png&quot;)
+		oDlgPrefs.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+
+	&apos; Disable dpi if svg file format
+	If glb_sFormat = &quot;svg&quot; Then 
+		oDlgPrefs.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgPrefs.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+End Sub
+
+
+&apos; Set image format and enable or disable dpi according to the image format
+Sub Format_Mod()
+
+	glb_sFormat = oDlgPrefs.getControl(&quot;Format&quot;).getText()
+	If glb_sFormat = &quot;svg&quot; Then 
+		oDlgPrefs.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgPrefs.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+End Sub
+
+
+
+&apos; Set image dpi
+Sub Dpi_Mod()
+
+	glb_sGraphicDPI = oDlgPrefs.getControl(&quot;GraphicDPI&quot;).getText()
+
+End Sub
+
+
+&apos; Set image transparency in Writer
+Sub Trans_Mod_Writer()
+
+	If oDlgPrefs.getControl(&quot;WriterTransparency&quot;).getState() Then
+		glb_sWriterTransparency = &quot;TRUE&quot;
+	Else
+		glb_sWriterTransparency = &quot;FALSE&quot;
+	End If	
+
+End Sub
+
+
+&apos; Set image transparency in Impress
+Sub Trans_Mod_Impress()
+
+	If oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).getState() Then
+		glb_sImpressTransparency = &quot;TRUE&quot;
+	Else
+		glb_sImpressTransparency = &quot;FALSE&quot;
+	End If	
+
+End Sub
+
+
+&apos; Set image transparency in Draw
+Sub Trans_Mod_Draw()
+
+	If oDlgPrefs.getControl(&quot;DrawTransparency&quot;).getState() Then
+		glb_sDrawTransparency = &quot;TRUE&quot;
+	Else
+		glb_sDrawTransparency = &quot;FALSE&quot;
+	End If	
+
+End Sub
+
+
+&apos; Save preferences button clicked
+Sub SavePrefsButton_Clicked()
+
+	&apos; Apply preferences
+	ApplyPrefs()
+
+	&apos; Save preferences and close dialog
+	SavePrefs()
+	oDlgPrefs.endExecute()
+
+End Sub
+
+
+&apos; Load default preferences
+Sub DefaultPrefsButton_Clicked()
+
+	&apos; Load default preferences
+	SetPrefsDialogValues(TRUE)
+	
+End Sub
+
+
+&apos; Load preferences
+Sub LoadPrefsButton_Clicked()
+
+	&apos; We arrive here if the file exists
+	ReadPrefsFile()
+	SetPrefsDialogValues(FALSE)
+
+End Sub
+
+
+&apos; Apply preferences
+Sub ApplyPrefs()
+
+	&apos; Set the preferences variables
+	glb_sFormat = oDlgPrefs.getControl(&quot;Format&quot;).getText()
+	glb_sGraphicDPI = oDlgPrefs.getControl(&quot;GraphicDPI&quot;).getText()
+
+	If oDlgPrefs.getControl(&quot;WriterTransparency&quot;).getState() Then
+		glb_sWriterTransparency = &quot;TRUE&quot;
+	Else
+		glb_sWriterTransparency = &quot;FALSE&quot;
+	End If
+
+	If oDlgPrefs.getControl(&quot;ImpressTransparency&quot;).getState() Then
+		glb_sImpressTransparency = &quot;TRUE&quot;
+	Else
+		glb_sImpressTransparency = &quot;FALSE&quot;
+	End If
+
+	If oDlgPrefs.getControl(&quot;DrawTransparency&quot;).getState() Then
+		glb_sDrawTransparency = &quot;TRUE&quot;
+	Else
+		glb_sDrawTransparency = &quot;FALSE&quot;
+	End If
+
+	If glb_sFormat = &quot;svg&quot; Then 
+		oDlgMain.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgMain.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+	glb_sWriterSize =  oDlgPrefs.getControl(&quot;WriterSize&quot;).getText()
+	If oDlgPrefs.getControl(&quot;WriterDisplay&quot;).getState() Then glb_sWriterEqType = &quot;display&quot;
+	If oDlgPrefs.getControl(&quot;WriterInline&quot;).getState() Then glb_sWriterEqType = &quot;inline&quot;
+	If oDlgPrefs.getControl(&quot;WriterLatex&quot;).getState() Then glb_sWriterEqType = &quot;latex&quot;
+
+	glb_sImpressSize =  oDlgPrefs.getControl(&quot;ImpressSize&quot;).getText()
+	If oDlgPrefs.getControl(&quot;ImpressDisplay&quot;).getState() Then glb_sImpressEqType = &quot;display&quot;
+	If oDlgPrefs.getControl(&quot;ImpressInline&quot;).getState() Then glb_sImpressEqType = &quot;inline&quot;
+	If oDlgPrefs.getControl(&quot;ImpressLatex&quot;).getState() Then glb_sImpressEqType = &quot;latex&quot;
+
+	&apos; Draw preferences
+	glb_sDrawSize =  oDlgPrefs.getControl(&quot;DrawSize&quot;).getText()
+	If oDlgPrefs.getControl(&quot;DrawDisplay&quot;).getState() Then glb_sDrawEqType = &quot;display&quot;
+	If oDlgPrefs.getControl(&quot;DrawInline&quot;).getState() Then glb_sDrawEqType = &quot;inline&quot;
+	If oDlgPrefs.getControl(&quot;DrawLatex&quot;).getState() Then glb_sDrawEqType = &quot;latex&quot;
+
+	&apos; Update the fields of the main window depending on the document type
+	oDlgMain.getControl(&quot;Format&quot;).setText(glb_sFormat)
+	oDlgMain.getControl(&quot;GraphicDPI&quot;).setText(glb_sGraphicDPI)
+
+	If GetDocumentType(ThisComponent) = &quot;swriter&quot; Then
+		
+		oDlgMain.getControl(&quot;Size&quot;).setText(glb_sWriterSize)
+		If glb_sWriterEqType = &quot;display&quot; Then oDlgMain.getControl(&quot;TypeDisplay&quot;).setState(1)
+		If glb_sWriterEqType = &quot;inline&quot; Then oDlgMain.getControl(&quot;TypeInline&quot;).setState(1)
+		If glb_sWriterEqType = &quot;latex&quot; Then oDlgMain.getControl(&quot;TypeLatex&quot;).setState(1)
+		
+		If glb_sWriterTransparency = &quot;TRUE&quot; Then
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+	ElseIf GetDocumentType(ThisComponent) = &quot;simpress&quot; Then
+	
+		oDlgMain.getControl(&quot;Size&quot;).setText(glb_sImpressSize)
+		If glb_sImpressEqType = &quot;display&quot; Then oDlgMain.getControl(&quot;TypeDisplay&quot;).setState(1)
+		If glb_sImpressEqType = &quot;inline&quot; Then oDlgMain.getControl(&quot;TypeInline&quot;).setState(1)
+		If glb_sImpressEqType = &quot;latex&quot; Then oDlgMain.getControl(&quot;TypeLatex&quot;).setState(1)
+	
+		If glb_sImpressTransparency = &quot;TRUE&quot; Then
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+	ElseIf GetDocumentType(ThisComponent) = &quot;sdraw&quot; Then
+	
+		oDlgMain.getControl(&quot;Size&quot;).setText(glb_sDrawSize)
+		If glb_sDrawEqType = &quot;display&quot; Then oDlgMain.getControl(&quot;TypeDisplay&quot;).setState(1)
+		If glb_sDrawEqType = &quot;inline&quot; Then oDlgMain.getControl(&quot;TypeInline&quot;).setState(1)
+		If glb_sDrawEqType = &quot;latex&quot; Then oDlgMain.getControl(&quot;TypeLatex&quot;).setState(1)
+	
+		If glb_sDrawTransparency = &quot;TRUE&quot; Then
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgMain.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+	Else
+	
+		MsgBox GetDocumentType(oDoc) &amp; _(&quot;: document type not supported by TexMaths&quot;)
+		Exit Sub
+
+	End If
+	
+	&apos; Save into doc if necessary and update Log
+	DisplayStatus ( _(&quot;Preferences applied and saved...&quot;) )
+
+End Sub
+
+
+&apos; Save preferences
+Sub SavePrefs()
+
+	&apos; Open service file and an output stream
+	Dim oFileAccess as Variant, oTextStream as Variant
+	oFileAccess = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	oTextStream = createUnoService(&quot;com.sun.star.io.TextOutputStream&quot;)
+
+	&apos; Save the general options
+	Dim cURL as String
+	cURL = ConvertToURL( glb_sUserPath &amp; &quot;TexMaths.cfg&quot; )
+	If oFileAccess.exists( cURL ) Then oFileAccess.kill( cURL )
+    oTextStream.setOutputStream(oFileAccess.openFileWrite(cURL))
+    oTextStream.writeString(_
+    			&quot;# TexMaths config file&quot; &amp; chr(10) &amp;_
+				&quot;#&quot; &amp;chr(10)  ) 
+    oTextStream.writeString( Preferences() &amp; chr(10))
+
+	oTextStream.closeOutput()
+
+End Sub
+
+</script:module>

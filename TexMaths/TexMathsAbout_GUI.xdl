@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TexMathsAbout_GUI" dlg:left="0" dlg:top="0" dlg:width="275" dlg:height="221" dlg:closeable="true" dlg:moveable="true" dlg:title="About TexMaths" dlg:withtitlebar="false">
+ <dlg:bulletinboard>
+  <dlg:button dlg:id="SystemlogButton" dlg:tab-index="3" dlg:left="93" dlg:top="4" dlg:width="40" dlg:height="15" dlg:help-text="Display system informations" dlg:value="SystemLog" dlg:grab-focus="false">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsAbout.SysLogButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="CloseButton" dlg:tab-index="0" dlg:left="230" dlg:top="203" dlg:width="40" dlg:height="15" dlg:help-text="Close window" dlg:default="true" dlg:value="Close">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsAbout.CloseAbout?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="ChangelogButton" dlg:tab-index="2" dlg:left="48" dlg:top="4" dlg:width="40" dlg:height="15" dlg:help-text="Display application changes" dlg:value="ChangeLog" dlg:grab-focus="false">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsAbout.ChangeLogButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="AboutButton" dlg:tab-index="1" dlg:left="3" dlg:top="4" dlg:width="40" dlg:height="15" dlg:help-text="Display application informations" dlg:value="About" dlg:grab-focus="false">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsAbout.AboutButton?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:textfield dlg:id="AboutText" dlg:tab-index="4" dlg:left="2" dlg:top="23" dlg:width="270" dlg:height="176" dlg:vscroll="true" dlg:multiline="true" dlg:readonly="true"/>
+ </dlg:bulletinboard>
+</dlg:window>

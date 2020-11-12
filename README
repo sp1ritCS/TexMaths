@@ -1,0 +1,12 @@
+TexMaths is an extension derived from OOoLatex, by Geoffroy Piroux.
+It provides a simple Latex equation editor for LibreOffice.
+
+TexMaths requires the following software to be installed on your computer:
+ - LibreOffice Draw (version 4 or later)
+ - a Latex distribution as TexLive (Linux/ Mac OS X) or Miktex (Windows)
+ - the program dvipng to produce PNG images from dvi files
+ - or the program dvisvgm to produce SVG images from dvi files (only one of dvipng or dvisvgm is required)
+
+TexMaths is licensed under the terms of the GNU GPL license (version 2 or later),
+see the license.txt file for details.
+

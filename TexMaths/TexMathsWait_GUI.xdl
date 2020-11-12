@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TexMathsWait_GUI" dlg:left="74" dlg:top="76" dlg:width="150" dlg:height="51" dlg:closeable="true" dlg:moveable="true">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="Label1" dlg:tab-index="1" dlg:left="3" dlg:top="4" dlg:width="146" dlg:height="18" dlg:value="Please wait before the end of the task..." dlg:valign="center"/>
+  <dlg:button dlg:id="CancelButton" dlg:tab-index="0" dlg:left="55" dlg:top="33" dlg:width="40" dlg:height="15" dlg:help-text="Close window" dlg:help-url="Cancel operation" dlg:default="true" dlg:value="Cancel">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsRecompileEquations.CloseWait?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+ </dlg:bulletinboard>
+</dlg:window>

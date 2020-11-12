@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<oor:component-schema oor:name="Registry" oor:package="ooo.ext.texmaths" xml:lang="en-US" xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<component>
+		<group oor:name="ProductInfo">
+			<prop oor:name="ProductName" oor:type="xs:string"/>
+		</group>
+		<group oor:name="SystemInfo">
+			<prop oor:name="PackageDir" oor:type="xs:string"/>
+			<prop oor:name="LatexPath" oor:type="xs:string"/>
+			<prop oor:name="XelatexPath" oor:type="xs:string"/>
+			<prop oor:name="DvipngPath" oor:type="xs:string"/>
+			<prop oor:name="DvisvgmPath" oor:type="xs:string"/>
+			<prop oor:name="ConfigSaved" oor:type="xs:string"/>
+			<prop oor:name="WordVertAlign" oor:type="xs:string"/>
+			<prop oor:name="BreakBeforeNum" oor:type="xs:string"/>
+			<prop oor:name="CaptionLeftAlign" oor:type="xs:string"/>
+			<prop oor:name="BreakAfterNum" oor:type="xs:string"/>
+			<prop oor:name="EquationCaption" oor:type="xs:string"/>
+			<prop oor:name="NumLevel" oor:type="xs:string"/>
+			<prop oor:name="EqWriterKey" oor:type="xs:string"/>
+			<prop oor:name="EqWriterCmd" oor:type="xs:string"/>
+			<prop oor:name="NumEqWriterKey" oor:type="xs:string"/>
+			<prop oor:name="NumEqWriterCmd" oor:type="xs:string"/>
+			<prop oor:name="EqImpressKey" oor:type="xs:string"/>
+			<prop oor:name="EqImpressCmd" oor:type="xs:string"/>
+			<prop oor:name="EqDrawKey" oor:type="xs:string"/>
+			<prop oor:name="EqDrawCmd" oor:type="xs:string"/>
+			<prop oor:name="PositionX" oor:type="xs:string"/>
+			<prop oor:name="PositionY" oor:type="xs:string"/>
+			<prop oor:name="Width" oor:type="xs:string"/>
+			<prop oor:name="Height" oor:type="xs:string"/>
+			<prop oor:name="HelpPositionX" oor:type="xs:string"/>
+			<prop oor:name="HelpPositionY" oor:type="xs:string"/>
+			<prop oor:name="HelpWidth" oor:type="xs:string"/>
+			<prop oor:name="HelpHeight" oor:type="xs:string"/>
+			<prop oor:name="EditorFontSize" oor:type="xs:string"/>
+			<prop oor:name="EditorFontName" oor:type="xs:string"/>
+			<prop oor:name="Compiler" oor:type="xs:string"/>
+			<prop oor:name="SymbolColor" oor:type="xs:string"/>
+		</group>
+	</component>
+</oor:component-schema>

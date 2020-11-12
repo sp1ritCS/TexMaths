@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsNumberedEquations" script:language="StarBasic">
+&apos;
+&apos;    TexMathsEquationsNumbered
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos;	 Macro used to create a numbered equation 
+
+&apos; Force variable declaration
+Option Explicit
+
+Sub Main
+	
+	&apos; Get break before num and break after options
+	Dim oSystemInfo as Variant
+	Dim BreakBeforeNum as Boolean, BreakAfterNum as Boolean
+	Dim CaptionLeftAlign as Boolean
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	If oSystemInfo.BreakBeforeNum = &quot;TRUE&quot; Then	BreakBeforeNum = TRUE Else BreakBeforeNum = FALSE
+	If oSystemInfo.BreakAfterNum = &quot;TRUE&quot; Then	BreakAfterNum = TRUE Else BreakAfterNum = FALSE
+	If oSystemInfo.CaptionLeftAlign = &quot;TRUE&quot; Then CaptionLeftAlign = TRUE Else CaptionLeftAlign = FALSE
+
+	&apos; Get page width and margin sizes
+	Dim oDoc as Variant, oPageStyles as Variant, oStyle as Variant, oViewCursor as Variant, oPageStyleName as String
+	oDoc = ThisComponent
+	
+	&apos; If we are in Writer preview mode, just silently exit
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+		If oDoc.getCurrentController.getFrame.LayoutManager.isElementVisible ( &quot;private:resource/toolbar/previewobjectbar&quot; ) Then Exit Sub
+	End If 
+	
+	&apos; Get view cursor and page style
+	oViewCursor = oDoc.CurrentController.getViewCursor()
+	oPageStyleName = oViewCursor.PageStyleName
+	oPageStyles = oDoc.StyleFamilies.getByName(&quot;PageStyles&quot;)
+	oStyle = oPageStyles.getByName(oPageStyleName)
+
+	&apos; Declarations
+	Dim nbColsDoc as Integer, nbColsSec as Integer
+	Dim oTextColsDoc as Variant, oTextColsSec as Variant
+	Dim tabpos1 as Integer, tabpos2 as Integer, colwidth as Integer
+	Dim tabpos1_default as Integer, tabpos2_default as Integer
+
+	&apos; Number of columns of the document
+	oTextColsDoc = oStyle.TextColumns
+	nbColsDoc = oTextColsDoc.getColumnCount()
+	
+	&apos; Default tab positions at middle of the page and border of the right margin
+	tabpos1_default = (oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin) / 2
+	tabpos2_default = oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin
+	
+	&apos; Single column document
+	If nbColsDoc = 0 Then &apos; nbColsDoc = 0 means single column!
+
+		&apos; View cursor is not in a section
+		If isEmpty( oViewCursor.TextSection ) Then
+					
+			&apos; Use default tabs
+			tabpos1 = tabpos1_default
+			tabpos2 = tabpos2_default
+		
+		&apos; View cursor is in a section
+		Else
+			
+			&apos; Number of columns of the section
+			oTextColsSec = oViewCursor.TextSection.TextColumns
+			nbColsSec = oTextColsSec.getColumnCount()
+
+			&apos; Single column section
+			If nbColsSec = 0 Then
+			
+				&apos; Use default tabs
+				tabpos1 = tabpos1_default
+				tabpos2 = tabpos2_default
+			
+			&apos; Section with two columns or more
+			Else
+			
+		 		&apos; Automatic column widths (columns of same width)	
+		 		If oTextColsSec.IsAutomatic() Then
+					
+					&apos; Column width
+					colwidth = (oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin - (nbColsSec - 1) * oTextColsSec.AutomaticDistance ) / nbColsSec
+			
+					&apos; Compute tab positions (middle of the column and border of the column right margin)
+					tabpos1 = colwidth / 2
+					tabpos2 = colwidth
+		
+				&apos; Non automatic column widths (columns of different widths)	
+				Else
+				
+					&apos; Use default tabs
+					tabpos1 = tabpos1_default
+					tabpos2 = tabpos2_default
+				
+				End If
+			
+			End If
+			
+		End If
+	
+	&apos; Document with two or more columns
+	Else
+		
+ 		&apos; Automatic column widths (columns of same width)	
+ 		If oTextColsDoc.IsAutomatic() Then
+			
+		&apos; View cursor is not in a section
+		If isEmpty( oViewCursor.TextSection ) Then
+					
+			&apos; Column width
+			colwidth = (oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin - (nbColsDoc - 1) * oTextColsDoc.AutomaticDistance ) / nbColsDoc
+	
+			&apos; Compute tab positions (middle of the column and border of the column right margin)
+			tabpos1 = colwidth / 2
+			tabpos2 = colwidth
+
+		&apos; View cursor is in a section
+		Else
+			
+			&apos; Number of columns of the section
+			oTextColsSec = oViewCursor.TextSection.TextColumns
+			nbColsSec = oTextColsSec.getColumnCount()
+
+			&apos; Single column section
+			If nbColsSec = 0 Then
+			
+				&apos; Column width
+				colwidth = (oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin - (nbColsDoc - 1) * oTextColsDoc.AutomaticDistance ) / nbColsDoc
+		
+				&apos; Compute tab positions (middle of the column and border of the column right margin)
+				tabpos1 = colwidth / 2
+				tabpos2 = colwidth
+			
+			&apos; Section with two columns or more
+			Else
+			
+		 		&apos; Automatic column widths (columns of same width)	
+		 		If oTextColsSec.IsAutomatic() Then
+					
+					&apos; Column width
+					colwidth = (oStyle.Width - oStyle.LeftMargin - oStyle.RightMargin - (nbColsDoc - 1) * oTextColsDoc.AutomaticDistance ) / nbColsDoc
+					colwidth = colwidth / nbColsSec
+			
+					&apos; Compute tab positions (middle of the column and border of the column right margin)
+					tabpos1 = colwidth / 2
+					tabpos2 = colwidth
+		
+				&apos; Non automatic column widths (columns of different widths)	
+				Else
+				
+					&apos; Use default tabs
+					tabpos1 = tabpos1_default
+					tabpos2 = tabpos2_default
+				
+				End If
+			
+			End If
+			
+		End If
+
+		&apos; Non automatic column widths (columns of different widths)	
+		Else
+		
+			&apos; Use default tabs
+			tabpos1 = tabpos1_default
+			tabpos2 = tabpos2_default
+		
+		End If
+
+	End If
+
+	&apos; Get access to the document
+	Dim oFrame as Variant
+	Dim oDispatcher as Variant
+	oFrame = ThisComponent.CurrentController.Frame
+	oDispatcher = createUnoService(&quot;com.sun.star.frame.DispatchHelper&quot;)
+
+	&apos; Eventually insert an empty paragraph before the equation
+	If BreakBeforeNum = TRUE Then oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertPara&quot;, &quot;&quot;, 0, Array())
+
+	Dim sCaption as String
+	Dim args1(0) as new com.sun.star.beans.PropertyValue
+	Dim args2(1) as new com.sun.star.beans.PropertyValue
+	Dim args3(5) as new com.sun.star.beans.PropertyValue
+	
+	&apos; Left aligned caption
+	If CaptionLeftAlign = TRUE Then
+	
+		&apos; Insert a centered tab stop at position tabpos1
+		args1(0).Name = &quot;Tabstops.TabStops&quot;
+		args1(0).Value = Array(Array(tabpos1,com.sun.star.style.TabAlign.CENTER,&quot;,&quot;,&quot; &quot;))
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:Tabstops&quot;, &quot;&quot;, 0, args1())
+	
+		&apos; Insert the equation caption text at the left
+		If len(oSystemInfo.EquationCaption) = 0 Then
+			sCaption = &quot;()&quot;
+		Else
+			sCaption = &quot;(&quot; &amp; oSystemInfo.EquationCaption &amp; &quot; )&quot;
+		End If
+		args1(0).Name = &quot;Text&quot;
+		args1(0).Value = sCaption + CHR$(9)
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertText&quot;, &quot;&quot;, 0, args1())
+	
+		&apos; Go two characters left
+		args2(0).Name = &quot;Count&quot;
+		args2(0).Value = 2
+		args2(1).Name = &quot;Select&quot;
+		args2(1).Value = false
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:GoLeft&quot;, &quot;&quot;, 0, args2())
+	
+		&apos; Insert a numbering variable named Equation
+		args3(0).Name = &quot;Type&quot;
+		args3(0).Value = 23
+		args3(1).Name = &quot;SubType&quot;
+	
+		&apos; Set the numbering level
+		If oSystemInfo.NumLevel = &quot;0&quot; Then
+			args3(1).Value = 127	
+		Else
+			args3(1).Value = Val(oSystemInfo.NumLevel) - 1
+		End If
+	
+		args3(2).Name = &quot;Name&quot;
+		args3(2).Value = &quot;Equation&quot;
+		args3(3).Name = &quot;Content&quot;
+		args3(3).Value = &quot;&quot;
+		args3(4).Name = &quot;Format&quot;
+		args3(4).Value = 4
+		args3(5).Name = &quot;Separator&quot;
+		args3(5).Value = &quot;.&quot;
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertField&quot;, &quot;&quot;, 0, args3())
+	
+		&apos; Go two characters right
+		args2(0).Name = &quot;Count&quot;
+		args2(0).Value = 2
+		args2(1).Name = &quot;Select&quot;
+		args2(1).Value = false
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:GoRight&quot;, &quot;&quot;, 0, args2())
+
+		&apos; Eventually insert an empty paragraph after the equation
+		If BreakAfterNum = TRUE Then
+
+			oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertPara&quot;, &quot;&quot;, 0, Array())
+			
+			&apos; Go one character left
+			args2(0).Name = &quot;Count&quot;
+			args2(0).Value = 1
+			args2(1).Name = &quot;Select&quot;
+			args2(1).Value = false
+			oDispatcher.executeDispatch(oFrame, &quot;.uno:GoLeft&quot;, &quot;&quot;, 0, args2())
+	
+		End If
+	
+	&apos; Right aligned caption
+	Else
+	
+		&apos; Insert two tab stops at positions tabpos1 and tabpos2
+		&apos; The first one is centered and the second one is right justified
+		args1(0).Name = &quot;Tabstops.TabStops&quot;
+		args1(0).Value = Array(Array(tabpos1,com.sun.star.style.TabAlign.CENTER,&quot;,&quot;,&quot; &quot;),Array(tabpos2,com.sun.star.style.TabAlign.RIGHT,&quot;,&quot;,&quot; &quot;))
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:Tabstops&quot;, &quot;&quot;, 0, args1())
+	
+		&apos; Insert the equation caption text at the right
+		If len(oSystemInfo.EquationCaption) = 0 Then
+			sCaption = &quot;()&quot;
+		Else
+			sCaption = &quot;(&quot; &amp; oSystemInfo.EquationCaption &amp; &quot; )&quot;
+		End If
+		args1(0).Name = &quot;Text&quot;
+		args1(0).Value = CHR$(9) + CHR$(9) + sCaption
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertText&quot;, &quot;&quot;, 0, args1())
+	
+		&apos; Evetually insert an empty paragraph after the equation
+		&apos; And set the number of characters to go left
+		Dim nleft as Integer
+		If BreakAfterNum = TRUE Then
+			oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertPara&quot;, &quot;&quot;, 0, Array())
+			nleft = 2
+		Else
+			nleft = 1
+		End If
+	
+		&apos; Go one or two characters left
+		args2(0).Name = &quot;Count&quot;
+		args2(0).Value = nleft
+		args2(1).Name = &quot;Select&quot;
+		args2(1).Value = false
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:GoLeft&quot;, &quot;&quot;, 0, args2())
+	
+		&apos; Insert a numbering variable named Equation
+		args3(0).Name = &quot;Type&quot;
+		args3(0).Value = 23
+		args3(1).Name = &quot;SubType&quot;
+	
+		&apos; Set the numbering level
+		If oSystemInfo.NumLevel = &quot;0&quot; Then
+			args3(1).Value = 127	
+		Else
+			args3(1).Value = Val(oSystemInfo.NumLevel) - 1
+		End If
+	
+		args3(2).Name = &quot;Name&quot;
+		args3(2).Value = &quot;Equation&quot;
+		args3(3).Name = &quot;Content&quot;
+		args3(3).Value = &quot;&quot;
+		args3(4).Name = &quot;Format&quot;
+		args3(4).Value = 4
+		args3(5).Name = &quot;Separator&quot;
+		args3(5).Value = &quot;.&quot;
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:InsertField&quot;, &quot;&quot;, 0, args3())
+	
+		&apos; Go len(sCaption)+1 characters left
+		args2(0).Name = &quot;Count&quot;
+		args2(0).Value = len(sCaption)+1
+		args2(1).Name = &quot;Select&quot;
+		args2(1).Value = false
+		oDispatcher.executeDispatch(oFrame, &quot;.uno:GoLeft&quot;, &quot;&quot;, 0, args2())
+
+	End If
+
+	&apos; Set vertical alignment to middle
+	dim args4(0) as new com.sun.star.beans.PropertyValue
+	args4(0).Name = &quot;VerticalParagraphAlignment&quot;
+	args4(0).Value = 3
+	oDispatcher.executeDispatch(oFrame, &quot;.uno:VerticalParagraphAlignment&quot;, &quot;&quot;, 0, args4())
+
+	&apos; Launch the TexMaths Equation main macro
+	TexMaths.TexMathsEquations.main()
+
+End Sub
+</script:module>

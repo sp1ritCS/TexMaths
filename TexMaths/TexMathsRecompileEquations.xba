@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsRecompileEquations" script:language="StarBasic">&apos;
+&apos;    TexMathsRecompileEquations
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos; 	 Macros used to recompile TexMaths equations 
+
+&apos; Force variable declaration
+Option Explicit
+
+&apos; Dialog declaration
+Private oDlgRecompileEquations as Variant
+Private oDlgWait as Variant
+
+Private oL as Variant
+Private closed as Boolean
+
+
+Sub Main
+
+	&apos; The Draw component is required
+	If ComponentInstalled( &quot;Draw&quot; ) = FALSE Then
+
+  		MsgBox( _(&quot;Please install the Draw component to run TexMaths!&quot;) )
+  		Exit Sub
+
+	End If	 
+
+	&apos; Initialize object to null to allow testing if it was created
+	oDlgMain = null
+	
+	&apos; Set TexMaths configuration
+	SetConfig()
+	
+	&apos; Check program paths
+	CheckProgramPaths()
+	
+	&apos; Exit if configuration was not saved
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	If oSystemInfo.ConfigSaved = &quot;&quot; Then Exit Sub
+	
+	&apos; Get Word vertical alignment compatibility option
+	If oSystemInfo.WordVertAlign = &quot;TRUE&quot; Then	glb_WordVertAlign = TRUE Else glb_WordVertAlign = FALSE
+
+	&apos; Display dialog
+	RecompileEquationsDialog()
+
+End Sub
+
+
+&apos; Create and display dialog 
+Sub RecompileEquationsDialog()
+
+	&apos; Load the library TexMaths
+	DialogLibraries.LoadLibrary( &quot;TexMaths&quot; )
+	
+	&apos; Create the dialog object
+	oDlgRecompileEquations = createUnoDialog( DialogLibraries.GetByName(&quot;TexMaths&quot;).GetByName(&quot;TexMathsRecompileEquations_GUI&quot;) )
+
+	&apos; Dialog strings for translation
+	oDlgRecompileEquations.setTitle( _(&quot;TexMaths Recompile Equations&quot;) )
+	oDlgRecompileEquations.getControl(&quot;HelpButton&quot;).Model.Label = _(&quot;Help...&quot;)
+	oDlgRecompileEquations.getControl(&quot;HelpButton&quot;).Model.HelpText = _(&quot;Display help text&quot;)	
+	oDlgRecompileEquations.getControl(&quot;PreambleButton&quot;).Model.Label = _(&quot;Preamble...&quot;)	
+	oDlgRecompileEquations.getControl(&quot;PreambleButton&quot;).Model.HelpText = _(&quot;Set preamble&quot;)	
+	oDlgRecompileEquations.getControl(&quot;RunButton&quot;).Model.Label = _(&quot;Run&quot;)	
+	oDlgRecompileEquations.getControl(&quot;RunButton&quot;).Model.HelpText = _(&quot;Recompile TexMaths equations&quot;)
+	oDlgRecompileEquations.getControl(&quot;FontFrame&quot;).Model.Label = _(&quot;Font size&quot;)
+	oDlgRecompileEquations.getControl(&quot;ImageFrame&quot;).Model.Label = _(&quot;Image parameters&quot;)
+	oDlgRecompileEquations.getControl(&quot;CompatFrame&quot;).Model.Label = _(&quot;Compatibility&quot;)
+	oDlgRecompileEquations.getControl(&quot;SelectionFrame&quot;).Model.Label = _(&quot;Selection&quot;)
+	oDlgRecompileEquations.getControl(&quot;PointLabel&quot;).Model.Label = _(&quot;points&quot;)
+	oDlgRecompileEquations.getControl(&quot;FormatLabel&quot;).Model.Label = _(&quot;Format&quot;)
+	oDlgRecompileEquations.getControl(&quot;Transparency&quot;).Model.Label = _(&quot;Transparency&quot;)
+	oDlgRecompileEquations.getControl(&quot;Transparency&quot;).Model.HelpText = _(&quot;Image transparency&quot;)
+	oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).Model.Label = _(&quot;Vertical alignment for Word export&quot;)
+	oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).Model.HelpText = _(&quot;Improve vertical alignment of Writer equations for Word export&quot;)
+	oDlgRecompileEquations.getControl(&quot;FontSize&quot;).Model.HelpText = _(&quot;Text font size&quot;)
+	oDlgRecompileEquations.getControl(&quot;Format&quot;).Model.HelpText = _(&quot;Image format&quot;)
+	oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).Model.HelpText = _(&quot;Image resolution (only for PNG images)&quot;)
+
+	&apos; Set the combo box values
+	oDlgRecompileEquations.getControl(&quot;Format&quot;).addItems(Array(&quot;---&quot;,&quot;png&quot;,&quot;svg&quot;),0)
+	oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).addItems(Array(&quot;---&quot;,&quot;72&quot;,&quot;96&quot;,&quot;120&quot;,&quot;150&quot;,&quot;200&quot;,&quot;300&quot;,&quot;600&quot;,&quot;1200&quot;),0)
+	oDlgRecompileEquations.getControl(&quot;FontSize&quot;).addItems(Array(&quot;---&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;10.5&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;18&quot;,&quot;20&quot;,&quot;22&quot;,&quot;24&quot;,&quot;26&quot;,&quot;28&quot;,&quot;32&quot;,&quot;36&quot;,&quot;40&quot;,&quot;44&quot;,&quot;48&quot;,&quot;54&quot;,&quot;60&quot;,&quot;66&quot;,&quot;72&quot;,&quot;80&quot;,&quot;88&quot;,&quot;96&quot;),0)
+
+	&apos; Set the radio button labels
+	oDlgRecompileEquations.getControl(&quot;RecompAllRadio&quot;).Model.Label = _(&quot;Recompile all equations&quot;)
+	oDlgRecompileEquations.getControl(&quot;RecompAllRadio&quot;).Model.HelpText = _(&quot;Recompile all equations from the document&quot;)
+
+	If GetDocumentType(ThisComponent) = &quot;swriter&quot; Then
+		oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).Model.Label = _(&quot;Recompile selected equations&quot;)
+		oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).Model.HelpText = _(&quot;Recompile equations from the selected text area (does not process equations in tables, text frames, header and footer. Recompile those one by one if necessary)&quot;)
+	
+	Else
+		oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).Model.Label = _(&quot;Recompile equations from slide&quot;)
+		oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).Model.HelpText = _(&quot;Recompile equations from the current slide&quot;)
+	
+	End If
+
+	&apos; Set dialog values
+	SetRecompileEquationsDialogValues(FALSE)
+
+	&apos; Show the dialog window
+    oDlgRecompileEquations.Execute()
+    
+End Sub
+
+
+&apos; Set dialog values
+Sub SetRecompileEquationsDialogValues(ForceDefault as Boolean)
+
+	&apos; Read saved or default prefs
+	If FileExists(glb_sUserPath &amp; &quot;TexMaths.cfg&quot; ) Then 
+		
+		If ForceDefault = FALSE Then ReadPrefsFile() Else DefaultPrefs()
+
+	Else
+		
+		DefaultPrefs()
+	
+	End If
+
+	&apos; Image parameters
+	oDlgRecompileEquations.getControl(&quot;Format&quot;).setText(glb_sFormat)
+	oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).setText(glb_sGraphicDPI)
+
+	&apos; Font size depends on the document type
+	
+	&apos; Get the current document and controller
+ 	Dim oDoc as Variant, oDocCtrl as Variant
+ 	oDoc = ThisComponent
+	oDocCtrl = oDoc.getCurrentController()
+
+	&apos; Test if we are in Writer, Impress or Draw and set the default user preferences
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+	
+		If glb_sWriterTransparency = &quot;TRUE&quot; Then
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+		oDlgRecompileEquations.getControl(&quot;FontSize&quot;).setText(glb_sWriterSize)
+		
+		If glb_WordVertAlign = TRUE Then
+			oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).setState(1)
+		Else
+			oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).setState(0)
+		End If
+		
+		
+	ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; Then
+
+		If glb_sImpressTransparency = &quot;TRUE&quot; Then
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+		oDlgRecompileEquations.getControl(&quot;FontSize&quot;).setText(glb_sImpressSize)
+		oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).setEnable(FALSE)
+
+
+	ElseIf GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+
+		If glb_sDrawTransparency = &quot;TRUE&quot; Then
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(1)
+		Else
+			oDlgRecompileEquations.getControl(&quot;Transparency&quot;).setState(0)
+		End If
+
+		oDlgRecompileEquations.getControl(&quot;FontSize&quot;).setText(glb_sDrawSize)
+		oDlgRecompileEquations.getControl(&quot;VertAlign&quot;).setEnable(FALSE)
+
+	Else
+
+		MsgBox GetDocumentType(oDoc) &amp; _(&quot;: document type not supported by TexMaths&quot;)
+		Exit Sub
+
+	End If
+
+
+	&apos; Get the dvipng and dvisvgm paths saved in the registry
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)	
+
+	&apos; Disable png and force svg if dvisvgm path is empty or if the compiler is xelatex or if dvipng does not exist
+	If glb_sCompiler = &quot;xelatex&quot; Or oSystemInfo.DvipngPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvipngPath) Then
+		
+		glb_sFormat = &quot;svg&quot; 
+		oDlgRecompileEquations.getControl(&quot;Format&quot;).setText(&quot;svg&quot;)
+		oDlgRecompileEquations.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+		
+	&apos; Disable svg and force png if dvisvgm path is empty or dvisvgm does not exist
+	If oSystemInfo.DvisvgmPath = &quot;&quot; Or Not FileExists(oSystemInfo.DvisvgmPath)Then
+		
+		glb_sFormat = &quot;png&quot; 
+		oDlgRecompileEquations.getControl(&quot;Format&quot;).setText(&quot;png&quot;)
+		oDlgRecompileEquations.getControl(&quot;Format&quot;).setEnable(FALSE)
+	
+	End If
+
+	&apos; Disable dpi if svg file format
+	If glb_sFormat = &quot;svg&quot; Then 
+		oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+	&apos; Selection buttons
+	oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).setState(0)
+	oDlgRecompileEquations.getControl(&quot;RecompAllRadio&quot;).setState(1)
+
+End Sub
+
+
+&apos; Display Wait dialog
+Sub WaitDialog()
+
+	&apos; Load the library TexMaths
+	DialogLibraries.LoadLibrary(&quot;TexMaths&quot;)
+
+	&apos; Create the dialog object
+	oDlgWait = createUnoDialog( DialogLibraries.GetByName(&quot;TexMaths&quot;).GetByName(&quot;TexMathsWait_GUI&quot;) )
+
+	&apos; Window listener
+	oL = createUnoListener(&quot;WaitWindow_&quot;,&quot;com.sun.star.awt.XTopWindowListener&quot;)
+	oDlgWait.addTopWindowListener(oL)
+
+	&apos; Dialog strings for translation
+	oDlgWait.setTitle( _(&quot;TexMaths Recompile Equations&quot;) )
+	oDlgWait.getControl(&quot;Label1&quot;).Model.Label = _(&quot;Please wait during task execution...&quot;)
+	oDlgWait.getControl(&quot;CancelButton&quot;).Model.Label = _(&quot;Cancel&quot;)
+	oDlgWait.getControl(&quot;CancelButton&quot;).Model.HelpText = _(&quot;Cancel operation&quot;)
+
+	&apos; Center dialog on window
+	Dim ParentSize as Variant
+	Dim Xpos as Integer, YPos as integer
+	ParentSize = StarDesktop.CurrentFrame.ComponentWindow.Size
+	XPos = (ParentSize.Width/2) - (oDlgWait.Size.Width/2)
+	YPos = (ParentSize.Height/2) - (oDlgWait.Size.Width/2)
+	oDlgWait.setPosSize(XPos, YPos, 0, 0, com.sun.star.awt.PosSize.POS)
+
+	&apos; Show the dialog window
+ 	oDlgWait.setvisible(true)
+ 	
+ 	&apos; Loop for non modal dialog
+	closed = FALSE
+	
+	&apos; Allows seeing the message
+ 	Wait 500
+   
+End Sub
+
+
+&apos; Close non modal dialog and cancel operation
+Sub CloseWait()
+
+	oDlgWait.setVisible(false)
+	closed = TRUE
+
+End Sub
+
+
+&apos; It&apos;s recommended to implement all unneeded methods, called by a listener, as empty routines
+&apos; including &quot;disposing&quot; from parent-interface com.sun.star.lang.XEventListener
+
+&apos;Is invoked when a window is activated
+Sub WaitWindow_windowActivated(oEv as Variant)
+End Sub
+
+&apos;Is invoked when a window is de-activated
+Sub WaitWindow_windowDeactivated(oEv)
+End Sub
+
+&apos;Invoked when a window has been opened
+Sub WaitWindow_windowOpened(oEv as Variant)
+End Sub
+
+&apos;Close window using the menu bar close button
+&apos;Invoked when a window is in the process of being closed
+Sub WaitWindow_windowClosing(oEv as Variant)
+	oDlgWait.setVisible(false)
+	closed = TRUE
+End Sub
+
+&apos; Is invoked when a window has been closed
+Sub WaitWindow_windowClosed(oEv as Variant)
+End Sub
+
+&apos; Is invoked when a window is iconified
+Sub WaitWindow_windowMinimized(oEv as Variant)
+End Sub
+
+&apos; Is invoked when a window is de-iconified
+Sub WaitWindow_windowNormalized(oEv as Variant)
+End Sub
+
+Sub WaitWindow_disposing(oEv as Variant)
+End Sub
+
+
+&apos; Set image format and enable or disable dpi according to the image format
+Sub Format_Mod()
+
+	glb_sFormat = oDlgRecompileEquations.getControl(&quot;Format&quot;).getText()
+	If glb_sFormat = &quot;svg&quot; Then 
+		oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).setEnable(FALSE)
+	Else 
+		oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).setEnable(TRUE)
+	End If
+
+End Sub
+
+
+&apos; Preamble button clicked
+Sub PreambleButton_Clicked()
+
+	PreambleDialog()
+
+End Sub
+
+
+&apos; This macro recompiles every TexMath equation a Writer, Impress or Draw document
+Sub RecompileEquations
+
+	&apos; Get the current document, controller and dispatcher
+ 	Dim oDoc as Variant, oDocCtrl as Variant, oDispatcher as Variant
+ 	oDoc = ThisComponent
+	oDocCtrl = oDoc.getCurrentController()
+ 	oDispatcher = createUnoService( &quot;com.sun.star.frame.DispatchHelper&quot; )
+
+	&apos; Get image format, graphic DPI and transparency
+	Dim sEqFormat as String, sEqDPI as String, sEqTransp as String
+	
+	glb_sFormat = oDlgRecompileEquations.getControl(&quot;Format&quot;).getText()
+	sEqFormat = glb_sFormat
+
+	glb_sGraphicDPI = oDlgRecompileEquations.getControl(&quot;GraphicDPI&quot;).getText()
+	sEqDPI = glb_sGraphicDPI
+	
+	&apos; Get font size, depending on the document type
+	Dim sFontSize as String, sEqSize as String
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+
+		If oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 1 Then
+			glb_sWriterTransparency = &quot;TRUE&quot;
+		ElseIf oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 0 Then
+			glb_sWriterTransparency = &quot;FALSE&quot;
+		Else
+			glb_sWriterTransparency = &quot;&quot;
+		End If
+		sEqTransp = glb_sWriterTransparency
+
+		glb_sWriterSize = oDlgRecompileEquations.getControl(&quot;FontSize&quot;).getText() 
+			
+		&apos; We are in a Writer doc, set default preferences
+		sFontSize = glb_sWriterSize
+
+	ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; Then
+
+		If oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 1 Then
+			glb_sImpressTransparency = &quot;TRUE&quot;
+		ElseIf oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 0 Then
+			glb_sImpressTransparency = &quot;FALSE&quot;
+		Else
+			glb_sImpressTransparency = &quot;&quot;
+		End If
+		sEqTransp = glb_sImpressTransparency
+
+		glb_sImpressSize = oDlgRecompileEquations.getControl(&quot;FontSize&quot;).getText() 
+			
+		&apos; We are in an Impress doc, set default preferences
+		sFontSize = glb_sImpressSize
+
+		&apos; Trick to focus on the slides
+	    oDispatcher.executeDispatch(oDocCtrl.getFrame(), &quot;.uno:SlideSorterMultiPaneGUI&quot;, &quot;&quot;, 0, Array())
+		wait 10 &apos; Doesn&apos;t work without this
+	    oDispatcher.executeDispatch(oDocCtrl.getFrame(), &quot;.uno:NormalMultiPaneGUI&quot;, &quot;&quot;, 0, Array())
+		wait 10 &apos; Doesn&apos;t work without this
+ 
+ 
+	ElseIf GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+
+		If oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 1 Then
+			glb_sDrawTransparency = &quot;TRUE&quot;
+		ElseIf oDlgRecompileEquations.getControl(&quot;Transparency&quot;).getState() = 0 Then
+			glb_sDrawTransparency = &quot;FALSE&quot;
+		Else
+			glb_sDrawTransparency = &quot;&quot;
+		End If
+		sEqTransp = glb_sDrawTransparency
+
+		glb_sDrawSize = oDlgRecompileEquations.getControl(&quot;FontSize&quot;).getText() 
+			
+		&apos; We are in a Drawr doc, set default preferences
+		sFontSize = glb_sDrawSize
+			
+		&apos; Trick to focus on the draw pages
+	    oDispatcher.executeDispatch(oDocCtrl.getFrame(), &quot;.uno:LeftPaneDraw&quot;, &quot;&quot;, 0, Array())
+		wait 10
+	    oDispatcher.executeDispatch(oDocCtrl.getFrame(), &quot;.uno:LeftPaneDraw&quot;, &quot;&quot;, 0, Array())
+		wait 10
+
+	Else
+
+		MsgBox GetDocumentType(oDoc) &amp; _(&quot;: document type not supported by TexMaths&quot;)
+		Exit Sub
+
+	End If
+
+	&apos; Close the dialog
+	oDlgRecompileEquations.endExecute()
+
+	&apos; Display wait dialog
+	WaitDialog()
+
+	&apos; Convert equations
+
+	Dim oSlide as Variant
+	Dim oShape as Variant
+	Dim numSlides as Integer, numForms as Integer, i as Integer, j as Integer, k as Integer    
+	Dim sDlgArg as String
+	Dim sArray() as String
+	Dim docType as Integer
+	Dim sEqType as String, sEqLatexCode as String, sEqName as String
+
+	Dim count as Long
+	count = 0
+
+	&apos; We are in a Writer document
+	If GetDocumentType(oDoc) = &quot;swriter&quot; Then
+
+		Dim oText as Variant, oSels as Variant, oSelection as Variant
+		Dim sel as Boolean, skip as Boolean
+		
+		&apos; Get main text
+		oText = oDoc.getText()
+
+		&apos; Get selections
+		oSels = oDoc.CurrentSelection()
+
+		&apos; Is there any selected in the document ?
+		&apos; If not, then we will recompile all equations
+		sel = IsAnythingSelected(oDoc)
+
+		&apos; Only proceed if something selected or recompile all requested
+		If oDlgRecompileEquations.getControl(&quot;RecompAllRadio&quot;).getState() Or sel = TRUE Then
+
+			&apos; Selections are text ranges
+			If oSels.getImplementationName() = &quot;SwXTextRanges&quot; Then
+	
+				&apos; Get draw page
+				oSlide = oDoc.getDrawPage()
+		
+		        If oSlide.hasElements() Then
+		
+		            &apos; Loop through graphic elements
+		            For j = (oSlide.getCount() - 1) To 0 Step -1
+		            
+		            	If closed = TRUE Then
+		         			MsgBox ( _(&quot;Operation canceled!&quot;) , 0, _(&quot;TexMaths Recompile Equations&quot;) )
+		         			Exit Sub
+		         		End If
+		   
+		                oShape = oSlide.getByIndex(j)
+						sDlgArg = ReadAttributes(oShape)
+		
+						If sDlgArg = &quot;&quot; Then
+							GoTo NextWriterShape
+			    		End If
+					
+						&apos; By default, skip all graphics
+						skip = TRUE
+		
+						&apos; Get graphic object text anchor
+						Dim oAnchor as Variant
+						oAnchor = oShape.anchor
+		
+						&apos; Anchor exists
+						If Not isNull(oAnchor) Then
+										
+							&apos; Graphic object is anchored to the main text			
+							If EqualUnoObjects(oText, oAnchor.Text) = TRUE Then
+		
+								&apos; Loop over the selections
+								For k = 0 to oSels.getCount()-1
+		
+									&apos; Get selection
+									oSelection = oSels.getByIndex(k)
+									
+									&apos; Selection is a text range
+									If oSelection.getImplementationName() = &quot;SwXTextRange&quot; Then
+									
+										&apos; Some text is selected
+										If len(oSelection.getString()) &gt; 0 Then
+						
+											&apos; Selection is not in a header, a footer, a table nor in a text frame,
+											&apos; =&gt; we can&apos;t test if anchor text is out of selection (this is a LibreOffice bug)
+											If Not ( oSelection.ParaStyleName = &quot;Header&quot; Or oSelection.ParaStyleName = &quot;Footer&quot; ) _
+											   And isEmpty(oSelection.TextTable) And isEmpty(oSelection.TextFrame) Then
+																											
+												&apos; Anchor text is within the selection
+												If oText.compareRegionStarts(oAnchor, oSelection) &lt;= -1 And oText.compareRegionEnds(oAnchor, oSelection) &lt;&gt; -1 Then
+																			
+													&apos; Don&apos;t skip this one !
+													skip = FALSE
+												
+												End If
+												
+											End If
+																				
+										End If
+																		
+									End If
+									
+								Next &apos; Loop over the selections
+																		
+							End If
+										
+						End If
+		
+						&apos; Skip this graphic object (only if recompile selection)					
+						If oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).getState() And sel = TRUE And skip = TRUE Then
+						
+							GoTo NextWriterShape
+						
+						End If
+		
+						sArray()=Split(sDlgArg,&quot;§&quot;)
+		
+						&apos; Pre v0.39 equation
+						If Ubound(sArray) = 2 Then
+		
+				    		If sFontSize = &quot;---&quot; Then
+				    			sEqSize=sArray(0)
+				    		Else
+				    			sEqSize=sFontSize
+				    		End If
+						    		
+				    		sEqType=sArray(1)
+				    		sEqLatexCode=sArray(2)
+		
+						ElseIf Ubound(sArray) = 5 Then
+		
+				    		If sFontSize = &quot;---&quot; Then
+				    			sEqSize=sArray(0)
+				    		Else
+				    			sEqSize=sFontSize
+				    		End If
+		
+				    		sEqType=sArray(1)
+				    		sEqLatexCode=sArray(2)
+		
+				    		If glb_sFormat = &quot;---&quot; Then
+				    			sEqFormat=sArray(3)
+				    		End If
+			
+				    		If glb_sGraphicDPI = &quot;---&quot; Then
+				    			sEqDPI=sArray(4)
+				    		End If
+			
+			    			If glb_sWriterTransparency = &quot;&quot; Then
+			    				sEqTransp=sArray(5)
+			    			End If
+		
+				    		sEqName=&quot;&quot;
+		
+						ElseIf Ubound(sArray) = 6 Then
+		
+				    		If sFontSize = &quot;---&quot; Then
+				    			sEqSize=sArray(0)
+				    		Else
+				    			sEqSize=sFontSize
+				    		End If
+		
+				    		sEqType=sArray(1)
+				    		sEqLatexCode=sArray(2)
+		
+				    		If glb_sFormat = &quot;---&quot; Then
+				    			sEqFormat=sArray(3)
+				    		End If
+			
+				    		If glb_sGraphicDPI = &quot;---&quot; Then
+				    			sEqDPI=sArray(4)
+				    		End If
+			
+			    			If glb_sWriterTransparency = &quot;&quot; Then
+			    				sEqTransp=sArray(5)
+			    			End If
+				    			
+				    		sEqName=sArray(6)
+				
+						Else
+		
+							GoTo NextWriterShape
+		
+						End If
+		
+			    		&apos; Select image
+			    		oDocCtrl.select(oShape)
+		
+			       		&apos; We are in edit equation mode
+			       		EditEquation = TRUE
+		
+						&apos; Get image position
+						oShapePosition = oShape.position()
+		
+			    		&apos; Call the core macro
+			    		MakeEquation(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName, oShape)
+			    		
+			    		count = count +1
+		
+NextWriterShape:
+		
+		            Next &apos; Loop over the graphic elements
+		
+				End If
+	
+			End If
+
+        End If
+
+
+
+	&apos; We are in an Impress or Draw document
+	ElseIf GetDocumentType(oDoc) = &quot;simpress&quot; Or GetDocumentType(oDoc) = &quot;sdraw&quot; Then
+
+		&apos; Current slide number
+		Dim numCurrentSlide as Integer
+		numCurrentSlide = oDoc.CurrentController.CurrentPage.number -1
+
+		&apos; Number of draw pages of the document
+    	numSlides = oDoc.getDrawPages().getCount()
+
+    	&apos; Go through draw pages
+		For i = 0 to numSlides - 1
+
+			&apos; Process only the current page if requested 
+			If ( oDlgRecompileEquations.getControl(&quot;RecompSelRadio&quot;).getState() And i = numCurrentSlide ) _
+	 			Or ( oDlgRecompileEquations.getControl(&quot;RecompAllRadio&quot;).getState() ) Then
+	
+		    	&apos; Get draw page
+		    	oSlide = oDoc.drawPages(i)
+	
+	        	If oSlide.hasElements() Then
+	
+	           		&apos; Go through graphic elements
+					For j = (oSlide.getCount() - 1) To 0 Step -1
+	            
+	            		If closed = TRUE Then
+	         				MsgBox ( _(&quot;Operation canceled!&quot;) , 0, _(&quot;TexMaths Recompile Equations&quot;) )
+	         				Exit Sub
+	         			End If
+	   
+	                	oShape = oSlide.getByIndex(j)
+						sDlgArg = ReadAttributes(oShape)
+	
+						If sDlgArg = &quot;&quot; Then
+							GoTo NextImpressShape
+		    			End If
+	
+						sArray()=Split(sDlgArg,&quot;§&quot;)
+	
+						&apos; Pre v0.39 equation
+						If Ubound(sArray) = 2 Then
+	
+			    			If sFontSize = &quot;---&quot; Then
+			    				sEqSize=sArray(0)
+			    			Else
+			    				sEqSize=sFontSize
+			    			End If
+					    		
+			    			sEqType=sArray(1)
+			    			sEqLatexCode=sArray(2)
+	
+						ElseIf Ubound(sArray) = 5 Then
+	
+			    			If sFontSize = &quot;---&quot; Then
+			    				sEqSize=sArray(0)
+			    			Else
+			    				sEqSize=sFontSize
+			    			End If
+	
+			    			sEqType=sArray(1)
+			    			sEqLatexCode=sArray(2)
+	
+			    			If glb_sFormat = &quot;---&quot; Then
+			    				sEqFormat=sArray(3)
+			    			End If
+		
+			    			If glb_sGraphicDPI = &quot;---&quot; Then
+			    				sEqDPI=sArray(4)
+			    			End If
+		
+			    			If glb_sImpressTransparency = &quot;&quot; Then
+			    				sEqTransp=sArray(5)
+			    			End If
+	
+			    			sEqName=&quot;&quot;
+	
+						ElseIf Ubound(sArray) = 6 Then
+	
+			    			If sFontSize = &quot;---&quot; Then
+			    				sEqSize=sArray(0)
+			    			Else
+			    				sEqSize=sFontSize
+			    			End If
+	
+			    			sEqType=sArray(1)
+			    			sEqLatexCode=sArray(2)
+	
+			    			If glb_sFormat = &quot;---&quot; Then
+			    				sEqFormat=sArray(3)
+			    			End If
+		
+			    			If glb_sGraphicDPI = &quot;---&quot; Then
+			    				sEqDPI=sArray(4)
+			    			End If
+			    			
+			    			If glb_sImpressTransparency = &quot;&quot; Then
+			    				sEqTransp=sArray(5)
+			    			End If
+	
+				    		sEqName=sArray(6)
+			
+						Else
+	
+							GoTo NextImpressShape
+	
+						End If
+	
+		    			&apos; Select image
+		    			oDocCtrl.select(oShape)
+	
+		       			&apos; We are in edit equation mode
+		       			EditEquation = TRUE
+	
+						&apos; Get image position
+						oShapePosition = oShape.position()
+	
+		    			&apos; Call the core macro
+		    			MakeEquation(sEqSize, sEqType, sEqLatexCode, sEqFormat, sEqDPI, sEqTransp, sEqName, oShape)
+		    		
+		    			&apos; Increment counter
+		    			count = count +1
+	
+NextImpressShape:
+	
+					Next
+	
+				End If
+	
+			End If
+
+		Next
+
+	Else
+		MsgBox GetDocumentType(oDoc) &amp; _(&quot;: document type not supported by TexMaths&quot;)
+		Exit Sub
+	End If
+
+	&apos; Close wait dialog and display a done message
+	oDlgWait.setvisible(FALSE)
+	
+	If count = 0 Then
+		MsgBox (_(&quot;Done!&quot;) &amp; chr(10) &amp; _(&quot;No equation was recompiled.&quot;) &amp; chr(10) &amp; chr(10), 0, _(&quot;TexMaths Recompile Equations&quot;) )
+
+	ElseIf count = 1 Then
+		MsgBox (_(&quot;Done!&quot;) &amp; chr(10) &amp; _(&quot;1 equation recompiled.&quot;) &amp; chr(10) &amp; chr(10), 0, _(&quot;TexMaths Recompile Equations&quot;) )
+	
+	ElseIf count &gt; 1 Then
+		MsgBox (_(&quot;Done!&quot;) &amp; chr(10) &amp; CStr(count) &amp; _(&quot; equations recompiled.&quot;) &amp; chr(10) &amp; chr(10), 0, _(&quot;TexMaths Recompile Equations&quot;) )
+
+	End If
+
+
+End Sub
+
+
+
+
+
+</script:module>

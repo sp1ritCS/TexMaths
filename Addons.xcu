@@ -1,0 +1,437 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<oor:component-data 
+ xmlns:oor="http://openoffice.org/2001/registry"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ oor:name="Addons"
+ oor:package="org.openoffice.Office">
+	<node oor:name="AddonUI">
+		<node oor:name="Images">
+			<node oor:name="TexMaths.TexMathsEquations.images.main" oor:op="replace">
+				<prop oor:name="URL">
+					<value>macro:///TexMaths.TexMathsEquations.main</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL" oor:type="xs:string">
+						<value>%origin%/icons/eq.svg</value>
+					</prop>
+					<prop oor:name="ImageBigURL" oor:type="xs:string">
+						<value>%origin%/icons/eq.svg</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="TexMaths.TexMathsNumberedEquations.images.main" oor:op="replace">
+				<prop oor:name="URL">
+					<value>macro:///TexMaths.TexMathsNumberedEquations.main</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL" oor:type="xs:string">
+						<value>%origin%/icons/numeq.svg</value>
+					</prop>
+					<prop oor:name="ImageBigURL" oor:type="xs:string">
+						<value>%origin%/icons/numeq.svg</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="TexMaths.TexMathsSysConfig.images.main" oor:op="replace">
+				<prop oor:name="URL">
+					<value>macro:///TexMaths.TexMathsSysConfig.main</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL" oor:type="xs:string">
+						<value>%origin%/icons/sysconfig.svg</value>
+					</prop>
+					<prop oor:name="ImageBigURL" oor:type="xs:string">
+						<value>%origin%/icons/sysconfig.svg</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="TexMaths.TexMathsRecompileEquations.images.main" oor:op="replace">
+				<prop oor:name="URL">
+					<value>macro:///TexMaths.TexMathsRecompileEquations.main</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL" oor:type="xs:string">
+						<value>%origin%/icons/recomp.svg</value>
+					</prop>
+					<prop oor:name="ImageBigURL" oor:type="xs:string">
+						<value>%origin%/icons/recomp.svg</value>
+					</prop>
+				</node>
+			</node>
+		</node> 
+		<node oor:name="OfficeToolBar">
+			<node oor:name="TexMaths.OfficeToolBar" oor:op="replace">
+				
+				<!-- Section for LibreOffice 4.x compatibility -->
+				
+				<node oor:name="m1" oor:op="replace"> 
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Equations</value>
+            			<value xml:lang="fr">Équations TexMaths</value>
+            			<value xml:lang="es">Ecuaciones TexMaths</value>
+            			<value xml:lang="pt-BR">Equações TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m2" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsNumberedEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Numbered Equations</value>
+            			<value xml:lang="fr">Équations numérotées TexMaths</value>
+            			<value xml:lang="es">Ecuaciones numeradas TexMaths</value>
+            			<value xml:lang="pt-BR">Equações Numeradas TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m3" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsSysConfig.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths System Configuration</value>
+            			<value xml:lang="fr">Configuration système TexMaths</value>
+            			<value xml:lang="es">Configuración del sistema TexMaths</value>
+            			<value xml:lang="pt-BR">Configurações de Sistema do TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m4" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsRecompileEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Recompile Equations</value>
+            			<value xml:lang="fr">Recompiler les équations TexMaths</value>
+            			<value xml:lang="es">Recompilar TexMaths ecuaciones</value>
+            			<value xml:lang="pt-BR">Recompilar Equações TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+
+				<!-- Section for OpenOffice 4.x compatibility -->
+
+				<prop oor:name="Title" oor:type="xs:string">
+				  <value xml:lang="en-US">TexMaths</value>
+				</prop>
+				<node oor:name="ToolBarItems">
+					<node oor:name="m1" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Equations</value>
+							<value xml:lang="fr">Équations TexMaths</value>
+							<value xml:lang="es">Ecuaciones TexMaths</value>
+							<value xml:lang="pt-BR">Equações TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m2" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsNumberedEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Numbered Equations</value>
+							<value xml:lang="fr">Équations numérotées TexMaths</value>
+							<value xml:lang="es">Ecuaciones numeradas TexMaths</value>
+							<value xml:lang="pt-BR">Equações Numeradas TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m3" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsSysConfig.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths System Configuration</value>
+							<value xml:lang="fr">Configuration système TexMaths</value>
+							<value xml:lang="es">Configuración del sistema TexMaths</value>
+							<value xml:lang="pt-BR">Configurações de Sistema do TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m4" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsRecompileEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Recompile Equations</value>
+							<value xml:lang="fr">Recompiler les équations TexMaths</value>
+							<value xml:lang="es">Recompilar TexMaths ecuaciones</value>
+							<value xml:lang="pt-BR">Recompilar Equações TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+				</node>
+			</node>
+		</node>
+		<node oor:name="OfficeNotebookBar">
+			<node oor:name="TexMaths.OfficeToolBar" oor:op="replace">
+				
+				<!-- Section for LibreOffice 4.x compatibility -->
+				
+				<node oor:name="m1" oor:op="replace"> 
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Equations</value>
+            			<value xml:lang="fr">Équations TexMaths</value>
+            			<value xml:lang="es">Ecuaciones TexMaths</value>
+            			<value xml:lang="pt-BR">Equações TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m2" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsNumberedEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Numbered Equations</value>
+            			<value xml:lang="fr">Équations numérotées TexMaths</value>
+            			<value xml:lang="es">Ecuaciones numeradas TexMaths</value>
+            			<value xml:lang="pt-BR">Equações Numeradas TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m3" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsSysConfig.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths System Configuration</value>
+            			<value xml:lang="fr">Configuration système TexMaths</value>
+            			<value xml:lang="es">Configuración del sistema TexMaths</value>
+            			<value xml:lang="pt-BR">Configurações de Sistema do TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+				<node oor:name="m4" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsRecompileEquations.main</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value />
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>TexMaths Recompile Equations</value>
+            			<value xml:lang="fr">Recompiler les équations TexMaths</value>
+            			<value xml:lang="es">Recompilar TexMaths ecuaciones</value>
+            			<value xml:lang="pt-BR">Recompilar Equações TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+
+				<!-- Section for OpenOffice 4.x compatibility -->
+
+				<prop oor:name="Title" oor:type="xs:string">
+				  <value xml:lang="en-US">TexMaths</value>
+				</prop>
+				<node oor:name="ToolBarItems">
+					<node oor:name="m1" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Equations</value>
+							<value xml:lang="fr">Équations TexMaths</value>
+							<value xml:lang="es">Ecuaciones TexMaths</value>
+							<value xml:lang="pt-BR">Equações TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m2" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsNumberedEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Numbered Equations</value>
+							<value xml:lang="fr">Équations numérotées TexMaths</value>
+							<value xml:lang="es">Ecuaciones numeradas TexMaths</value>
+							<value xml:lang="pt-BR">Equações Numeradas TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m3" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsSysConfig.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths System Configuration</value>
+							<value xml:lang="fr">Configuration système TexMaths</value>
+							<value xml:lang="es">Configuración del sistema TexMaths</value>
+							<value xml:lang="pt-BR">Configurações de Sistema do TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+					<node oor:name="m4" oor:op="replace">
+						<prop oor:name="Context" oor:type="xs:string">
+							<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+						</prop>
+						<prop oor:name="URL" oor:type="xs:string">
+							<value>macro:///TexMaths.TexMathsRecompileEquations.main</value>
+						</prop>
+						<prop oor:name="ImageIdentifier" oor:type="xs:string">
+							<value />
+						</prop>
+						<prop oor:name="Title" oor:type="xs:string">
+							<value>TexMaths Recompile Equations</value>
+							<value xml:lang="fr">Recompiler les équations TexMaths</value>
+							<value xml:lang="es">Recompilar TexMaths ecuaciones</value>
+							<value xml:lang="pt-BR">Recompilar Equações TexMaths</value>
+						</prop>
+						<prop oor:name="Target" oor:type="xs:string">
+							<value>_self</value>
+						</prop>
+					</node>
+				</node>
+			</node>
+		</node>
+		<node oor:name="OfficeHelp">
+				<node oor:name="TexMaths.OfficeHelp.m1" oor:op="replace">
+					<prop oor:name="Context" oor:type="xs:string">
+						<value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.drawing.DrawingDocument</value>
+					</prop>
+					<prop oor:name="URL" oor:type="xs:string">
+						<value>macro:///TexMaths.TexMathsAbout.AboutDialog</value>
+					</prop>
+					<prop oor:name="ImageIdentifier" oor:type="xs:string">
+						<value>%origin%/icons/about</value>
+					</prop>
+					<prop oor:name="Title" oor:type="xs:string">
+						<value>About TexMaths</value>
+            			<value xml:lang="fr">À propos de TexMaths</value>
+            			<value xml:lang="de">Über TexMaths</value>
+            			<value xml:lang="da">Om TexMaths</value>
+            			<value xml:lang="es">Acerca de TexMaths</value>
+            			<value xml:lang="pt-BR">Sobre o TexMaths</value>
+					</prop>
+					<prop oor:name="Target" oor:type="xs:string">
+						<value>_self</value>
+					</prop>
+				</node>
+		</node>
+	</node>
+</oor:component-data>

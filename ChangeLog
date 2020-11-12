@@ -1,0 +1,313 @@
+0.48.2
+- Added TexMaths buttons to the LibreOffice NotebookBar (feature request #45)
+- Added a new Interface tab to the TexMaths Config dialog
+- Added an option to select the LaTeX symbol color (black for light themes, white for dark themes) (bug #133)
+
+0.48.1
+- Fixed wrong modulus and norm symbols
+- Updated German translation (thanks to Lars Kapp <lars@kappnet.com>)
+- Fixed a bug in OpenOffice for Windows that prevented the TexMaths config dialog to appear 
+- Fixed a bug in OpenOffice for Windows in the which-XX.bat script
+- MacOSX uses Cmd instead of Ctrl key for keyboard shortcuts
+- Fixed an issue in the RecompileEquations() macro with gtk3 backend (bug #121)
+
+0.48
+- Numbered equations now work in multicolumn documents or in multicolumn sections. Note that, due to a bug In LibreOffice, non automatic column widths (i.e. columns with different widths) may lead to incorrect placement of the legend 
+- Force dialog resize when it is too small
+- Replaced uninformative error dialog with a better one (bug #118)
+- Preamble now has conditions to deal with latex or xelatex compilers
+- In Windows, delete tmp files silently
+- Fixed XeLaTeX compile issue with TikZ graphics (bug #103)
+- Fixed equation name border
+
+0.47
+- Workaround for a bug with non modal dialogs when using gtk3 backend
+- Added a button to the error dialog, to view LaTeX code 
+- Try to guess the correct program paths for MacTeX in MacOSX
+- Removed unused LD_LIBRARY_PATH and DYLD_LIBRARY_PATH in Linux and MacOSX scripts
+- Fixed broken SystemLog in MacOSX
+- Symbols are now all SVG icons
+- Fixed the disappearing button issue with gtk3 backend on Linux
+- New SVG toolbar icons
+- In Windows, for LibreOffice version >= 6.2.4.1, the TexMaths directory is now located at the standard place C:\Users\[username]\AppData\Roaming\LibreOffice\4\user. Therefore, in that case the old hidden directory C:\texmaths-[username] can be safely removed
+
+0.46.2
+- Fixed too small equations in LibreOffice version 6.1 and above
+- Fixed crash in Impress Notes view mode (bug #81)
+- Fixed wrong ^{} symbol icon
+- Fixed the thin white rectangle that appeared around background colored svg equations
+
+0.46.1
+- Fixed the missing default button in the TexMaths dialog
+- Fixed the name of the MacTex default installation directory (bug #64)
+- Added the '-e' option to dvisvgm to fix a position issue with some unicode fonts when using XeLateX (bug #91)
+- Fixed the dvisvgm minimum version that is compatible with XeLateX (bug #93)
+- Fixed breaking some unicode fonts (bug #94)
+- Fixed TexMaths version identification function
+
+0.46
+- Fixed an issue with the program paths (thanks to Silvio Teston)
+- Updated brazilian portuguese translation (thanks to Silvio Teston)
+- Updated spanish translation (thanks to Luis Jaime Salazar Ramirez)
+- Fixed some typos in the help dialog
+- Added a custom message box for LaTeX errors
+- The paths from the SysConfig dialog are now absolute file paths. This allows to get different version of the external programs on the system
+- Added XeLaTeX support
+- Editor font name can now be changed from the TexMaths Config Dialog (within the Options tab) 
+- Added 8 tabs with buttons to insert code for more than 300 LaTeX symbols
+
+0.45
+- Fixed some UI glitches
+- In Recompile Equations, the default is now to recompile all equations
+- Wrap text in TexMaths and Preamble windows
+- The TexMaths, Help, About and Preamble dialogs are now fully resizable using window handles
+- Editor font size can now be changed from the TexMaths Config Dialog (within the Options tab)
+- Brazilian portuguese translation (thanks to Silvio Teston)
+- Fixed the About menu icon that wasn't shown anymore (thanks to Silvio Teston)
+
+0.44
+- Fixed problems with the equation position when using non Standard styles
+
+0.43
+- Fixed wrong SVG equation size in LibreOffice 5.2.x and above
+- Fixed missing parentheses that break TextMaths in LibreOffice 5.3.1
+
+0.42
+- The TexMaths Recompile Equations macro now allows to work on a selected text area (in Writer) or on the current slide (in Impress and Draw). There are some limitations in Writer, see the documentation
+- Workaround for a crash with LibreOffice 5.x on Windows: do not restore the clipboard in this case
+- Added a left aligned caption mode for numbered equations (ticket #21)
+- Keep the paragraph style when inserting an equation (bug #20)
+
+0.41
+- Updated french translation
+- Updated help files
+- There is now a different transparency option for each document type 
+- Fixed a crash in LibreOffice 4.3.x (thanks to Water Qian)
+- Updated german translation (thanks to Lars Kapp)
+- Fixed Addons.xcu to let the toolbar buttons appear in both Libreoffice 4.x and OpenOffice 4.x 
+- Preserve Z order of graphics for Impress and Draw documents (patch by Daniel Fett)
+- Fixed a crash when the preamble is ignored and the LaTeX equation does not contain a document class
+- Added an Help button to the sysconfig and recompile dialogs
+- Added resize buttons the Help window
+- Fixed a problem where the sysconfig dialog appeared again and again if the helper programs were not found
+- Added a macro and a GUI to recompile all TexMaths equations in a Writer, Impress or Draw document (initial patch by Daniel Fett)
+
+0.40
+- Added an option to the preamble dialog that allows ignoring the preamble. This can be useful to convert LaTeX equations written with a foreign software to TexMaths (patch by Daniel Fett)
+- Now we use png icons (instead of bmp) as toolbar icons. This improves the transparency rendering 
+- Fixed the problem where the MakeEquation() macro couldn't be called without dialog anymore
+- Added the ability to use \include and \input commands with local .tex files, and also local .sty files with the \usepackage command in preamble (patch by Daniel Fett)
+- Now, clicking on Undo (or pressing Ctrl-Z) works as expected in Impress and Draw
+- Added the "-shell-escape" option to the latex command. This allows using the package minted, as requested by some users
+- Reduced the size of the help dialog, because it could not be viewed entirely on monitors having 1024x768 resolution
+- Added a name field to the main dialog. This allows giving a name to equations, and can be useful in Impress when dealing with animations 
+- Fixed the problem with lost animations in Impress when editing equations (thanks to Daniel Fett for his patch)
+
+0.39
+- Fixed the preamble bug where newline characters were dropped
+- Sometimes the position of an edited equation was wrong; this is now hopefully fixed 
+- Fixed a resizing bug that occured sometimes when the equation is located at the end of the line
+- Added a line to the default preamble to enable sans-serif font
+- Now only align, gather, flalign and multline environments are forced to LaTeX mode. This fixes some problems with other environments, like matrix or pmatrix
+- Added an error message when the Draw component is not installed and fixed various errors with uninstalled Writer or Impress components
+- Fixed the random order of the controls when navigating using the Tab key
+- Fixed the Help dialog menu bar close button that didn't work
+- Fixed a potential division by zero in function SavePosSize(). Thanks to Federico Di Sante
+- Fixed a problem in some equations with SVG format and transparency enabled, where rectangles (fraction bar, square root bar, etc.) were not displayed
+- Image format, resolution and transparency are now retained when editing an existing equation
+
+0.38
+- The LaTeX preamble is now stored locally into the document properties. So, each document can have a different preamble as requested by some users. 
+- Equation attributes are now stored into the image title and description instead of the UserDefinedAttributes property. This allows equation images to be pasted as Draw images instead of GDI images, and fixes the bug that prevented to edit Writer equations pasted to Draw or Impress. As a side effect, the poor SVG rendering quality that was only visible in Impress and Draw (in LibreOffice 3.5.x and 3.6.x) is now also visible in Writer. But this problem is fixed in LibreOffice 4.0.x.
+- Added German translation (thanks to Lars Kapp)
+
+0.37
+- Fixed a bug that occurred in text to LaTeX mode when the equation starts with \begin
+- Workaround for the random error UnsupportedFlavorException that sometimes appears with some clipboard contents
+- Workaround for a random bug that occurs in SavePosSize() when convX or convY are equal to zero
+
+0.36
+- Updated the help text
+- Fixed the incorrect help path string in the sysconfig dialog. Now we detect the system type and modify the string accordingly
+- Added a transparency option to be used with the png image format. This allows to work with transparent png equations, or to use an opaque color background. The internal graphic format used for transparent PNG images is now SVXB (Starview Bitmap/Animation, code 12) for Linux and Mac OS, and GDI (code 3) for Windows, because the bitmap format does not allow a transparent background
+- Added spanish translation (thanks to Luis Jaime Salazar Ramirez)
+- Restored the Word compatibility option for vertical alignment. Equations are now verticaly centered when Word compatibility is requested, otherwise they are aligned to base line. Numbered equations are always vertically centered 
+- Force the equation type to "latex" when the latex code starts with \begin (thanks to Luis Jaime Salazar for this tip)
+- Fixed a run time error in the sysconfig dialog on Windows
+- Fixed window resizing that didn't work in Debian Linux 64 bits
+- When editing equations, keep the anchor mode of the image
+- Fixed a crash that occurred when editing equations within tables. Now equations can be edited within tables or frames
+- Fixed two bugs that prevented TexMaths to work properly when the programs latex, dvipng or dvisvgm are not located in the path. These bugs affected Mac OS X where these program are located in /usr/texbin which is not in the system path
+
+0.35
+- PNG images are now pasted as bitmap format for better compatibility with MS Office. This has no impact on LibreOffice documents
+- Fixed a problem with the position of the equations after their edition. They were often misplaced in the text. This should be fixed now
+- Prevents running the TexMaths Equation macros in Writer preview mode
+- Added a border to Writer equations for better readability
+- Removed the Word compatibility option for vertical alignment. All equations are now vertically centered
+- Added to the sysconfig dialog an option that allows to change the numbering level
+
+0.34
+- TexMaths now tries to find at first run the paths where external programs are installed 
+- Added compatibility with ooolatex
+- Fixed problem of SVG equations not perfectly drawn
+- Fixed problem with drive changing on Windows (thanks to Stefan Sager) 
+
+0.33
+- Improved equation selection usability (equations are now pasted as GDI images)
+- Removed the Word 2000 PNGCompat option
+- Added a Text to LaTeX feature for Writer : type some LateX code in your document, then call TexMaths to directly convert the text to a LaTeX equation, without opening the TexMaths dialog 
+
+0.32
+- Added a vertical alignment compatibility option for improving export towards Word documents 
+- Added four buttons to resize the TexMaths Equation window
+- Changed the way shortcuts are stored to the registry. The new scheme allows to keep shortcuts between TexMaths updates
+- Display an error message when Equations and NumberedEquations modules have the same shortcut
+- Don't display an error message if the shell or batch script is not found. Instead, silently generate the script
+- Reorganized the About dialog to present things like in the Sysconfig dialog
+- The position and size of the TexMaths Equation window is now automatically saved
+- Fixed some typos in the french translation
+- Set equation numbers as (Chapter.Number) when there are chapters in the document
+- Added an option to the System Config dialog to select the text displayed before numbered equations
+
+0.31
+- Fixed the wrong equation generation on Linux systems. This was due to /bin/sh pointing to the dash shell and not on the bash shell. Strangely, the shell script used to generate equations doesn't work with the dash shell, but I don't know why! So I replaced /bin/sh with /bin/bash and everything is OK now. However, this means that TexMaths will not work if bash is not installed...
+- Fixed the makepkg script : this script only works with bash
+
+0.30
+- Added partial Danish translation (thanks to Leif Lodahl)
+- Redesign of the System Config dialog. The new dialog has tabs and is smaller
+- The help dialog is now non modal. The user can thus work in TexMaths with the help dialog opened
+- Defined a default button for each dialog
+
+0.29
+- Fixed a bug that made TexMaths not work under LibreOffice 3.3.3 (space character after &_)
+
+0.28
+- Added a "PNG compatibility with Word 2000" option on non Windows systems. This is because equations look nicer on Libreoffice when this option is not used. So the user who doesn't care about Word 2000 would benefit from disabling this option
+- Added two options to allow inserting a paragraph break before or after a numbered equation
+- Fallback to english locale when the help and description files are not available in the current locale
+
+0.27
+- Since equations can be produced separately by dvipng alone or dvisvgm alone, these two external programs are now made optional. Only one of them is required. This allows TexMaths to work even if the user doesn't have installed one of these programs
+- Improved the SysConfig dialog
+- Fixed the paths in the batch script for Windows
+- Added "..." to some menu button names
+- Changed the name of the SysConfigDialog() function in the About module to AboutDialog()
+- Fixed the second radio button in the Preferences dialog that did not function properly (activation sequence number problem)
+- Fixed a problem in LaTeX mode, where the GetVertShift() function is called and the tmpfile.bsl does not exist
+- Fixed the right margin problem for numbered equations
+- In Writer, move one character right of the equation, to be able to type text just after
+
+0.26
+- Added a macro and a toolbar button to write numbered equations in Writer
+- Added a shortcut for that macro
+- Added an icon and renamed other icons
+
+0.25
+- On Windows the tricky process used to generate a PNg image (for maximum MS Word compatibility) doesn't work reliably and I didn't find why. So I fall back to the simple paste process on this system
+
+0.24
+- Added an help button to the main dialog, reorganized directories and renamed some files
+- Added 72, 96, and 120 dpi predefined values and fixed a bug in the dpi selector control
+- Fixed an execution error that occurred when the image point size is 0
+- Fixed the way Prefrences are handled. Now the strategy is the following : In Preferences dialog, display the config file preferences if they exist, otherwise display the default preferences. If the save button is clicked, set the TexMaths Equations preferences to the values of the config file
+- Display a syntax error message when the generated equation image has size 0
+
+0.23
+- The clipboard content is not lost anymore when exiting TexMaths. We save the clipboard when entering TexMaths and then we restore it before exiting
+- Set the keyboard shortcut for generating LaTeX equations as Alt-L or Ctrl-L  
+
+0.22
+- In Writer, changed the way images are generated to ensure maximum compatibility with MS Word 2000 or 2003. This is not perfect but works better now. For PNG images, we use a special paste with bitmap format and for SVG images we use a simple paste. 
+- Renamed icons
+
+0.21
+- Fixed the problem of equations inserted within a paragraph (not at the start or not at the end) that were not correctly placed
+- Fixed an untranslated string
+
+0.20
+- Removed the handle of plural forms in the gettext implementation because it is not used in TexMaths
+
+0.19
+- Replaced the old make.sh script with a new one that also updates the po files
+- Use gettext localization also for dialogs
+
+0.18
+- Use gettext implementation from Pierre Chef for string localization
+
+0.17
+- Initial dialog localization (in French) using the standard way
+- Designed new icons with transparency for TexMaths
+
+0.16
+- Rename TexMathsConfig to TexMathsPrefs. We now use the word "preferences" for equation options and "System configuration" for other configuration parameters
+- Removed the Cancel button from the SysConfig dialog
+- Renamed TexMathsEquation to TexMathsEquations everywhere
+- On Linux, fixed the TexMaths shell script to allow generating images when minor LaTeX errors are found and also removed the error() function that is not used anymore. The system log is now generated each time the script is run
+- On Windows, fixed the TexMaths batch script to correctly display the system log
+
+0.15
+- Added configuration options for Draw documents
+- Document type is now guessed using the GetDocumentType() function from Andrew Pytoniak
+- Many small improvements to the dialogs
+
+0.14
+- Added a ConfigSaved property to the registry. This is used to know if the configuration was already saved when starting the program
+- Removed the Reset button from the configuration dialog
+
+0.13
+- The script name is now based on the TexMaths version number. This allows to force the creation of a new script whenever the version changes 
+
+0.12
+- Use LaTeX code to generate the depth information for baseline alignment of inline and inline display equations. We use a trick from Maarten Sneep, see http://mactextoolbox.sourceforge.net/articles/baseline.html. Thus, the use of preview.sty is no more necessary and color can be used in equations. It also no more necessary to generate a png image to get the depth information with SVG format
+- The script is now located in the user directory (sUserPath) 
+- The reset button now completely resets the configuration and deletes rc, prb, script and system log file
+- Fixed the PNG image size in the temporary Draw document
+- Fixed vertical alignment with text equations
+- Minor improvements of the main dialog box
+
+0.11
+- Fixed the problem with the image dpi button not grayed out for svg in the config dialog
+- Removed the {picture} commands from the generated LaTeX code because they are not used anymore (?)
+- Let the text mode work in Writer
+
+0.10
+- Some code cleanup and reorganization
+
+0.9
+- Fixed compatibility issues with MS Word (inline equations were badly positioned and image object was duplicated when exported to Word) 
+- Position the equation at the center of the visible area in Impress and Draw
+
+0.8
+- On Windows, the script is now located in %HOMEDRIVE%\texmaths-%USERNAME%\TexMaths.bat where all space characters are removed from the original %USERNAME% string. The directory is made hidden. In multiuser environment, this allows to install and uninstall the extension without permission problems.
+
+0.7
+- Let it work under Windows. Due to a bug in the Shell() command (script paths with spaces don't work) the TexMaths.bat script is located in C:\. This is bad of course, but I didn't manage yet to do something better.
+
+0.6
+- Removed the transparent and cropping options because they are not used anymore
+- PNG resolution is now set using a combo box
+- Font size are now set using a combo box
+
+0.5
+- Now PNG images are generated using dvipng
+- Fixed the wrong PNG image size by estimating the real screen resolution
+- Fixed the wrong position of images using the baseline computed by dvipng using the --depth option
+
+0.4
+- Fixed the wrong size of SVG equations. This was because when importing the SVG equations, it is splitted in many different shapes and then we imported only the first shape. This is solved by combining all the shapes before copying into the clipboard
+
+0.3
+- Code cleanup
+- Added "Option Explicit" to force declaration of variables. Fixed all missing declarations
+- Fixed some typos in the original code
+
+0.2
+- Fixed declarations like Dim var1, var2 as String, which should be (according to the documentation) Dim var1 as String, var2 as String
+- Replaced each occurrence of StarDesktop.CurrentComponent with ThisComponent. This allows to run TexMaths within the IDE
+
+0.1
+- First version built from OOoLatex 4.0.0 beta 2
+- Removed the expand dialog because TexMaths is intended to produce equations as pure graphics image (no need for specific Latex fonts to see the produced equations in LibreOffice, OpenOffice or MS Office)
+

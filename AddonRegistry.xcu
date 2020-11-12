@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	oor:name="Registry" oor:package="ooo.ext.texmaths">
+        <node oor:name="ProductInfo">
+                <prop oor:name="ProductName" oor:type="xs:string">
+                        <value>TexMaths</value>
+                </prop>
+	</node>
+        <node oor:name="SystemInfo">
+		<prop oor:name="PackageDir" oor:type="xs:string">
+			<value>%origin%/</value>
+		</prop>
+		<prop oor:name="LatexPath" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="XelatexPath" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="DvipngPath" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="DvisvgmPath" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="ConfigSaved" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="WordVertAlign" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="CaptionLeftAlign" oor:type="xs:string">
+			<value>0</value>
+		</prop>
+		<prop oor:name="BreakBeforeNum" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="BreakAfterNum" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EquationCaption" oor:type="xs:string">
+			<value>Equation</value>
+		</prop>
+		<prop oor:name="NumLevel" oor:type="xs:string">
+			<value>1</value>
+		</prop>
+		<prop oor:name="EqWriterKey" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EqWriterCmd" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="NumEqWriterKey" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="NumEqWriterCmd" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EqImpressKey" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EqImpressCmd" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EqDrawKey" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EqDrawCmd" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="PositionX" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="PositionY" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="Width" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="Height" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="HelpPositionX" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="HelpPositionY" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="HelpWidth" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="HelpHeight" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EditorFontName" oor:type="xs:string">
+			<value></value>
+		</prop>
+		<prop oor:name="EditorFontSize" oor:type="xs:string">
+			<value>12</value>
+		</prop>
+		<prop oor:name="Compiler" oor:type="xs:string">
+			<value>latex</value>
+		</prop>
+		<prop oor:name="SymbolColor" oor:type="xs:string">
+			<value>symbols-black</value>
+		</prop>
+	</node>
+</oor:component-data>

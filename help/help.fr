@@ -1,0 +1,191 @@
+
+ 1. La barre d'outils TexMaths
+ 
+Une fois l'extension TexMaths installée, vous devriez voir apparaître une nouvelle barre d'outils dans Writer, Impress et Draw. Il s'agit de la barre d'outils TexMaths. Cette barre d'outils comporte quatre icônes dans Writer et seulement trois dans Impress et Draw.
+
+Dans Writer, un clic sur l'icône Équations TexMaths (celle avec le symbole Pi bleu) lance la macro Équations TexMaths. La seconde icône à droite permet de lancer la macro Équations numérotées TexMaths. La troisième icône (celle avec les outils) ouvre le dialogue Configuration système TexMaths et enfin, la quatrième icône (celle avec l'engrenage) est affectée à la macro Recompiler les équations TexMaths. Veuillez noter que la deuxième icône n'est pas présente dans Impress ni Draw.
+ 
+ 
+ 2. Démarrer avec TexMaths
+ 
+Pour insérer votre première équation dans un document, tapez simplement du code LaTeX dans le champ de texte de la fenêtre Équations TexMaths et ensuite cliquez sur le bouton LaTeX.
+
+Ex. : x(t) = \mu ^2 (t) doit produire l'équation x(t)=µ²(t)
+
+À partir de TexMaths 0.46, la fenêtre de l'éditeur d'équations comporte des onglets et des boutons qui permettent d'entrer le code LaTeX de plus de 300 symboles. Cliquez simplement sur le bouton du symbole choisi et le code LaTeX correspondant sera inséré à l'emplacement du curseur.
+
+
+ 3. Sélectionner le format d'image
+ 
+TexMaths peut générer et insérer deux types d'images dans un document LibreOffice. Pour sélectionner le format d'image désiré, utilisez le sélecteur situé dans le cadre Format d'image.
+
+Le format d'image par défaut est le format vectoriel SVG. Il permet de redimensionner les équations LaTeX sans perte de précision et ne nécessite d'installer aucune police mathématique supplémentaire dans LibreOffice, car les symboles mathématiques sont simplement tracés sous forme de courbes. Le format SVG est le format conseillé (et le format par défaut) mais il peut exister quelques problèmes de compatibilité lors de l'export de documents LibreOffice vers d'anciennes versions de MS Office, comme MS Office 2000 (voir plus bas).
+
+Le second format possible est le format d'image PNG, qui est un format bitmap. Par conséquent, vous devez spécifier une résolution pour l'utiliser. Bien que 600 dpi soit la résolution par défaut, vous pouvez choisir parmi plusieurs valeurs prédéfinies. Vous pouvez également définir la transparence de l'image, ce qui peut s'avérer utile si votre document possède un fond coloré. Il ne devrait pas exister de problèmes de compatibilité avec ce format lors de l'export de documents vers MS Office, quelle que soit la version.
+ 
+Veuillez noter que chacun des formats n'est disponible que si le programme externe correspondant (dvisvgm pour le SVG et dvipng pour le PNG) est installé sur votre système avec son chemin configuré dans Configuration système TexMaths. Au moins un de ces deux programmes est requis pour utiliser TexMaths.
+
+
+ 4. Taille de police
+
+TexMaths peut gérer différentes tailles de caractères pour vos équations. Pour modifier la taille de police, utilisez le sélecteur situé dans le cadre Taille de police.
+
+Vous pouvez choisir parmi différentes tailles de polices prédéfinies ou bien entrer une taille particulière si celle-ci n'est pas listée.
+
+
+ 5. Transparence
+ 
+Il est possible de basculer la transparence des images d'équations en cochant l'option Transparence dans la fenêtre Équations TexMaths. Cela peut s'avérer utile lorsque le fond du document n'est pas blanc. La transparence peut désormais être modifiée pour les deux formats SVG et PNG. 
+
+
+ 6. Type d'équations
+ 
+TexMaths peut générer trois types d'équations LaTeX :
+- les équations display
+- les équations inline display
+- les équations LaTeX
+
+Pour choisir un type d'équation, utilisez le bouton radio situé dans le cadre Type d'équation.
+
+Pour générer des équations display ou inline display, il vous suffit de sélectionner le type d'équations approprié et ensuite de taper le texte de votre équation dans le champ de texte de la fenêtre Équations TexMaths.
+
+Ex. : Pour générer le symbole grec alpha, tapez simplement \alpha
+
+Les équations inline display sont obtenues de la même manière, la différence résidant dans l'aspect de l'équation, qui s'intègre mieux dans le texte. Par exemple, l'indice et l'exposant du signe somme sont affichés à côté de lui et non pas au-dessous et au-dessus.
+ 
+Ces deux types d'équations sont idéales pour de simples équations écrites sur une ligne, et de plus, l'alignement vertical est correct. Cependant, ces types d'équations ne permettent pas de générer des équations multi-lignes ou de travailler avec des environnements LaTeX plus complexes. Dans ce cas, sélectionnez le type d'équations LaTeX et tapez votre équation entre des instructions d'environnement \begin{} et \end{}.
+
+Ex. : Tapez les lignes suivantes pour afficher une équation de trois lignes, alignées sur le signe égal.
+\begin{align*}
+x &= 1 \\
+y &= 2x+1\\
+&= 3\\
+\end{align*}
+
+
+ 7. Nom d'équation
+
+Vous pouvez entrer un nom d'équation dans la fenêtre Équations TexMaths. Cela peut notamment s'avérer utile dans Impress pour retrouver une équation à partir de son nom, afin de lui appliquer une animation. 
+ 
+ 
+ 8. Génération d'équations LaTeX
+
+Une fois que vous avez tapé une équation, vous pouvez la générer en cliquant sur le bouton LaTeX de la fenêtre Équations TexMaths. Cette opération génère une image de votre équation dans les format, type et taille que vous avez sélectionnés. Vous pouvez choisir entre les compilateurs LaTeX et XeLaTeX dans le dialogue Configuration système TexMaths.
+
+
+ 9. Équations numérotées sous Writer
+
+Pour insérer une équation numérotée, il suffit de cliquer sur l'icône Équations numérotées TexMaths, de taper le code LaTeX de votre équation, puis de cliquer sur le bouton LaTeX. Une équation centrée, numérotée est alors automatiquement insérée dans votre document Writer.
+
+Vous pouvez également choisir l'alignement (à droite ou à gauche), l'espacement ainsi que la légende d'équations que vous désirez dans l'onglet Options de la fenêtre Configuration système TexMaths.
+ 
+ 
+ 10. Éditer des équations LaTeX
+
+Dans un document LibreOffice, sélectionnez une image d'équation et cliquez sur l'icône Équations TexMaths de la barre d'outils TexMaths (ou bien utilisez un raccourci clavier si vous en avez défini un). La fenêtre Équations TexMaths s'ouvre alors et le texte de votre équation est sélectionné. Il vous suffit d'éditer ce texte et de cliquer sur le bouton LaTeX pour générer l'équation modifiée.
+
+Vous pouvez bien sûr fermer un document, l'ouvrir à nouveau et éditer les équations qui y figurent.
+
+
+ 11. Texte vers LaTeX sous Writer
+
+Tapez du code LaTeX directement dans un document Writer (sans ouvrir la fenêtre TexMaths), sélectionnez ce texte et cliquez sur l'icône Équations TexMaths (ou utilisez le raccourci clavier approprié si vous en avez défini un) pour convertir votre texte en une image d'équation LaTeX. Le format d'image, la taille ainsi que le type d'équation seront ceux que vous avez définis par défaut dans les Préférences TexMaths.
+
+
+ 12. Préférences
+
+TexMaths est fourni avec certains réglages par défaut. Si ces réglages ne vous conviennent pas, vous pouvez les modifier grâce à la fenêtre Préférences TexMaths, obtenue en cliquant sur le bouton Préférences. Cette fenêtre vous permet de modifier le format d'image, la taille de police, le type d'équation, etc., pour chaque type de document LibreOffice. Vous pouvez enregistrer vos nouveaux réglages, restaurer les réglages par défaut ou charger des réglages déjà enregistrés.
+
+
+ 13. Préambule LaTeX
+
+Un clic sur le bouton Préambule permet d'afficher la fenêtre Préambule TexMaths qui vous permet d'ajuster le préambule LaTeX. Par exemple, pour générer des équations en couleurs, décommentez les trois lignes suivantes du préambule par défaut :
+
+%\definecolor{fgcolor}{RGB}{0,0,255}
+%\definecolor{bgcolor}{RGB}{255,255,255}
+%\pagecolor{bgcolor}\color{fgcolor}
+
+Ensuite, modifiez la valeur de la couleur RGB selon vos souhaits et enregistrez le préambule. Les nouvelles équations posséderont alors le schéma de couleurs que vous avez défini dans le préambule. Notez que les équations ayant une couleur de fond ne sont pas transparentes, même si l'option de transparence a été spécifiée. Il est nécessaire de supprimer la couleur de fond dans le préambule pour retrouver la transparence.
+
+À partir de la version 0.38 de TexMaths, le préambule est stocké dans les propriétés du document. Chaque document peut donc avoir son propre préambule. Le préambule par défaut est global et ne peut être modifié. Notez que LaTeX et XeLaTeX ont des préambules par défaut différents.
+
+
+ 14. Commandes \input, \include et \usepackage
+ 
+À partir de la version 0.41 de TexMaths, des commandes LaTeX \input et \include peuvent être ajoutées de façon à inclure le contenu de fichiers LaTeX (fichiers .tex) dans les équations. Les fichiers insérés doivent se trouver dans le même dossier que le document en cours.
+
+Ex. : Dans le document mon_doc.odt, la commande LaTeX :
+
+\include{mes_equations}
+
+peut être utilisée pour inclure le contenu du fichier mes_equations.tex, à condition que celui-ci soit situé dans le même dossier que mon_doc.odt.
+
+Il est aussi possible d'utiliser des styles personnalisés de documents LaTeX (fichiers .sty) grâce à la commande \usepackage, qui doit être insérée dans le préambule LaTeX. Le fichier .sty doit alors se trouver dans le même dossier que le document courant.
+
+Ex. : Dans le document mon_doc.odt, la commande LaTeX :
+
+\usepackage{mon_style}
+
+insérée dans le préambule permet de prendre en compte le fichier de style LaTeX mon_style.sty, qui doit se trouver dans le même dossier que mon_doc.odt.
+
+
+ 15. Recompilation des équations TexMaths
+
+Lorsqu'un document (dans Writer, Impress ou Draw) contient des centaines d'équations, il peut s'avérer utile de changer la taille, le format, la transparence, etc., de ces équations en une seule opération. C'est le but de la macro Recompiler les équations.
+
+Lorsque vous cliquez sur l'icône associée (celle avec l'engrenage) de la barre d'outils TexMaths, un dialogue apparaît où il est possible de modifier un certain nombre de paramètres des équations TexMaths. Il est possible de ne pas modifier certains paramètres. Dans une liste, il faut alors sélectionner l'entrée "---" et dans une case à cocher, il faut choisir l'option '-'.
+
+Dans les trois types de documents, vous pouvez recompiler toutes les équations d'un document en sélectionnant l'option Recompiler toutes les équations.
+
+Dans les documents Writer, en sélectionnant l'option Recompiler les équations sélectionnées, vous pouvez choisir de ne recompiler que les équations situées dans la zone de texte sélectionnée. Notez qu'en raison de certaines limitations des sélections sous LibreOffice, cette macro ne permet pas de recompiler les équations situées dans les tableaux, les cadres de texte, l'en-tête et le pied de page. Si nécessaire, vous pouvez recompiler ces équations en les sélectionnant une par une et en les éditant de la manière habituelle.
+
+Dans les documents Impress et Draw, en sélectionnant l'option Recompiler les équations de la diapositive, vous pouvez choisir de ne recompiler que les équations de la diapositive courante.
+
+Lorsque tous les paramètres et options ont été fixés, lancez la macro en cliquant sur le bouton Exécuter et les équations seront recompilées. Si des centaines d'équations doivent être recompilées, l'opération peut durer un certain temps et demande un peu de patience... 
+
+
+ 16. Dialogue de configuration
+
+Un clic sur la troisième icône de la barre d'outils TexMaths ouvre le dialogue de configuration système TexMaths. Dans le premier onglet, vous pouvez changer les chemins des fichiers de programmes externes utilisés par TexMaths. Depuis la version TexMaths 0.46, les chemins demandés sont les chemins de fichiers absolus.
+
+Le second onglet permet de choisir le compilateur LaTeX (LaTeX ou XeLaTeX, si ce dernier est installé et si la version de dvisvgm que vous utilisez le supporte. Notez que XeLaTeX ne peut être utilisé pour produire des images d'équations au format PNG). Vous pouvez aussi choisir la police de l'éditeur d'équations ainsi que diverses options pour les équations numérotées et la compatibilité avec Word.
+
+Le troisième onglet permet de définir des raccourcis clavier pour lancer TexMaths.
+
+
+ 17. Compatibilité avec ooolatex
+ 
+À partir de la version 0.34, TexMaths est compatible avec ooolatex. Cela signifie que si vous avez des documents contenant des équations ooolatex, vous pouvez les éditer avec TexMaths. Sélectionnez les équations une par une, puis lancez la macro Équations TexMaths et modifiez le code LaTeX de vos équations. Vous pouvez ensuite regénérer les équations dans le format que vous souhaitez, SVG ou PNG. 
+
+
+ 18. Exporter vos documents vers MS Office
+ 
+Si vous envisagez d'exporter vos documents vers MS Office (Word et Powerpoint, quelle que soit la version), vous devriez enregistrer vos documents LibreOffice dans les formats .doc et .ppt et *PAS* dans les formats .docx et .pptx. En effet, bien que LibreOffice puisse produire ces formats, les images d'équations sont mal converties et il y aura donc de sérieux problèmes de rendu sous Word et Powerpoint.
+
+Il est également recommandé de cocher l'option de compatibilité verticale Word (dans la fenêtre Configuration système TexMaths) si vous exportez vos documents Writer vers Word. Cela aura pour effet d'améliorer nettement l'alignement vertical sous Word des équations situées dans le texte.
+
+À partir de la version 0.38 de TexMaths, les équations SVG sont bien rendues dans Word et Powerpoint 2003 et les versions ultérieures, mais toujours pas dans Word et Powerpoint 2000. Si vous êtes bloqués avec ces vieilles versions, vous devrez utiliser le format PNG. 
+
+
+ 19. Raccourcis clavier
+ 
+Pour configurer les raccourcis permettant d'ouvrir la fenêtre Équations TexMaths avec ou sans numérotation des équations, cliquez sur le bouton Configuration système TexMaths de la barre d'outils TexMaths et définissez vos raccourcis clavier. Pour les équations sans numérotation, vous pouvez définir un seul raccourci pour toutes les applications ou bien un raccourci différent par application. Du fait que les équations numérotées ne sont disponibles que sous Writer, il n'y a qu'un seul raccourci pour celles-ci.
+
+Dans la fenêtre Équations TexMaths, vous pouvez utiliser les raccourcis suivants :
+- Esc pour fermer la fenêtre et quitter sans générer d'équation
+- Alt-L ou Ctrl-L pour générer une équation
+- Alt-P ou Ctrl-P pour afficher la fenêtre Préférences
+- Alt-B ou Ctrl-B pour afficher la fenêtre Préambule
+
+
+ 20. Problèmes connus
+ 
+- Le rendu des équations SVG est bugué dans LibreOffice 3.x (les équations ont un aspect de caractères gras), mais pas dans les versions 4.x, 5.x ou 6.x. Par conséquent, si vous désirez utiliser le format SVG, il vous est recommandé de mettre à niveau LibreOffice, de préférence en version 5.x ou 6.x.
+
+- TexMaths peut fonctionner avec Apache Openoffice 3.4.x, mais les équations au format SVG ne sont pas visibles. Cependant, les équations PNG sont correctement rendues.
+
+- TexMaths fonctionne bien (formats PNG et SVG) avec Apache Openoffice 4.x.
+
+- Les équations contenant des commandes PSTricks ne peuvent être correctement rendues en PNG à cause de dvipng. Dans ce cas, il faut utiliser le format SVG.
+
+- Sous Windows, il est recommandé de désactiver le rendu OpenGL dans LibreOffice. Pour cela, allez dans Outils / Options / Affichage et désactivez l'option Utiliser OpenGL pour tous les rendus. Cela permet de beaucoup améliorer le rendu des images SVG et aussi d'assurer une meilleure stabilité de LibreOffice. Notez que sous Linux, le rendu OpenGL ne fonctionne pas du tout et est désactivé par défaut.

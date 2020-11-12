@@ -1,0 +1,743 @@
+# TexMaths, un editor LaTeX para LibreOffice 
+# Copyright (C) 2012-2018 - Roland Baudin
+# Este archivo se distribuye bajo la misma licencia que el paquete TexMaths
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-11 16:53+0200\n"
+"PO-Revision-Date: 2012-05-04 HO:MI+ZONE\n"
+"Last-Translator: Luis Jaime Salazar Ramírez <luis.salazar.ramirez@gmail."
+"com>\n"
+"Language-Team: Español <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "About TexMaths"
+msgstr "Acerca de TexMaths"
+
+msgid "Error: dialog box can't be created..."
+msgstr "Error: el diálogo pudo crearse ..."
+
+msgid "About"
+msgstr "Acerca de"
+
+msgid "Display application informations"
+msgstr "Mostrar información de la aplicación"
+
+msgid "Display application changes"
+msgstr "Mostrar cambios en la aplicación"
+
+msgid "Display system informations"
+msgstr "Mostrar informaciones del sistema"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Close window"
+msgstr "Cerrar ventana"
+
+msgid ""
+"You have to generate a first equation before the system log can be "
+"displayed..."
+msgstr ""
+"Usted ha generado la primera ecuación antes de que el 'log' del sistema se "
+"pueda mostrar..."
+
+msgid "TexMaths Equations"
+msgstr "Ecuaciones TexMaths"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Enter equation name here (can be left blank)"
+msgstr "Escriba el nombre de la ecuación aquí (puede dejarlo en blanco)"
+
+msgid "Image Format"
+msgstr "Formato de Imagen"
+
+msgid "Equation Type"
+msgstr "Tipo de Ecuación"
+
+msgid "Font Size"
+msgstr "Tamaño de la fuente"
+
+msgid "Set image format"
+msgstr "Seleccione el formato de imagen"
+
+msgid "Set image resolution"
+msgstr "Seleccione la resolución de la imagen"
+
+msgid "Transparency"
+msgstr "Transparencia"
+
+msgid "Toggle image transparency"
+msgstr "Cambie la transparencia de la imagen"
+
+msgid "Set font size"
+msgstr "Ajuste el tamaño de la fuente"
+
+msgid "Inline Display equation"
+msgstr "Ecuación en línea, formato 'Display'"
+
+msgid "Inline equation"
+msgstr "Ecuación en línea"
+
+msgid "Regular LaTeX code"
+msgstr "Código regular LaTeX"
+
+msgid "Help..."
+msgstr "Ayuda..."
+
+msgid "Display help text"
+msgstr "Muestre el texto de ayuda"
+
+msgid "Preferences..."
+msgstr "Preferencias"
+
+msgid "Set equation preferences"
+msgstr "Seleccione las preferencias de ayuda"
+
+msgid "Preamble..."
+msgstr "Preámbulo..."
+
+msgid "Set preamble"
+msgstr "Ajuste el preámbulo"
+
+msgid "Generate XeLaTeX equation"
+msgstr "Genere la ecuación XeLaTeX"
+
+msgid "Generate LaTeX equation"
+msgstr "Generar la ecuación LaTeX"
+
+msgid "General"
+msgstr "General"
+
+msgid "Arrays"
+msgstr "Arreglos"
+
+msgid "Alphabets"
+msgstr "Alfabetos"
+
+msgid "Arrows"
+msgstr "Flechas"
+
+msgid "Functions"
+msgstr "Funciones"
+
+msgid "Relations"
+msgstr "Relaciones"
+
+msgid "Operations"
+msgstr "Operaciones"
+
+msgid "Misc"
+msgstr "Miscelánea"
+
+msgid "2 x 2 align* environment"
+msgstr "2 x 2 align* environment"
+
+msgid "3 x 2 align* environment"
+msgstr "3 x 2 align* environment"
+
+msgid "2 x 1 array"
+msgstr "Arrego 2 x 1"
+
+msgid "2 x 2 array"
+msgstr "Arrego 2 x 2"
+
+msgid "3 x 1 array"
+msgstr "Arrego 3 x 1"
+
+msgid "3 x 3 array"
+msgstr "Arreglo 3 x 3"
+
+msgid "2 x 2 matrix with parentheses"
+msgstr "2 x 2 matriz con paréntesis"
+
+msgid "3 x 3 matrix with parentheses"
+msgstr "3 x 3 matriz con paréntesis"
+
+msgid "m x n matrix with parentheses"
+msgstr "m x n matriz con paréntesis"
+
+msgid "2 x 2 matrix with brackets"
+msgstr "2 x 2 matriz con paréntesis cuadrado"
+
+msgid "3 x 3 matrix with brackets"
+msgstr "3 x 3 matriz con paréntesis cuadrado"
+
+msgid "m x n matrix with brackets"
+msgstr "m x n matriz con paréntesis cuadrado"
+
+msgid "2 x 2 matrix with verts"
+msgstr "2 x 2 matriz con barras"
+
+msgid "3 x 3 matrix with verts"
+msgstr "3 x 3 matriz con barras"
+
+msgid "m x n matrix with verts"
+msgstr "m x n matriz con barras"
+
+msgid "Serif Text"
+msgstr "Texto Serifa"
+
+msgid "Sans Serif Text"
+msgstr "Texto sin Serifa"
+
+msgid "Align"
+msgstr "Alineación"
+
+msgid "Space"
+msgstr "Espacio"
+
+msgid "Double space"
+msgstr "Espacio doble"
+
+msgid "Triple space"
+msgstr "Espacio triple"
+
+msgid "Please install the Draw component to run TexMaths!"
+msgstr "Por favor, ¡instale el componente Draw para correr TexMaths!"
+
+msgid ": document type not supported by TexMaths"
+msgstr ":  tipo de documento no soportado por TexMaths"
+
+msgid "The selected object is not a TexMaths equation..."
+msgstr "El objeto seleccionado no es una ecuación TexMaths..."
+
+msgid "Please unselect it and call the macro again..."
+msgstr "Por favor desmárquelo y llame el macro nuevamente..."
+
+msgid "Edit equation..."
+msgstr "Editar ecuación..."
+
+msgid "Please enter an equation..."
+msgstr "Por favor escriba una ecuación..."
+
+msgid "Please save the document before using an include command..."
+msgstr "Por favor guarde el documento antes de usar un comando incluido..."
+
+msgid "Please save the document before using an input command..."
+msgstr "Por favor guarde el documento antes de usar un comando de entrada..."
+
+msgid "The file "
+msgstr "El archivo"
+
+msgid "tmpfile.tex cannot be created"
+msgstr "tmpfile.tex no puede ser creado"
+
+msgid "Please check your installation..."
+msgstr "Por favor revise su instalación..."
+
+msgid "No file created in the directory:"
+msgstr "Ningún archivo creado en el directorio:"
+
+msgid "Script error: the dvi file was not converted to "
+msgstr "Error en el script:  el archivo dvi no se pudo convertir a"
+
+msgid "Please check your system configuration..."
+msgstr "Por favor revise su configuración de sistema..."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "View..."
+msgstr ""
+
+msgid "View LaTeX code"
+msgstr ""
+
+msgid "TexMaths Help"
+msgstr "Ayuda de TexMaths"
+
+msgid "TexMaths Preamble"
+msgstr "Preámbulo TexMaths"
+
+msgid "Default"
+msgstr "Por defecto"
+
+msgid "Load default preamble"
+msgstr "Cargar el preámbulo por defecto"
+
+msgid "Load"
+msgstr "Cargar"
+
+msgid "Load preamble saved into the current document"
+msgstr "Cargue el preámbulos grabado en el actual documento"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Apply current preamble"
+msgstr "Aplicar el actual preámbulo"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Apply current preamble and save it into the current document"
+msgstr "Aplique el preámbulo actual y grabelo en el actual documento"
+
+#, fuzzy
+msgid "Do not use preamble for LaTeX type equations"
+msgstr "Generar la ecuación LaTeX"
+
+msgid ""
+"Ignore preamble when generating LaTeX type equations. Full LaTeX code must "
+"then be entered in the TexMaths equation dialog."
+msgstr ""
+"Ignore el preámbulo cuando genere las ecuaciones tipo LaTeX. El código "
+"completo LaTeX debeentonces escribirse en el diálogo de ecuación de TexMaths"
+
+msgid "Preamble applied and saved..."
+msgstr "Preámbulo aplicado y guardado..."
+
+msgid "Preamble applied..."
+msgstr "Preámbulo aplicado..."
+
+msgid "TexMaths Preferences"
+msgstr "Preferencias TexMaths"
+
+msgid "Image parameters"
+msgstr "Parámetros de imagen"
+
+msgid "Load default preferences"
+msgstr "Cargar las preferencias por defecto"
+
+msgid "Load saved preferences"
+msgstr "Cargar preferencias guardadas"
+
+msgid "Apply and save current preferences"
+msgstr "Aplicar y guardar las preferencias actuales"
+
+msgid "Writer font size"
+msgstr "Tamaño de la fuente 'Writer'"
+
+msgid "Impress font size"
+msgstr "Tamaño de la fuente 'Impress'"
+
+msgid "Draw font size"
+msgstr "Tamaño de la fuente 'Draw'"
+
+msgid "points"
+msgstr "puntos"
+
+msgid "Inline display equation"
+msgstr "Mostrar ecuación en línea"
+
+msgid "Format"
+msgstr "Formato"
+
+msgid "Image format"
+msgstr "Formato de imagen"
+
+msgid "Image resolution"
+msgstr "Resolución de imagen"
+
+msgid "Preferences applied and saved..."
+msgstr "Preferencias aplicadas y gardadas..."
+
+msgid "Default preferences loaded..."
+msgstr "Preferencias por defecto cargadas..."
+
+msgid "User's preferences loaded..."
+msgstr "Preferencias del usuario cargadas..."
+
+msgid "TexMaths Recompile Equations"
+msgstr "Recompilación de Ecuaciones TexMaths"
+
+msgid "Run"
+msgstr "Recompile"
+
+msgid "Recompile TexMaths equations"
+msgstr "Recompile las ecuaciones TexMaths"
+
+msgid "Font size"
+msgstr "Tamaño de fuente o letra"
+
+msgid "Compatibility"
+msgstr "Compatibilidad"
+
+msgid "Selection"
+msgstr "Selección"
+
+msgid "Image transparency"
+msgstr "Transparencia de la imagen"
+
+msgid "Vertical alignment for Word export"
+msgstr "Alineamiento vertical para exportación a Word"
+
+msgid "Improve vertical alignment of Writer equations for Word export"
+msgstr ""
+"Mejore la alineación vertical de las ecuaciones Writer para exportación a "
+"Word"
+
+msgid "Text font size"
+msgstr "Tamaño de fuente para texto"
+
+msgid "Image resolution (only for PNG images)"
+msgstr "Resolución de la imagen (sólo para imágenes PNG)"
+
+msgid "Recompile all equations"
+msgstr "Recompile todas las ecuaciones"
+
+msgid "Recompile all equations from the document"
+msgstr "Recompile todas las ecuaciones desde el documento"
+
+msgid "Recompile selected equations"
+msgstr "Recompile las ecuaciones elegidas"
+
+msgid ""
+"Recompile equations from the selected text area (does not process equations "
+"in tables, text frames, header and footer. Recompile those one by one if "
+"necessary)"
+msgstr ""
+"Recompile las ecuaciones desde el área de texto (no procesa ecuaciones en "
+"tablas, cuadros de texto, encabezados o pies. Recompile esos uno por uno si "
+"es necesario"
+
+msgid "Recompile equations from slide"
+msgstr "Recompile ecuaciones desde diapositiva"
+
+msgid "Recompile equations from the current slide"
+msgstr "Recompile ecuaciones desde la diapositiva actual"
+
+msgid "Please wait during task execution..."
+msgstr "Por favor espera durante la ejecución de la tarea..."
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Cancel operation"
+msgstr "Cancelar la operación"
+
+msgid "Operation canceled!"
+msgstr "¡Operación cancelada!"
+
+msgid "Done!"
+msgstr "¡Listo!"
+
+msgid "No equation was recompiled."
+msgstr "Ninguna ecuación fue recompilada."
+
+msgid "1 equation recompiled."
+msgstr "1 ecuación recompilada"
+
+msgid " equations recompiled."
+msgstr " ecuaciones recompiladas."
+
+msgid "TexMaths System Configuration"
+msgstr "Configuración de TexMaths"
+
+msgid "Equations Shortcuts"
+msgstr "Atajos para ecuaciones"
+
+msgid "Numbered Equations Shortcut"
+msgstr "Atajos para ecuaciones numeradas"
+
+msgid "Same shortcut for Writer, Impress and Draw"
+msgstr "El mismo método abreviado para Writer, Impres y Draw"
+
+msgid "Use the same shortcut for Writer, Impress and Draw"
+msgstr "Use el mismo método abreviado para Writer, Impress y Draw"
+
+msgid "System Paths"
+msgstr "Rutas del sistema"
+
+msgid "All"
+msgstr "Todo"
+
+msgid "Keyboard shortcut"
+msgstr "Atajos de teclado"
+
+msgid "Path of the latex program"
+msgstr "Ruta del programa LaTeX"
+
+msgid "Path of the xelatex program"
+msgstr "Ruta del programa XeLaTeX"
+
+msgid "Path of the dvipng program"
+msgstr "Ruta del programa dvipng"
+
+msgid "Path of the dvisvgm program"
+msgstr "Ruta del programa dvisvgm"
+
+msgid "Save system configuration"
+msgstr "Guardar la configuración del sistema"
+
+msgid "Numbering Level"
+msgstr "Nivel de numeración"
+
+msgid "Chapter level number to be included in equation numbers"
+msgstr ""
+"Nivel de numeración del capítulo para ser incluido en los números de las "
+"ecuaciones"
+
+msgid "Level number"
+msgstr "Número de nivel"
+
+msgid "Caption left alignment"
+msgstr "Leyenda con alineación izquierda"
+
+msgid "Set equation caption alignment to left"
+msgstr "Ajuste la alineación de la leyenda a la izquierda"
+
+msgid "Caption right alignment"
+msgstr "Leyenda con alineación derecha"
+
+msgid "Set equation caption alignment to right"
+msgstr "Ajuste la alineación de la leyenda a la derecha"
+
+msgid "Compiler"
+msgstr "Compilador"
+
+msgid "Equations will be compiled using the LaTeX compiler"
+msgstr "Las ecuaciones se compilarán usando el compilador LaTeX"
+
+msgid "Equations will be compiled using the XeLaTeX compiler"
+msgstr "Las ecuaciones se compilarán usando el compilador XeLaTeX"
+
+msgid "Paths"
+msgstr "Rutas"
+
+msgid "Display the Paths tab"
+msgstr "Mostrar la pestaña de rutas"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Display the Options tab"
+msgstr "Mostrar la pestaña de opciones"
+
+msgid "Interface"
+msgstr ""
+
+msgid "Display the Interface tab"
+msgstr ""
+
+msgid "Editor Font"
+msgstr "Editor de fuente"
+
+msgid "Font name"
+msgstr "Nombre de fuente"
+
+msgid "Name of the font used in the equation editor window"
+msgstr "Nombre de la fuente usada en la ventana del editor de ecuaciones"
+
+msgid "Size"
+msgstr "Tamaño"
+
+msgid "Size of the font used in the equation editor window"
+msgstr "Tamaño de la fuente usado en la ventana del editor de ecuaciones"
+
+msgid "Symbol Color"
+msgstr ""
+
+msgid "Black symbols"
+msgstr ""
+
+msgid "Set LaTeX symbol color to black (for light themes)"
+msgstr ""
+
+msgid "White symbols"
+msgstr ""
+
+msgid "Set LaTeX symbol color to white (for dark themes)"
+msgstr ""
+
+msgid "Shortcuts"
+msgstr "Atajos"
+
+msgid "Display the Shortcuts tab"
+msgstr "Mostrar la pestaña de atajos"
+
+msgid "Numbered Equations"
+msgstr "Ecuaciones numeradas"
+
+msgid "Paragraph break before numbered equations"
+msgstr "Ruptura de párrafo antes de las ecuaciones numeradas"
+
+msgid "Add a paragraph break before numbered equations"
+msgstr "Adicionar una ruptura de párrafo antes de las ecuaciones numeradas"
+
+msgid "Paragraph break after numbered equations"
+msgstr "Ruptura de párrafo después de las ecuaciones numeradas"
+
+msgid "Add a paragraph break after numbered equations"
+msgstr "Adicionar una ruptura de párrafo después de las ecuaciones numeradas"
+
+msgid "Equation Caption"
+msgstr "Etiqueta de la ecuación"
+
+msgid "Display text before equation number (leave blank if no text desired)"
+msgstr ""
+"Mostrar texto antes de la ecuación numerada (deje en blanco si no desea "
+"alguno)"
+
+msgid ""
+"The TexMaths macro uses some external programs to generate the equation "
+"images. Enter below the paths of these programs. Note that only one of the "
+"dvisvgm or dvipng programs is required to generate equation images."
+msgstr ""
+"El macro TexMaths usa algunos programas externos para generar la imagen de "
+"la ecuación. Escriba abajo las rutas de esos programas. Vea que sólo uno de "
+"los programas dvisvgm o dvipng se requiere para generar las imagenes de las "
+"ecuaciones"
+
+msgid ""
+"Ex: For a standard MiKTeX 2.9 install on Windows, enter the following path "
+"into the latex.exe field:"
+msgstr ""
+"Ejemplo:  para una instalación estándar MiKTeX 2.9 sobre Windows, escriba la "
+"siguiente ruta dentro del campo latex.exe: "
+
+msgid "latex.exe (mandatory)"
+msgstr "latex.exe (requerido)"
+
+msgid "xelatex.exe (optional)"
+msgstr "xelatex.exe (opcional)"
+
+msgid "dvipng.exe (optional)"
+msgstr "dvipng.exe (opcional)"
+
+msgid "dvisvgm.exe (optional)"
+msgstr "dvisvgm.exe (opcional)"
+
+msgid ""
+"Ex: For a standard MacTeX install on Mac OS, enter the following path into "
+"the latex field:"
+msgstr ""
+"Ejemplo:  para una instalación estándar MacTeX sobre Mac OS, escriba la "
+"siguiente ruta dentro del campo latex: "
+
+msgid "latex (mandatory)"
+msgstr "latex (requerido)"
+
+msgid "xelatex (optional)"
+msgstr "xelatex (opcional)"
+
+msgid "dvipng (optional)"
+msgstr "dvipng (opcional)"
+
+msgid "dvisvgm (optional)"
+msgstr "dvisvgm (opcional)"
+
+msgid ""
+"Ex: For a standard LaTeX install on Linux, enter the following path into the "
+"latex field:"
+msgstr ""
+"Ejemplo:  para una instalación LaTeX estándar sobre Linux, escriba la "
+"siguiente ruta en el campo latex:"
+
+msgid "(Default)"
+msgstr "(por defecto)"
+
+msgid "xelatex not found, XeLateX is disabled"
+msgstr "XeLaTeX no se encuentra, se desactiva"
+
+msgid "dvisvgm not found, XeLateX is disabled"
+msgstr "dvisvgm no se encuentra, XeLateX está desactivado"
+
+msgid "dvisvgm too old, XeLateX is disabled"
+msgstr "dvisvgm demasiado viejo, XeLateX está desactivado"
+
+msgid "Please configure first TexMaths before using it..."
+msgstr "Por favor primero configure TexMaths antes de usarlo..."
+
+msgid "Can't find the external program "
+msgstr "No es posible encontrar el programa externo "
+
+msgid "Please check the file paths in your TexMaths system configuration..."
+msgstr ""
+"Verifique las rutas de archivo en el sistema de configuración TexMaths..."
+
+msgid "Can't find at least one of the external programs "
+msgstr "No es posible encontrar por lo menos uno de los programas "
+
+msgid " or "
+msgstr " o "
+
+msgid ""
+"Shortcuts assigned to the Equations and NumberedEquations modules must be "
+"different!"
+msgstr ""
+"¡Los atajos asignados a los módulos de ecuaciones y ecuaciones numeradas "
+"deben ser distintos!"
+
+msgid "Please check your shortcuts..."
+msgstr "Por favor revise sus atajos..."
+
+msgid "Please set the latex path..."
+msgstr "Por favor Seleccione la ruta del latex..."
+
+msgid "Please set at least one dvipng path or the dvisvgm path..."
+msgstr "Por favor Seleccione al menos una de las rutas: dvipng o dvisvgm..."
+
+msgid "The program latex.exe was not found"
+msgstr "El programa latex.exe no se encontró"
+
+msgid "The program xelatex.exe was not found, please check its path"
+msgstr "El programa xelatex.exe no se encontró, verifique su ruta"
+
+msgid "The program dvipng.exe was not found, please check its path"
+msgstr "El programa dvipng.exe no se encontró, verifique su ruta"
+
+msgid "The program dvisvgm.exe was not found, please check its path"
+msgstr "El programa dvisvgm.exe no se encontró, verifique su ruta"
+
+msgid "The program latex was not found, please check its path"
+msgstr "El programa latex no se encontró, verifique su ruta"
+
+msgid "The program xelatex was not found, please check its path"
+msgstr "El programa xelatex no se encontró, verifique su ruta"
+
+msgid "The program dvipng was not found, please check its path"
+msgstr "El programa dvipng no se encontró, verifique su ruta"
+
+msgid "The program dvisvgm was not found, please check its path"
+msgstr "El programa dvisvgm no se encontró, verifique su ruta"
+
+msgid "Only characters from A to Z are allowed for shortcuts!"
+msgstr "¡Para los atajos, soló se permiten caracteres de la A a la Z!"
+
+msgid "The key combination CTRL + "
+msgstr "La combinación de teclas CTRL + "
+
+msgid " is already assigned to the command "
+msgstr " ya está asignada al comando "
+
+msgid "Do you want to set the command"
+msgstr "¿Desea modificar el comando?"
+
+msgid "Error: can't find file "
+msgstr "Error: no se encuentra el archivo "
+
+msgid ""
+"LaTeX code was successfully compiled but equation image is empty, please "
+"check the equation syntax..."
+msgstr ""
+
+msgid "Error: the file "
+msgstr "Error:  el archivo "
+
+msgid " doesn't exist..."
+msgstr " no existe..."
+
+msgid "An error has occurred, please check your TexMaths configuration..."
+msgstr "Un error ha ocurrido, verifique su configuración de TexMaths..."
+
+msgid "Can't find "
+msgstr "No se encuentra "
+
+#~ msgid "Error: please check the equation syntax..."
+#~ msgstr "Error:  por favor revise la sintaxis de la ecuación..."
+
+#~ msgid ""
+#~ "Ex: For a standard LaTeX install on Mac OS, enter the following path into "
+#~ "the latex field:"
+#~ msgstr ""
+#~ "Ejemplo:  para una instalación LaTeX estándar sobre Mac OS, escriba la "
+#~ "siguiente ruta en el campo latex:"

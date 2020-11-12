@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TexMathsRecompileEquationsl_GUI" dlg:left="202" dlg:top="146" dlg:width="204" dlg:height="245" dlg:closeable="true" dlg:moveable="true" dlg:title="TexMaths Recompile Equations">
+ <dlg:bulletinboard>
+  <dlg:combobox dlg:id="FontSize" dlg:tab-index="1" dlg:left="6" dlg:top="22" dlg:width="24" dlg:height="14" dlg:help-text="Writer font size" dlg:spin="true" dlg:linecount="11"/>
+  <dlg:text dlg:id="PointLabel" dlg:tab-index="13" dlg:left="34" dlg:top="24" dlg:width="18" dlg:height="9" dlg:value="Points" dlg:valign="center"/>
+  <dlg:combobox dlg:id="GraphicDPI" dlg:tab-index="3" dlg:left="73" dlg:top="74" dlg:width="29" dlg:height="14" dlg:help-text="Image resolution" dlg:spin="true" dlg:linecount="8"/>
+  <dlg:text dlg:id="DPILabel" dlg:tab-index="12" dlg:left="104" dlg:top="76" dlg:width="11" dlg:height="10" dlg:value="dpi" dlg:valign="center"/>
+  <dlg:combobox dlg:id="Format" dlg:tab-index="2" dlg:left="6" dlg:top="74" dlg:width="28" dlg:height="14" dlg:help-text="Image format" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsRecompileEquations.Format_Mod?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:combobox>
+  <dlg:text dlg:id="FormatLabel" dlg:tab-index="11" dlg:left="38" dlg:top="76" dlg:width="21" dlg:height="10" dlg:value="Format" dlg:valign="center"/>
+  <dlg:button dlg:id="RunButton" dlg:tab-index="0" dlg:left="152" dlg:top="227" dlg:width="50" dlg:height="15" dlg:help-text="Recompile TexMaths equations" dlg:default="true" dlg:value="~Run">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsRecompileEquations.RecompileEquations?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="PreambleButton" dlg:tab-index="9" dlg:left="60" dlg:top="227" dlg:width="50" dlg:height="15" dlg:help-text="Set LaTeX preamble" dlg:value="~Preamble...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsRecompileEquations.PreambleButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:titledbox dlg:id="FontFrame" dlg:tab-index="15" dlg:left="2" dlg:top="3" dlg:width="200" dlg:height="46">
+   <dlg:title dlg:value="Font size"/>
+  </dlg:titledbox>
+  <dlg:titledbox dlg:id="ImageFrame" dlg:tab-index="10" dlg:left="2" dlg:top="57" dlg:width="200" dlg:height="47">
+   <dlg:title dlg:value="Image parameters"/>
+  </dlg:titledbox>
+  <dlg:titledbox dlg:id="CompatFrame" dlg:tab-index="14" dlg:left="2" dlg:top="112" dlg:width="200" dlg:height="47" dlg:page="2">
+   <dlg:title dlg:value="Compatibility"/>
+  </dlg:titledbox>
+  <dlg:checkbox dlg:id="Transparency" dlg:tab-index="4" dlg:left="131" dlg:top="76" dlg:width="67" dlg:height="10" dlg:help-text="Image transparency" dlg:value="Transparency" dlg:valign="center" dlg:tristate="true" dlg:checked="false"/>
+  <dlg:button dlg:id="HelpButton" dlg:tab-index="8" dlg:left="2" dlg:top="227" dlg:width="50" dlg:height="15" dlg:help-text="Display help text" dlg:value="Help...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsHelp.HelpDialog?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:checkbox dlg:id="VertAlign" dlg:tab-index="5" dlg:left="6" dlg:top="130" dlg:width="190" dlg:height="10" dlg:page="2" dlg:help-text="Improve vertical alignment of Writer equations for Word export" dlg:value="Vertical alignment for Word export" dlg:valign="center" dlg:checked="false"/>
+  <dlg:titledbox dlg:id="SelectionFrame" dlg:tab-index="16" dlg:left="2" dlg:top="166" dlg:width="200" dlg:height="47" dlg:page="2">
+   <dlg:title dlg:value="Selection"/>
+  </dlg:titledbox>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="RecompAllRadio" dlg:tab-index="7" dlg:left="7" dlg:top="194" dlg:width="190" dlg:height="12" dlg:help-text="Recompile all equations from the document" dlg:value="Recompile all equations" dlg:valign="center"/>
+   <dlg:radio dlg:id="RecompSelRadio" dlg:tab-index="6" dlg:left="7" dlg:top="179" dlg:width="190" dlg:height="12" dlg:help-text="Recompile equations from the selected text area (does not process equations in tables, text frames, header and footer. Recompile those one by one if necessary)" dlg:value="Recompile selected equations" dlg:valign="center"/>
+  </dlg:radiogroup>
+ </dlg:bulletinboard>
+</dlg:window>

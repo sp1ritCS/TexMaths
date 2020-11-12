@@ -1,0 +1,12 @@
+
+A LaTeX equation editor for LibreOffice
+ 
+http://roland65.free.fr/texmaths
+
+Copyright (c) 2012-2020 Roland Baudin (roland65@free.fr)
+ 
+Based on OOoLatex, by Geoffroy Piroux (http://ooolatex.sourceforge.net)    
+
+TexMaths is an addon designed to provide LaTeX support into LibreOffice.
+
+LaTeX equations can be inserted as images (SVG or PNG formats) and the LaTeX code is saved into the image attribute for further editing.

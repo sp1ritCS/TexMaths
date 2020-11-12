@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="TexMathsPrefs" script:language="StarBasic">&apos;
+&apos;    TexMathsPrefs
+&apos;
+&apos;	 Copyright (C) 2012-2020 Roland Baudin (roland65@free.fr)
+&apos;    Based on the work of Geoffroy Piroux (gpiroux@gmail.com)
+&apos;
+&apos;    This program is free software; you can redistribute it and/or modify
+&apos;    it under the terms of the GNU General Public License as published by
+&apos;    the Free Software Foundation; either version 2 of the License, or
+&apos;    (at your option) any later version.
+&apos;
+&apos;    This program is distributed in the hope that it will be useful,
+&apos;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+&apos;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+&apos;    GNU General Public License for more details.
+&apos;
+&apos;    You should have received a copy of the GNU General Public License
+&apos;    along with this program; if not, write to the Free Software
+&apos;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+&apos;
+
+&apos;    Macros related to main preferences
+
+&apos; Force variable declaration
+Option Explicit
+
+
+&apos; Set user, temp and package paths
+Sub DefaultSysConfig()
+
+	&apos; Service to access the user&apos;s paths information
+	Dim aService as Variant, oFileAccess as Variant
+	aService = CreateUnoService(&quot;com.sun.star.util.PathSubstitution&quot;)
+	oFileAccess = createUnoService(&quot;com.sun.star.ucb.SimpleFileAccess&quot;)
+	
+	&apos; User path and temp path
+ 	glb_sUserPath = aService.substituteVariables(&quot;$(user)&quot;, TRUE) &amp; &quot;/TexMaths/&quot;
+	glb_sTmpPath  = aService.substituteVariables(&quot;$(user)&quot;, TRUE) &amp; &quot;/TexMaths/tmp/&quot;
+          
+	&apos; Create the user directory if it doesn&apos;t exist
+	If Not oFileAccess.exists(glb_sUserPath) Then MkDir(glb_sUserPath)
+	If Not oFileAccess.exists(glb_sTmpPath)  Then MkDir(glb_sTmpPath)
+
+	&apos; Get the package path
+	Const sPrefix = &quot;vnd.sun.star.expand:&quot;
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	glb_sPkgPath = Mid( oSystemInfo.PackageDir , len(sPrefix)+1)
+	
+	&apos; Get the default context
+	Dim oContext as Variant, oMacroExpander as Variant
+	oContext = getProcessServiceManager().DefaultContext
+	oMacroExpander = oContext.getValueByName(&quot;/singletons/com.sun.star.util.theMacroExpander&quot;)
+	glb_sPkgPath = oMacroExpander.ExpandMacros(glb_sPkgPath)
+
+End Sub
+
+
+&apos; Set default preferences
+Sub DefaultPrefs()
+
+	&apos; Latex preferences
+	glb_sWriterSize = &quot;12&quot;
+	glb_sImpressSize = &quot;28&quot;
+	glb_sDrawSize = &quot;14&quot;
+	glb_sWriterEqType = &quot;display&quot;
+	glb_sImpressEqType = &quot;display&quot;
+	glb_sDrawEqType = &quot;display&quot;
+
+	&apos; Image preferences
+	glb_sFormat = &quot;svg&quot;
+
+	&apos; Force default to png if the dvisvgm path is empty
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess( &quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)	
+	If oSystemInfo.DvisvgmPath = &quot;&quot; Then
+		glb_sFormat = &quot;png&quot;
+	End If
+	
+	glb_sGraphicDPI = &quot;600&quot;
+	glb_sWriterTransparency = &quot;FALSE&quot;
+	glb_sImpressTransparency = &quot;FALSE&quot;
+	glb_sDrawTransparency = &quot;FALSE&quot;
+	glb_sStatus = _(&quot;Default preferences loaded...&quot;)
+
+End Sub
+
+
+&apos; Return a string with the current preferences
+&apos; to be written to the preferences file
+Function Preferences() as String
+
+	Preferences = _
+	&quot;GraphicDPI=&quot; &amp; glb_sGraphicDPI &amp; chr(10) &amp;_
+	&quot;FileFormat=&quot; &amp; glb_sFormat &amp; chr(10) &amp;_
+	&quot;WriterTransparency=&quot; &amp; glb_sWriterTransparency &amp; chr(10) &amp;_
+	&quot;ImpressTransparency=&quot; &amp; glb_sImpressTransparency &amp; chr(10) &amp;_
+	&quot;DrawTransparency=&quot; &amp; glb_sDrawTransparency &amp; chr(10) &amp;_
+	&quot;WriterCharSize=&quot; &amp; glb_sWriterSize &amp; chr(10) &amp;_
+	&quot;WriterEquationType=&quot; &amp; glb_sWriterEqType &amp; chr(10) &amp;_
+	&quot;ImpressCharSize=&quot; &amp; glb_sImpressSize &amp; chr(10) &amp;_
+	&quot;ImpressEquationType=&quot; &amp; glb_sImpressEqType &amp; chr(10) &amp;_
+	&quot;DrawCharSize=&quot; &amp; glb_sDrawSize &amp; chr(10) &amp;_
+	&quot;DrawEquationType=&quot; &amp; glb_sDrawEqType &amp; chr(10)
+
+End Function
+
+
+&apos; Read the user&apos;s preferences file
+&apos; Call the routine for data parsing
+Sub ReadPrefsFile()
+
+	Dim iNumber as Integer
+	Dim sLine,sPrefs as String
+	sPrefs = &quot;&quot;
+	iNumber = Freefile
+	Open glb_sUserPath &amp; &quot;TexMaths.cfg&quot; For Input As iNumber
+	While Not EOF(iNumber)
+
+		Line Input #iNumber, sLine
+		If sLine &lt;&gt; &quot;&quot; Then sPrefs = sPrefs &amp; chr(10) &amp; sLine 
+
+	Wend
+	Close #iNumber
+	ReadPreferencesFrom( sPrefs )
+
+	glb_sStatus = _(&quot;User&apos;s preferences loaded...&quot;)
+
+End Sub
+
+
+
+&apos; This fonction parses the preferences from string sPrefs
+Sub ReadPreferencesFrom( sPrefs as String )
+
+	Dim i as Integer, ii as Integer
+	Dim sLine() as String, sArguments() as String
+
+	If StringNotContains( sPrefs , chr(10)) Then Exit Sub
+	sLine() = Split( sPrefs , chr(10))
+	ii = 0
+	
+	For i = 0 to UBound(sLine)
+
+		If Not StringNotContains(sLine(i),&quot;=&quot;) Then 
+
+			sArguments() = Split(sLine(i),&quot;=&quot;)
+
+			Select Case sArguments(0)
+
+				Case &quot;ScriptPath&quot;
+					Dim sScriptPath as String
+					sScriptPath = CheckPath(ConvertToURL(sArguments(1)))
+				Case &quot;GraphicDPI&quot;
+					glb_sGraphicDPI = sArguments(1)
+				Case &quot;FileFormat&quot;
+					glb_sFormat = sArguments(1)
+				Case &quot;WriterTransparency&quot;
+					glb_sWriterTransparency = sArguments(1)
+				Case &quot;ImpressTransparency&quot;
+					glb_sImpressTransparency = sArguments(1)
+				Case &quot;DrawTransparency&quot;
+					glb_sDrawTransparency = sArguments(1)
+				Case &quot;WriterCharSize&quot;
+					glb_sWriterSize = sArguments(1)
+				Case &quot;WriterEquationType&quot;
+					glb_sWriterEqType = sArguments(1)
+				Case &quot;ImpressCharSize&quot;
+					glb_sImpressSize = sArguments(1)
+				Case &quot;ImpressEquationType&quot;
+					glb_sImpressEqType = sArguments(1)
+				Case &quot;DrawCharSize&quot;
+					glb_sDrawSize = sArguments(1)
+				Case &quot;DrawEquationType&quot;
+					glb_sDrawEqType = sArguments(1)
+
+			End Select
+
+		End If
+
+		ii = ii + 1 + Len(sLine(i))
+		If Len(sPrefs) &lt; ii  Then Exit For
+
+	Next
+
+End Sub
+
+
+&apos; Set default preamble
+Sub DefaultPreamble()
+
+	Dim oSystemInfo as Variant
+	oSystemInfo = GetConfigAccess(&quot;/ooo.ext.texmaths.Registry/SystemInfo&quot;, TRUE)
+	
+	&apos; Get compiler
+	glb_sCompiler = oSystemInfo.Compiler
+	
+	&apos; Default preamble
+	glb_sPreamble = &quot;\usepackage{amsmath}&quot; &amp; chr(10) &amp;_
+	&quot;\usepackage{amssymb}&quot; &amp; chr(10) &amp;_
+	&quot;\usepackage[usenames]{color}&quot; &amp; chr(10) &amp;_
+	&quot;\usepackage{ifxetex}&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;% XeLaTeX compiler&quot; &amp; chr(10) &amp;_
+	&quot;\ifxetex&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;    \usepackage{fontspec}&quot; &amp; chr(10) &amp;_
+	&quot;    \usepackage{unicode-math}&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;    % Uncomment these lines for alternative fonts&quot; &amp; chr(10) &amp;_
+	&quot;    %\setmainfont{FreeSerif}&quot; &amp; chr(10) &amp;_
+	&quot;    %\setmathfont{FreeSerif}&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;% LaTeX compiler&quot; &amp; chr(10) &amp;_
+	&quot;\else&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;    % Uncomment this line for sans-serif maths font&quot; &amp; chr(10) &amp;_
+	&quot;    %\everymath{\mathsf{\xdef\mysf{\mathgroup\the\mathgroup\relax}}\mysf}&quot; &amp; chr(10) &amp;_
+	chr(10) &amp;_
+	&quot;\fi&quot; &amp;_
+	chr(10)
+		    		
+	&apos; Default ignore preamble state
+	glb_bIgnorePreamble = FALSE 
+
+End Sub
+
+
+&apos; Read preamble - Return 1 if a preamble was found, else return 0
+Function ReadPreamble() as Integer
+	
+	&apos; Read the preamble from a UserDefinedProperties property
+	Dim oDoc as Variant, oProperties as Variant
+	
+	oDoc = ThisComponent
+	oProperties = oDoc.DocumentProperties.UserDefinedProperties
+	
+	&apos; No stored LaTeX preamble
+	If Not oProperties.PropertySetInfo.hasPropertyByName(&quot;TexMathsPreamble&quot;) Then
+	
+		ReadPreamble = 0
+		Exit Function
+	
+	&apos; Read stored LaTeX preamble
+	Else
+	
+		&apos; Decode the stored preamble string to restore the newline characters (workaround for an LO bug)
+		glb_sPreamble = DecodeNewline( oProperties.getPropertyValue(&quot;TexMathsPreamble&quot;) )
+
+		&apos; Set the ignore preamble state
+		If oProperties.PropertySetInfo.hasPropertyByName(&quot;TexMathsIgnorePreamble&quot;) Then 		
+			
+			If oProperties.getPropertyValue(&quot;TexMathsIgnorePreamble&quot;) = &quot;TRUE&quot; Then
+				glb_bIgnorePreamble = TRUE
+			Else
+				glb_bIgnorePreamble = FALSE
+			End If
+		
+		End If
+	
+		ReadPreamble = 1
+	
+	End If
+
+End Function
+
+</script:module>

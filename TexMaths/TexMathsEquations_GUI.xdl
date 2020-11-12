@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="TexMathsEquations_GUI" dlg:left="0" dlg:top="0" dlg:width="402" dlg:height="327" dlg:page="1" dlg:closeable="true" dlg:moveable="true" dlg:title="TexMaths Equations" dlg:withtitlebar="false">
+ <script:event script:event-name="on-mousemove" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.ForceResize?language=Basic&amp;location=application" script:language="Script"/>
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:font-height="14"/>
+  <dlg:style dlg:style-id="1" dlg:border="simple"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="TypeInline" dlg:tab-index="82" dlg:left="341" dlg:top="221" dlg:width="50" dlg:height="8" dlg:help-text="Inline equations" dlg:value="Inline" dlg:valign="center"/>
+   <dlg:radio dlg:id="TypeDisplay" dlg:tab-index="81" dlg:left="341" dlg:top="211" dlg:width="50" dlg:height="8" dlg:help-text="Inline display equations" dlg:value="Display" dlg:valign="center" dlg:checked="true"/>
+  </dlg:radiogroup>
+  <dlg:textfield dlg:style-id="0" dlg:id="LatexCode" dlg:tab-index="0" dlg:left="3" dlg:top="93" dlg:width="328" dlg:height="214" dlg:hard-linebreaks="true" dlg:vscroll="true" dlg:multiline="true">
+   <script:event script:event-name="on-mousemove" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.ForceResize?language=Basic&amp;location=application" script:language="Script"/>
+   <script:event script:event-name="on-keydown" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.ForceResize?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:textfield>
+  <dlg:combobox dlg:id="Format" dlg:tab-index="77" dlg:left="342" dlg:top="105" dlg:width="33" dlg:height="14" dlg:help-text="Set image format" dlg:spin="true">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Format_Mod?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:combobox>
+  <dlg:combobox dlg:id="GraphicDPI" dlg:tab-index="78" dlg:left="342" dlg:top="124" dlg:width="33" dlg:height="14" dlg:help-text="Set image resolution" dlg:spin="true" dlg:linecount="8">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.DPI_Mod?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:combobox>
+  <dlg:combobox dlg:id="Size" dlg:tab-index="80" dlg:left="342" dlg:top="175" dlg:width="33" dlg:height="14" dlg:help-text="Set font size" dlg:spin="true" dlg:linecount="11"/>
+  <dlg:radiogroup>
+   <dlg:radio dlg:id="TypeLatex" dlg:tab-index="83" dlg:left="341" dlg:top="231" dlg:width="50" dlg:height="8" dlg:help-text="Regular LaTeX code" dlg:value="LaTeX" dlg:valign="center"/>
+  </dlg:radiogroup>
+  <dlg:text dlg:id="LogString" dlg:tab-index="480" dlg:left="5" dlg:top="312" dlg:width="123" dlg:height="10" dlg:value="Initialisation"/>
+  <dlg:titledbox dlg:id="FontsizeFrame" dlg:tab-index="198" dlg:left="337" dlg:top="163" dlg:width="62" dlg:height="31">
+   <dlg:title dlg:value="Font size"/>
+  </dlg:titledbox>
+  <dlg:titledbox dlg:id="EquationtypeFrame" dlg:tab-index="481" dlg:left="337" dlg:top="201" dlg:width="62" dlg:height="44">
+   <dlg:title dlg:value="Equation Type"/>
+  </dlg:titledbox>
+  <dlg:button dlg:id="PreferencesButton" dlg:tab-index="85" dlg:left="337" dlg:top="270" dlg:width="62" dlg:height="15" dlg:help-text="Set equation preferences" dlg:value="Preferences...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.PrefsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="PreambleButton" dlg:tab-index="86" dlg:left="337" dlg:top="289" dlg:width="62" dlg:height="15" dlg:help-text="Set LaTeX preamble" dlg:value="Preamble...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.PreambleButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="LatexButton" dlg:tab-index="1" dlg:left="337" dlg:top="308" dlg:width="62" dlg:height="15" dlg:help-text="Generate LaTeX equation" dlg:default="true" dlg:value="~LaTeX">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.LatexButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="PtsLabel" dlg:tab-index="482" dlg:left="378" dlg:top="177" dlg:width="17" dlg:height="9" dlg:value="pts"/>
+  <dlg:titledbox dlg:id="ImageformatFrame" dlg:tab-index="202" dlg:left="337" dlg:top="93" dlg:width="62" dlg:height="64">
+   <dlg:title dlg:value="Image Format"/>
+  </dlg:titledbox>
+  <dlg:button dlg:id="HelpButton" dlg:tab-index="84" dlg:left="337" dlg:top="252" dlg:width="62" dlg:height="15" dlg:help-text="Display help text" dlg:value="Help...">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsHelp.HelpDialog?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:id="DpiLabel" dlg:tab-index="483" dlg:left="378" dlg:top="128" dlg:width="9" dlg:height="8" dlg:value="dpi"/>
+  <dlg:checkbox dlg:id="Transparency" dlg:tab-index="79" dlg:left="341" dlg:top="141" dlg:width="55" dlg:height="10" dlg:help-text="Toggle image transparency" dlg:value="Transparency" dlg:valign="center" dlg:checked="false">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Trans_Mod?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:checkbox>
+  <dlg:text dlg:id="EquationNameLabel" dlg:tab-index="484" dlg:left="4" dlg:top="79" dlg:width="20" dlg:height="10" dlg:value="Name" dlg:nolabel="true"/>
+  <dlg:textfield dlg:style-id="1" dlg:id="EquationNameText" dlg:tab-index="76" dlg:left="25" dlg:top="77" dlg:width="374" dlg:height="12" dlg:help-text="Enter equation name here (can be left blank)"/>
+  <dlg:button dlg:id="General" dlg:tab-index="2" dlg:left="3" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="General">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.GeneralButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays" dlg:tab-index="3" dlg:left="53" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Arrays">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.ArraysButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets" dlg:tab-index="4" dlg:left="102" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Alphabets">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.AlphabetsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows" dlg:tab-index="5" dlg:left="152" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Arrows">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.ArrowsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions" dlg:tab-index="6" dlg:left="202" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Functions">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.FunctionsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations" dlg:tab-index="7" dlg:left="252" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Relations">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.RelationsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations" dlg:tab-index="8" dlg:left="301" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Operations">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.OperationsButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc" dlg:tab-index="9" dlg:left="351" dlg:top="3" dlg:width="48" dlg:height="13" dlg:value="Misc">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.MiscButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General1" dlg:tab-index="10" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General2" dlg:tab-index="11" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General3" dlg:tab-index="12" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General4" dlg:tab-index="13" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General5" dlg:tab-index="14" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General6" dlg:tab-index="15" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General7" dlg:tab-index="16" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General8" dlg:tab-index="17" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General9" dlg:tab-index="18" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General10" dlg:tab-index="19" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General11" dlg:tab-index="20" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General12" dlg:tab-index="21" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General13" dlg:tab-index="22" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General14" dlg:tab-index="23" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General15" dlg:tab-index="24" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General16" dlg:tab-index="25" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General17" dlg:tab-index="26" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General18" dlg:tab-index="27" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General19" dlg:tab-index="28" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General20" dlg:tab-index="29" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General21" dlg:tab-index="30" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General22" dlg:tab-index="31" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General23" dlg:tab-index="32" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General24" dlg:tab-index="33" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General25" dlg:tab-index="34" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General26" dlg:tab-index="35" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General27" dlg:tab-index="36" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General28" dlg:tab-index="37" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General29" dlg:tab-index="38" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General30" dlg:tab-index="39" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General31" dlg:tab-index="40" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General32" dlg:tab-index="41" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General33" dlg:tab-index="42" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General34" dlg:tab-index="43" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General35" dlg:tab-index="44" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General36" dlg:tab-index="45" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General37" dlg:tab-index="46" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General37_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General38" dlg:tab-index="47" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General38_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General39" dlg:tab-index="48" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General39_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General40" dlg:tab-index="49" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General40_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General41" dlg:tab-index="50" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General41_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General42" dlg:tab-index="51" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General42_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General43" dlg:tab-index="52" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General43_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General44" dlg:tab-index="53" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General44_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General45" dlg:tab-index="54" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General45_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General46" dlg:tab-index="55" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General46_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General47" dlg:tab-index="56" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General47_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General48" dlg:tab-index="57" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General48_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General49" dlg:tab-index="58" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General49_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General50" dlg:tab-index="59" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General50_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General51" dlg:tab-index="60" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General51_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General52" dlg:tab-index="61" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General52_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General53" dlg:tab-index="62" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General53_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General54" dlg:tab-index="63" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General54_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General55" dlg:tab-index="64" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General55_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General56" dlg:tab-index="65" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General56_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General57" dlg:tab-index="66" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General57_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General58" dlg:tab-index="67" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General58_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General59" dlg:tab-index="68" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General59_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General60" dlg:tab-index="69" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General60_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General61" dlg:tab-index="70" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General61_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General62" dlg:tab-index="71" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General62_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General63" dlg:tab-index="72" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General63_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General64" dlg:tab-index="73" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General64_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General65" dlg:tab-index="74" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General65_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="General66" dlg:tab-index="75" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.General66_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays1" dlg:tab-index="87" dlg:left="3" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays2" dlg:tab-index="88" dlg:left="31" dlg:top="17" dlg:width="29" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays3" dlg:tab-index="89" dlg:left="60" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays4" dlg:tab-index="90" dlg:left="88" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays5" dlg:tab-index="91" dlg:left="116" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays6" dlg:tab-index="92" dlg:left="144" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays7" dlg:tab-index="93" dlg:left="172" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays8" dlg:tab-index="94" dlg:left="200" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays9" dlg:tab-index="95" dlg:left="228" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays10" dlg:tab-index="96" dlg:left="256" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays11" dlg:tab-index="97" dlg:left="284" dlg:top="17" dlg:width="29" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays12" dlg:tab-index="98" dlg:left="313" dlg:top="17" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays13" dlg:tab-index="99" dlg:left="341" dlg:top="17" dlg:width="29" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays14" dlg:tab-index="100" dlg:left="370" dlg:top="17" dlg:width="29" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays15" dlg:tab-index="101" dlg:left="3" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays16" dlg:tab-index="102" dlg:left="31" dlg:top="44" dlg:width="29" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays17" dlg:tab-index="103" dlg:left="60" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrays17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrays18" dlg:tab-index="104" dlg:left="88" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays19" dlg:tab-index="105" dlg:left="116" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays20" dlg:tab-index="106" dlg:left="144" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays21" dlg:tab-index="107" dlg:left="172" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays22" dlg:tab-index="108" dlg:left="200" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays23" dlg:tab-index="109" dlg:left="228" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays24" dlg:tab-index="110" dlg:left="256" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays25" dlg:tab-index="111" dlg:left="284" dlg:top="44" dlg:width="29" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays26" dlg:tab-index="112" dlg:left="313" dlg:top="44" dlg:width="28" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays27" dlg:tab-index="113" dlg:left="341" dlg:top="44" dlg:width="29" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Arrays28" dlg:tab-index="114" dlg:left="370" dlg:top="44" dlg:width="29" dlg:height="27" dlg:page="2"/>
+  <dlg:button dlg:id="Alphabets1" dlg:tab-index="115" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets2" dlg:tab-index="116" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets3" dlg:tab-index="117" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets4" dlg:tab-index="118" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets5" dlg:tab-index="119" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets6" dlg:tab-index="120" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets7" dlg:tab-index="121" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets8" dlg:tab-index="122" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets9" dlg:tab-index="123" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets10" dlg:tab-index="124" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets11" dlg:tab-index="125" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets12" dlg:tab-index="126" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets13" dlg:tab-index="127" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets14" dlg:tab-index="128" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets15" dlg:tab-index="129" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets16" dlg:tab-index="130" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets17" dlg:tab-index="131" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets18" dlg:tab-index="132" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets19" dlg:tab-index="133" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets20" dlg:tab-index="134" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets21" dlg:tab-index="135" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets22" dlg:tab-index="136" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets23" dlg:tab-index="137" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets24" dlg:tab-index="138" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets25" dlg:tab-index="139" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets26" dlg:tab-index="140" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets27" dlg:tab-index="141" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets28" dlg:tab-index="142" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets29" dlg:tab-index="143" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets30" dlg:tab-index="144" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets31" dlg:tab-index="145" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets32" dlg:tab-index="146" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets33" dlg:tab-index="147" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets34" dlg:tab-index="148" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets35" dlg:tab-index="149" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets36" dlg:tab-index="150" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets37" dlg:tab-index="151" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets37_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets38" dlg:tab-index="152" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets38_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets39" dlg:tab-index="153" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets39_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets40" dlg:tab-index="154" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets40_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets41" dlg:tab-index="155" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets41_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets42" dlg:tab-index="156" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets42_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets43" dlg:tab-index="157" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets43_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets44" dlg:tab-index="158" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets44_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets45" dlg:tab-index="159" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets45_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets46" dlg:tab-index="160" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets46_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets47" dlg:tab-index="161" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets47_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets48" dlg:tab-index="162" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets48_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets49" dlg:tab-index="163" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets49_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets50" dlg:tab-index="164" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets50_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets51" dlg:tab-index="165" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets51_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets52" dlg:tab-index="166" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Alphabets52_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Alphabets53" dlg:tab-index="167" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets54" dlg:tab-index="168" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets55" dlg:tab-index="169" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets56" dlg:tab-index="170" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets57" dlg:tab-index="171" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets58" dlg:tab-index="172" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets59" dlg:tab-index="173" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets60" dlg:tab-index="174" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets61" dlg:tab-index="175" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets62" dlg:tab-index="176" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets63" dlg:tab-index="177" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets64" dlg:tab-index="178" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets65" dlg:tab-index="179" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Alphabets66" dlg:tab-index="180" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="3"/>
+  <dlg:button dlg:id="Arrows1" dlg:tab-index="181" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows2" dlg:tab-index="182" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows3" dlg:tab-index="183" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows4" dlg:tab-index="184" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows5" dlg:tab-index="185" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows6" dlg:tab-index="186" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows7" dlg:tab-index="187" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows8" dlg:tab-index="188" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows9" dlg:tab-index="189" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows10" dlg:tab-index="190" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows11" dlg:tab-index="191" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows12" dlg:tab-index="192" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows13" dlg:tab-index="193" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows14" dlg:tab-index="194" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows15" dlg:tab-index="195" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows16" dlg:tab-index="196" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows17" dlg:tab-index="197" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows18" dlg:tab-index="199" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows19" dlg:tab-index="200" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows20" dlg:tab-index="201" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows21" dlg:tab-index="203" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows22" dlg:tab-index="204" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows23" dlg:tab-index="205" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows24" dlg:tab-index="206" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows25" dlg:tab-index="207" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows26" dlg:tab-index="208" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows27" dlg:tab-index="209" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows28" dlg:tab-index="210" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows29" dlg:tab-index="211" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows30" dlg:tab-index="212" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows31" dlg:tab-index="213" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows32" dlg:tab-index="214" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows33" dlg:tab-index="215" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows34" dlg:tab-index="216" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows35" dlg:tab-index="217" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows36" dlg:tab-index="218" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Arrows36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Arrows37" dlg:tab-index="219" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows38" dlg:tab-index="220" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows39" dlg:tab-index="221" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows40" dlg:tab-index="222" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows41" dlg:tab-index="223" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows42" dlg:tab-index="224" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows43" dlg:tab-index="225" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows44" dlg:tab-index="226" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows45" dlg:tab-index="227" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows46" dlg:tab-index="228" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows47" dlg:tab-index="229" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows48" dlg:tab-index="230" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows49" dlg:tab-index="231" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows50" dlg:tab-index="232" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows51" dlg:tab-index="233" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows52" dlg:tab-index="234" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows53" dlg:tab-index="235" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows54" dlg:tab-index="236" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows55" dlg:tab-index="237" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows56" dlg:tab-index="238" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows57" dlg:tab-index="239" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows58" dlg:tab-index="240" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows59" dlg:tab-index="241" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows60" dlg:tab-index="242" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows61" dlg:tab-index="243" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows62" dlg:tab-index="244" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows63" dlg:tab-index="245" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows64" dlg:tab-index="246" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows65" dlg:tab-index="247" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Arrows66" dlg:tab-index="248" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="4"/>
+  <dlg:button dlg:id="Functions1" dlg:tab-index="249" dlg:left="3" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions2" dlg:tab-index="250" dlg:left="39" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions3" dlg:tab-index="251" dlg:left="75" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions4" dlg:tab-index="252" dlg:left="111" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions5" dlg:tab-index="253" dlg:left="147" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions6" dlg:tab-index="254" dlg:left="183" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions7" dlg:tab-index="255" dlg:left="219" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions8" dlg:tab-index="256" dlg:left="255" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions9" dlg:tab-index="257" dlg:left="291" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions10" dlg:tab-index="258" dlg:left="327" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions11" dlg:tab-index="259" dlg:left="363" dlg:top="17" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions12" dlg:tab-index="260" dlg:left="3" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions13" dlg:tab-index="261" dlg:left="39" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions14" dlg:tab-index="262" dlg:left="75" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions15" dlg:tab-index="263" dlg:left="111" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions16" dlg:tab-index="264" dlg:left="147" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions17" dlg:tab-index="265" dlg:left="183" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions18" dlg:tab-index="266" dlg:left="219" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions19" dlg:tab-index="267" dlg:left="255" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions20" dlg:tab-index="268" dlg:left="291" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions21" dlg:tab-index="269" dlg:left="327" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions22" dlg:tab-index="270" dlg:left="363" dlg:top="35" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions23" dlg:tab-index="271" dlg:left="3" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions24" dlg:tab-index="272" dlg:left="39" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions25" dlg:tab-index="273" dlg:left="75" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions26" dlg:tab-index="274" dlg:left="111" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions27" dlg:tab-index="275" dlg:left="147" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions28" dlg:tab-index="276" dlg:left="183" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions29" dlg:tab-index="277" dlg:left="219" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions30" dlg:tab-index="278" dlg:left="255" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions31" dlg:tab-index="279" dlg:left="291" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions32" dlg:tab-index="280" dlg:left="327" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Functions32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Functions33" dlg:tab-index="281" dlg:left="363" dlg:top="52" dlg:width="36" dlg:height="18" dlg:page="5"/>
+  <dlg:button dlg:id="Relations1" dlg:tab-index="282" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations2" dlg:tab-index="283" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations3" dlg:tab-index="284" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations4" dlg:tab-index="285" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations5" dlg:tab-index="286" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations6" dlg:tab-index="287" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations7" dlg:tab-index="288" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations8" dlg:tab-index="289" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations9" dlg:tab-index="290" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations10" dlg:tab-index="291" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations11" dlg:tab-index="292" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations12" dlg:tab-index="293" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations13" dlg:tab-index="294" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations14" dlg:tab-index="295" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations15" dlg:tab-index="296" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations16" dlg:tab-index="297" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations17" dlg:tab-index="298" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations18" dlg:tab-index="299" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations19" dlg:tab-index="300" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations20" dlg:tab-index="301" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations21" dlg:tab-index="302" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations22" dlg:tab-index="303" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations23" dlg:tab-index="304" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations24" dlg:tab-index="305" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations25" dlg:tab-index="306" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations26" dlg:tab-index="307" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations27" dlg:tab-index="308" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations28" dlg:tab-index="309" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations29" dlg:tab-index="310" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations30" dlg:tab-index="311" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations31" dlg:tab-index="312" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations32" dlg:tab-index="313" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations33" dlg:tab-index="314" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations34" dlg:tab-index="315" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations35" dlg:tab-index="316" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations36" dlg:tab-index="317" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations37" dlg:tab-index="318" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations37_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations38" dlg:tab-index="319" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations38_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations39" dlg:tab-index="320" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations39_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations40" dlg:tab-index="321" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Relations40_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Relations41" dlg:tab-index="322" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations42" dlg:tab-index="323" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations43" dlg:tab-index="324" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations44" dlg:tab-index="325" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations45" dlg:tab-index="326" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations46" dlg:tab-index="327" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations47" dlg:tab-index="328" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations48" dlg:tab-index="329" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations49" dlg:tab-index="330" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations50" dlg:tab-index="331" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations51" dlg:tab-index="332" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations52" dlg:tab-index="333" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations53" dlg:tab-index="334" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations54" dlg:tab-index="335" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations55" dlg:tab-index="336" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations56" dlg:tab-index="337" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations57" dlg:tab-index="338" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations58" dlg:tab-index="339" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations59" dlg:tab-index="340" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations60" dlg:tab-index="341" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations61" dlg:tab-index="342" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations62" dlg:tab-index="343" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations63" dlg:tab-index="344" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations64" dlg:tab-index="345" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations65" dlg:tab-index="346" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Relations66" dlg:tab-index="347" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="6"/>
+  <dlg:button dlg:id="Operations1" dlg:tab-index="348" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations2" dlg:tab-index="349" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations3" dlg:tab-index="350" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations4" dlg:tab-index="351" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations5" dlg:tab-index="352" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations6" dlg:tab-index="353" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations7" dlg:tab-index="354" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations8" dlg:tab-index="355" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations9" dlg:tab-index="356" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations10" dlg:tab-index="357" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations11" dlg:tab-index="358" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations12" dlg:tab-index="359" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations13" dlg:tab-index="360" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations14" dlg:tab-index="361" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations15" dlg:tab-index="362" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations16" dlg:tab-index="363" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations17" dlg:tab-index="364" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations18" dlg:tab-index="365" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations19" dlg:tab-index="366" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations20" dlg:tab-index="367" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations21" dlg:tab-index="368" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations22" dlg:tab-index="369" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations23" dlg:tab-index="370" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations24" dlg:tab-index="371" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations25" dlg:tab-index="372" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations26" dlg:tab-index="373" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations27" dlg:tab-index="374" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations28" dlg:tab-index="375" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations29" dlg:tab-index="376" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations30" dlg:tab-index="377" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations31" dlg:tab-index="378" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations32" dlg:tab-index="379" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations33" dlg:tab-index="380" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations34" dlg:tab-index="381" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations35" dlg:tab-index="382" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations36" dlg:tab-index="383" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Operations36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Operations37" dlg:tab-index="384" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations38" dlg:tab-index="385" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations39" dlg:tab-index="386" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations40" dlg:tab-index="387" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations41" dlg:tab-index="388" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations42" dlg:tab-index="389" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations43" dlg:tab-index="390" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations44" dlg:tab-index="391" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations45" dlg:tab-index="392" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations46" dlg:tab-index="393" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations47" dlg:tab-index="394" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations48" dlg:tab-index="395" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations49" dlg:tab-index="396" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations50" dlg:tab-index="397" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations51" dlg:tab-index="398" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations52" dlg:tab-index="399" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations53" dlg:tab-index="400" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations54" dlg:tab-index="401" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations55" dlg:tab-index="402" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations56" dlg:tab-index="403" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations57" dlg:tab-index="404" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations58" dlg:tab-index="405" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations59" dlg:tab-index="406" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations60" dlg:tab-index="407" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations61" dlg:tab-index="408" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations62" dlg:tab-index="409" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations63" dlg:tab-index="410" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations64" dlg:tab-index="411" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations65" dlg:tab-index="412" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Operations66" dlg:tab-index="413" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="7"/>
+  <dlg:button dlg:id="Misc1" dlg:tab-index="414" dlg:left="3" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc1_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc2" dlg:tab-index="415" dlg:left="21" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc2_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc3" dlg:tab-index="416" dlg:left="39" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc4" dlg:tab-index="417" dlg:left="57" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc4_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc5" dlg:tab-index="418" dlg:left="75" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc5_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc6" dlg:tab-index="419" dlg:left="93" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc6_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc7" dlg:tab-index="420" dlg:left="111" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc7_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc8" dlg:tab-index="421" dlg:left="129" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc8_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc9" dlg:tab-index="422" dlg:left="147" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc9_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc10" dlg:tab-index="423" dlg:left="165" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc10_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc11" dlg:tab-index="424" dlg:left="183" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc11_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc12" dlg:tab-index="425" dlg:left="201" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc12_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc13" dlg:tab-index="426" dlg:left="219" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc13_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc14" dlg:tab-index="427" dlg:left="237" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc14_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc15" dlg:tab-index="428" dlg:left="255" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc15_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc16" dlg:tab-index="429" dlg:left="273" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc16_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc17" dlg:tab-index="430" dlg:left="291" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc17_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc18" dlg:tab-index="431" dlg:left="309" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc18_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc19" dlg:tab-index="432" dlg:left="327" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc19_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc20" dlg:tab-index="433" dlg:left="345" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc20_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc21" dlg:tab-index="434" dlg:left="363" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc21_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc22" dlg:tab-index="435" dlg:left="381" dlg:top="17" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc22_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc23" dlg:tab-index="436" dlg:left="3" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc23_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc24" dlg:tab-index="437" dlg:left="21" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc24_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc25" dlg:tab-index="438" dlg:left="39" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc25_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc26" dlg:tab-index="439" dlg:left="57" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc26_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc27" dlg:tab-index="440" dlg:left="75" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc27_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc28" dlg:tab-index="441" dlg:left="93" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc28_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc29" dlg:tab-index="442" dlg:left="111" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc29_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc30" dlg:tab-index="443" dlg:left="129" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc30_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc31" dlg:tab-index="444" dlg:left="147" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc31_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc32" dlg:tab-index="445" dlg:left="165" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc32_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc33" dlg:tab-index="446" dlg:left="183" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc33_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc34" dlg:tab-index="447" dlg:left="201" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc34_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc35" dlg:tab-index="448" dlg:left="219" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc35_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc36" dlg:tab-index="449" dlg:left="237" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc36_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc37" dlg:tab-index="450" dlg:left="255" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc37_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc38" dlg:tab-index="451" dlg:left="273" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc38_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc39" dlg:tab-index="452" dlg:left="291" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc39_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc40" dlg:tab-index="453" dlg:left="309" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:TexMaths.TexMathsEquations_Dlg.Misc40_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Misc41" dlg:tab-index="454" dlg:left="327" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc42" dlg:tab-index="455" dlg:left="345" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc43" dlg:tab-index="456" dlg:left="363" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc44" dlg:tab-index="457" dlg:left="381" dlg:top="35" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc45" dlg:tab-index="458" dlg:left="3" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc46" dlg:tab-index="459" dlg:left="21" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc47" dlg:tab-index="460" dlg:left="39" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc48" dlg:tab-index="461" dlg:left="57" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc49" dlg:tab-index="462" dlg:left="75" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc50" dlg:tab-index="463" dlg:left="93" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc51" dlg:tab-index="464" dlg:left="111" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc52" dlg:tab-index="465" dlg:left="129" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc53" dlg:tab-index="466" dlg:left="147" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc54" dlg:tab-index="467" dlg:left="165" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc55" dlg:tab-index="468" dlg:left="183" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc56" dlg:tab-index="469" dlg:left="201" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc57" dlg:tab-index="470" dlg:left="219" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc58" dlg:tab-index="471" dlg:left="237" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc59" dlg:tab-index="472" dlg:left="255" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc60" dlg:tab-index="473" dlg:left="273" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc61" dlg:tab-index="474" dlg:left="291" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc62" dlg:tab-index="475" dlg:left="309" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc63" dlg:tab-index="476" dlg:left="327" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc64" dlg:tab-index="477" dlg:left="345" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc65" dlg:tab-index="478" dlg:left="363" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+  <dlg:button dlg:id="Misc66" dlg:tab-index="479" dlg:left="381" dlg:top="53" dlg:width="18" dlg:height="18" dlg:page="8"/>
+ </dlg:bulletinboard>
+</dlg:window>

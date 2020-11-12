@@ -1,0 +1,808 @@
+# TexMaths, a LaTeX equation editor for LibreOffice 
+# Copyright (C) 2012-2018 - Roland Baudin
+# This file is distributed under the same license as the TexMaths package
+msgid ""
+msgstr ""
+"Project-Id-Version: TexMaths 0.30\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-11 16:53+0200\n"
+"PO-Revision-Date: 2011-10-10 16:45+0100\n"
+"Last-Translator: Leif Lodahl <leiflodahl@gmail.com>\n"
+"Language-Team: DA <dansk@da.libreoffice.org>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "About TexMaths"
+msgstr "Om TexMaths"
+
+msgid "Error: dialog box can't be created..."
+msgstr ""
+
+msgid "About"
+msgstr "Om"
+
+msgid "Display application informations"
+msgstr "Vis programinformationer"
+
+msgid "Display application changes"
+msgstr "Vis programændringer"
+
+msgid "Display system informations"
+msgstr "Vis systeminformationer"
+
+msgid "Close"
+msgstr "Luk"
+
+msgid "Close window"
+msgstr "Luk vindue"
+
+msgid ""
+"You have to generate a first equation before the system log can be "
+"displayed..."
+msgstr "Du skal først generere en formel før systemloggen kan vises..."
+
+msgid "TexMaths Equations"
+msgstr "TexMaths Formler"
+
+msgid "Name"
+msgstr ""
+
+msgid "Enter equation name here (can be left blank)"
+msgstr ""
+
+msgid "Image Format"
+msgstr "Billedformat"
+
+msgid "Equation Type"
+msgstr "Formeltype"
+
+msgid "Font Size"
+msgstr "Skriftstørrelse"
+
+msgid "Set image format"
+msgstr "Angiv billedformat"
+
+msgid "Set image resolution"
+msgstr "Angiv billedopløsning"
+
+msgid "Transparency"
+msgstr ""
+
+msgid "Toggle image transparency"
+msgstr ""
+
+msgid "Set font size"
+msgstr "Angiv skriftstørrelse"
+
+msgid "Inline Display equation"
+msgstr "Inline visning af formel"
+
+msgid "Inline equation"
+msgstr "Inline formel"
+
+msgid "Regular LaTeX code"
+msgstr "Normal LaTeX kode"
+
+msgid "Help..."
+msgstr "Hjælp..."
+
+msgid "Display help text"
+msgstr "Vis hjælpetekst"
+
+msgid "Preferences..."
+msgstr "Indstillinger..."
+
+msgid "Set equation preferences"
+msgstr "Angiv indstillinger for formler"
+
+msgid "Preamble..."
+msgstr "Præambel..."
+
+msgid "Set preamble"
+msgstr ""
+
+msgid "Generate XeLaTeX equation"
+msgstr ""
+
+msgid "Generate LaTeX equation"
+msgstr "Generèr LaTeX formel"
+
+msgid "General"
+msgstr ""
+
+msgid "Arrays"
+msgstr ""
+
+msgid "Alphabets"
+msgstr ""
+
+msgid "Arrows"
+msgstr ""
+
+msgid "Functions"
+msgstr ""
+
+msgid "Relations"
+msgstr ""
+
+msgid "Operations"
+msgstr ""
+
+msgid "Misc"
+msgstr ""
+
+msgid "2 x 2 align* environment"
+msgstr ""
+
+msgid "3 x 2 align* environment"
+msgstr ""
+
+msgid "2 x 1 array"
+msgstr ""
+
+msgid "2 x 2 array"
+msgstr ""
+
+msgid "3 x 1 array"
+msgstr ""
+
+msgid "3 x 3 array"
+msgstr ""
+
+msgid "2 x 2 matrix with parentheses"
+msgstr ""
+
+msgid "3 x 3 matrix with parentheses"
+msgstr ""
+
+msgid "m x n matrix with parentheses"
+msgstr ""
+
+msgid "2 x 2 matrix with brackets"
+msgstr ""
+
+msgid "3 x 3 matrix with brackets"
+msgstr ""
+
+msgid "m x n matrix with brackets"
+msgstr ""
+
+msgid "2 x 2 matrix with verts"
+msgstr ""
+
+msgid "3 x 3 matrix with verts"
+msgstr ""
+
+msgid "m x n matrix with verts"
+msgstr ""
+
+msgid "Serif Text"
+msgstr ""
+
+msgid "Sans Serif Text"
+msgstr ""
+
+msgid "Align"
+msgstr ""
+
+msgid "Space"
+msgstr ""
+
+msgid "Double space"
+msgstr ""
+
+msgid "Triple space"
+msgstr ""
+
+msgid "Please install the Draw component to run TexMaths!"
+msgstr ""
+
+msgid ": document type not supported by TexMaths"
+msgstr ": dokumenttype ikke understøttet af TexMaths"
+
+msgid "The selected object is not a TexMaths equation..."
+msgstr "Det markerede objekt er ikke en TexMaths formel..."
+
+msgid "Please unselect it and call the macro again..."
+msgstr "Fjern venligst markeringen og gentag funktionen"
+
+msgid "Edit equation..."
+msgstr "Rediger formel..."
+
+msgid "Please enter an equation..."
+msgstr ""
+
+msgid "Please save the document before using an include command..."
+msgstr ""
+
+msgid "Please save the document before using an input command..."
+msgstr ""
+
+msgid "The file "
+msgstr "Filen"
+
+msgid "tmpfile.tex cannot be created"
+msgstr "tmpfile.tex kan ikke oprettes"
+
+msgid "Please check your installation..."
+msgstr "Kontroller venligst din installation..."
+
+msgid "No file created in the directory:"
+msgstr "Ingen fil oprettet i folderen:"
+
+msgid "Script error: the dvi file was not converted to "
+msgstr "Skriptfejl: dvi-filen blev ikke konverteret til "
+
+msgid "Please check your system configuration..."
+msgstr "Kontroller venligst din systemkonfiguration..."
+
+msgid "Error"
+msgstr ""
+
+msgid "View..."
+msgstr ""
+
+msgid "View LaTeX code"
+msgstr ""
+
+msgid "TexMaths Help"
+msgstr "TexMaths Hjælp"
+
+msgid "TexMaths Preamble"
+msgstr "TexMaths Præambel"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Load default preamble"
+msgstr "Indlæs standard præambel"
+
+msgid "Load"
+msgstr "Indlæs"
+
+msgid "Load preamble saved into the current document"
+msgstr ""
+
+msgid "Apply"
+msgstr "Tilknyt"
+
+msgid "Apply current preamble"
+msgstr "Tilknyt aktuel præambel"
+
+msgid "Save"
+msgstr "Gem"
+
+msgid "Apply current preamble and save it into the current document"
+msgstr ""
+
+#, fuzzy
+msgid "Do not use preamble for LaTeX type equations"
+msgstr "Generèr LaTeX formel"
+
+msgid ""
+"Ignore preamble when generating LaTeX type equations. Full LaTeX code must "
+"then be entered in the TexMaths equation dialog."
+msgstr ""
+
+msgid "Preamble applied and saved..."
+msgstr "Præambel tilknyttet og gemt..."
+
+msgid "Preamble applied..."
+msgstr "Præambel tilknyttet"
+
+msgid "TexMaths Preferences"
+msgstr "TexMaths indstillinger"
+
+msgid "Image parameters"
+msgstr "Billedparametre"
+
+msgid "Load default preferences"
+msgstr "Indlæs standardindstillinger"
+
+msgid "Load saved preferences"
+msgstr "Indlæs gemte indstillinger"
+
+msgid "Apply and save current preferences"
+msgstr "Tilknyt og gem aktuelle indstillinger"
+
+msgid "Writer font size"
+msgstr "Writer skriftstørrelse"
+
+msgid "Impress font size"
+msgstr "Impress skriftstørrelse"
+
+msgid "Draw font size"
+msgstr "Draw skriftstørrelse"
+
+msgid "points"
+msgstr "punkt"
+
+msgid "Inline display equation"
+msgstr "Inline visning af formel"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Image format"
+msgstr "Billedformat"
+
+msgid "Image resolution"
+msgstr "Billedopløsning"
+
+msgid "Preferences applied and saved..."
+msgstr "Indstillinger tilknyttet og gemt..."
+
+msgid "Default preferences loaded..."
+msgstr "Standardindstillinger indlæst..."
+
+msgid "User's preferences loaded..."
+msgstr "Brugers indstillinger indlæst..."
+
+msgid "TexMaths Recompile Equations"
+msgstr ""
+
+msgid "Run"
+msgstr ""
+
+msgid "Recompile TexMaths equations"
+msgstr ""
+
+msgid "Font size"
+msgstr ""
+
+msgid "Compatibility"
+msgstr ""
+
+msgid "Selection"
+msgstr ""
+
+msgid "Image transparency"
+msgstr ""
+
+#, fuzzy
+msgid "Vertical alignment for Word export"
+msgstr "Forbedring af kompatibilitet med Word 2000 for PNG-formler i Writer"
+
+#, fuzzy
+msgid "Improve vertical alignment of Writer equations for Word export"
+msgstr "Forbedring af kompatibilitet med Word 2000 for PNG-formler i Writer"
+
+msgid "Text font size"
+msgstr ""
+
+msgid "Image resolution (only for PNG images)"
+msgstr ""
+
+msgid "Recompile all equations"
+msgstr ""
+
+msgid "Recompile all equations from the document"
+msgstr ""
+
+msgid "Recompile selected equations"
+msgstr ""
+
+msgid ""
+"Recompile equations from the selected text area (does not process equations "
+"in tables, text frames, header and footer. Recompile those one by one if "
+"necessary)"
+msgstr ""
+
+msgid "Recompile equations from slide"
+msgstr ""
+
+msgid "Recompile equations from the current slide"
+msgstr ""
+
+msgid "Please wait during task execution..."
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Cancel operation"
+msgstr ""
+
+msgid "Operation canceled!"
+msgstr ""
+
+msgid "Done!"
+msgstr ""
+
+msgid "No equation was recompiled."
+msgstr ""
+
+msgid "1 equation recompiled."
+msgstr ""
+
+msgid " equations recompiled."
+msgstr ""
+
+msgid "TexMaths System Configuration"
+msgstr "TexMaths systemkonfiguration"
+
+msgid "Equations Shortcuts"
+msgstr "Formel genvej"
+
+msgid "Numbered Equations Shortcut"
+msgstr "Nummereret formel genvej"
+
+msgid "Same shortcut for Writer, Impress and Draw"
+msgstr ""
+
+msgid "Use the same shortcut for Writer, Impress and Draw"
+msgstr "Brug samme genvej i Writer, Impress og Draw"
+
+msgid "System Paths"
+msgstr "Systemstier"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Keyboard shortcut"
+msgstr "Tastaturgenveje"
+
+msgid "Path of the latex program"
+msgstr "Sti til latexprogrammet"
+
+msgid "Path of the xelatex program"
+msgstr ""
+
+msgid "Path of the dvipng program"
+msgstr "Sti til dvipng"
+
+msgid "Path of the dvisvgm program"
+msgstr "Sti til dvisvgm"
+
+msgid "Save system configuration"
+msgstr "Gem systemkonfiguration"
+
+msgid "Numbering Level"
+msgstr ""
+
+msgid "Chapter level number to be included in equation numbers"
+msgstr ""
+
+msgid "Level number"
+msgstr ""
+
+msgid "Caption left alignment"
+msgstr ""
+
+msgid "Set equation caption alignment to left"
+msgstr ""
+
+msgid "Caption right alignment"
+msgstr ""
+
+msgid "Set equation caption alignment to right"
+msgstr ""
+
+msgid "Compiler"
+msgstr ""
+
+msgid "Equations will be compiled using the LaTeX compiler"
+msgstr ""
+
+msgid "Equations will be compiled using the XeLaTeX compiler"
+msgstr ""
+
+msgid "Paths"
+msgstr ""
+
+#, fuzzy
+msgid "Display the Paths tab"
+msgstr "Vis hjælpetekst"
+
+msgid "Options"
+msgstr "Valgmuligheder"
+
+#, fuzzy
+msgid "Display the Options tab"
+msgstr "Vis hjælpetekst"
+
+msgid "Interface"
+msgstr ""
+
+msgid "Display the Interface tab"
+msgstr ""
+
+msgid "Editor Font"
+msgstr ""
+
+msgid "Font name"
+msgstr ""
+
+msgid "Name of the font used in the equation editor window"
+msgstr ""
+
+msgid "Size"
+msgstr ""
+
+msgid "Size of the font used in the equation editor window"
+msgstr ""
+
+msgid "Symbol Color"
+msgstr ""
+
+msgid "Black symbols"
+msgstr ""
+
+msgid "Set LaTeX symbol color to black (for light themes)"
+msgstr ""
+
+msgid "White symbols"
+msgstr ""
+
+msgid "Set LaTeX symbol color to white (for dark themes)"
+msgstr ""
+
+#, fuzzy
+msgid "Shortcuts"
+msgstr "Formel genvej"
+
+#, fuzzy
+msgid "Display the Shortcuts tab"
+msgstr "Vis hjælpetekst"
+
+#, fuzzy
+msgid "Numbered Equations"
+msgstr "Nummereret formel genvej"
+
+msgid "Paragraph break before numbered equations"
+msgstr "Indsæt afsnit for nummereret formel"
+
+#, fuzzy
+msgid "Add a paragraph break before numbered equations"
+msgstr "Tilføj et ekstra afsnit før nummererede formler"
+
+msgid "Paragraph break after numbered equations"
+msgstr "Afsnit efter nummererede formler"
+
+#, fuzzy
+msgid "Add a paragraph break after numbered equations"
+msgstr "Tilføj et ekstra afsnit efter nummererede formler"
+
+#, fuzzy
+msgid "Equation Caption"
+msgstr "Formeltype"
+
+msgid "Display text before equation number (leave blank if no text desired)"
+msgstr ""
+
+msgid ""
+"The TexMaths macro uses some external programs to generate the equation "
+"images. Enter below the paths of these programs. Note that only one of the "
+"dvisvgm or dvipng programs is required to generate equation images."
+msgstr ""
+
+msgid ""
+"Ex: For a standard MiKTeX 2.9 install on Windows, enter the following path "
+"into the latex.exe field:"
+msgstr ""
+"Eksempel: For en standard MiKTeX 2.9 installation på Windows, skal du "
+"indtaste følgende sti i feltet latex.exe:"
+
+msgid "latex.exe (mandatory)"
+msgstr "latex.exe (krævet)"
+
+msgid "xelatex.exe (optional)"
+msgstr ""
+
+msgid "dvipng.exe (optional)"
+msgstr "dvipng.exe (valgfrit)"
+
+msgid "dvisvgm.exe (optional)"
+msgstr "dvisvgm.exe (valgfrit)"
+
+msgid ""
+"Ex: For a standard MacTeX install on Mac OS, enter the following path into "
+"the latex field:"
+msgstr ""
+"Eksempel: For en standard MacTeX installation på Mac OS, skal du indtaste "
+"følgende sti i feltet latex:"
+
+msgid "latex (mandatory)"
+msgstr "latex (krævet)"
+
+msgid "xelatex (optional)"
+msgstr ""
+
+msgid "dvipng (optional)"
+msgstr "dvipng (valgfrit)"
+
+msgid "dvisvgm (optional)"
+msgstr "dvisvgm (valgfrit)"
+
+msgid ""
+"Ex: For a standard LaTeX install on Linux, enter the following path into the "
+"latex field:"
+msgstr ""
+"Eksempel: For en standard LaTeX installation på Linux, skal du indtaste "
+"følgende sti i feltet latex:"
+
+msgid "(Default)"
+msgstr ""
+
+msgid "xelatex not found, XeLateX is disabled"
+msgstr ""
+
+msgid "dvisvgm not found, XeLateX is disabled"
+msgstr ""
+
+msgid "dvisvgm too old, XeLateX is disabled"
+msgstr ""
+
+msgid "Please configure first TexMaths before using it..."
+msgstr "Konfigurer venligst TexMaths før brug..."
+
+msgid "Can't find the external program "
+msgstr "Kan ikke finde det eksterne program"
+
+msgid "Please check the file paths in your TexMaths system configuration..."
+msgstr ""
+
+msgid "Can't find at least one of the external programs "
+msgstr "Kan ikke finde mindst en af de to eksterne programmer"
+
+msgid " or "
+msgstr "eller"
+
+msgid ""
+"Shortcuts assigned to the Equations and NumberedEquations modules must be "
+"different!"
+msgstr ""
+
+#, fuzzy
+msgid "Please check your shortcuts..."
+msgstr "Kontroller venligst din installation..."
+
+msgid "Please set the latex path..."
+msgstr "Angiv venligst stien til latex"
+
+msgid "Please set at least one dvipng path or the dvisvgm path..."
+msgstr "Angiv venligst stien til enten dvipng eller dvisvgm..."
+
+msgid "The program latex.exe was not found"
+msgstr ""
+
+msgid "The program xelatex.exe was not found, please check its path"
+msgstr ""
+
+msgid "The program dvipng.exe was not found, please check its path"
+msgstr ""
+
+msgid "The program dvisvgm.exe was not found, please check its path"
+msgstr ""
+
+msgid "The program latex was not found, please check its path"
+msgstr ""
+
+msgid "The program xelatex was not found, please check its path"
+msgstr ""
+
+msgid "The program dvipng was not found, please check its path"
+msgstr ""
+
+msgid "The program dvisvgm was not found, please check its path"
+msgstr ""
+
+#, fuzzy
+msgid "Only characters from A to Z are allowed for shortcuts!"
+msgstr "Kun karakterer fra A til Z er tilladt som genvejstaster"
+
+msgid "The key combination CTRL + "
+msgstr "Tastekombinationen CTRL + "
+
+msgid " is already assigned to the command "
+msgstr "er allerede tilknyttet til kommandoen "
+
+msgid "Do you want to set the command"
+msgstr "Ønsker du at angive kommandoen"
+
+msgid "Error: can't find file "
+msgstr "Fejl: kan ikke finde fil "
+
+msgid ""
+"LaTeX code was successfully compiled but equation image is empty, please "
+"check the equation syntax..."
+msgstr ""
+
+msgid "Error: the file "
+msgstr "Fejl: filen "
+
+msgid " doesn't exist..."
+msgstr "findes ikke..."
+
+msgid "An error has occurred, please check your TexMaths configuration..."
+msgstr ""
+
+msgid "Can't find "
+msgstr "Kan ikke finde "
+
+#~ msgid "Error: please check the equation syntax..."
+#~ msgstr "Fejl: kontroller venligst formelsyntaksen..."
+
+#, fuzzy
+#~ msgid ""
+#~ "Ex: For a standard LaTeX install on Mac OS, enter the following path into "
+#~ "the latex field:"
+#~ msgstr ""
+#~ "Eksempel: For en standard LaTeX installation på Linux eller MacOS, skal "
+#~ "du indtaste følgende sti i feltet latex:"
+
+#~ msgid "Set LaTeX preamble"
+#~ msgstr "Angiv LaTeX præambel"
+
+#~ msgid "Please enter some LaTeX code..."
+#~ msgstr "Indtast venligst noget LaTeX-kode..."
+
+#~ msgid "Please check the paths in your TexMaths system configuration..."
+#~ msgstr "Kontroller venligst stien i din TexMaths systemkonfiguration..."
+
+#~ msgid "The program latex.exe is not located in "
+#~ msgstr "Programmet lates.exe findes ikke i "
+
+#~ msgid "The program dvipng.exe is not located in "
+#~ msgstr "Programmet dvipng.exe findes ikke i "
+
+#~ msgid "The program dvisvgm.exe is not located in "
+#~ msgstr "Programmet dvsivgm.exe findes ikke i "
+
+#~ msgid "The program latex is not located in "
+#~ msgstr "Programmet latex findes ikke i "
+
+#~ msgid "The program dvipng is not located in "
+#~ msgstr "Programmet dvipng findes ikke i "
+
+#~ msgid "The program dvisvgm is not located in "
+#~ msgstr "Programmet dvisvgm findes ikke i "
+
+#~ msgid ""
+#~ "The TexMaths macro uses some external programs to generate the equation "
+#~ "images. Enter below the path of these programs. Note that only one of the "
+#~ "dvisvgm or dvipng programs is required to generate equation images."
+#~ msgstr ""
+#~ "TexMaths funktionerne bruger visse eksterne programmer til at generere "
+#~ "formelbilleder. Indtast herunder stien til disse programmer. Bemærk at "
+#~ "kun et af programmerne dvisvgm og dvipng er nødvendig for at generere "
+#~ "formelbilleder."
+
+#~ msgid "Load saved preamble"
+#~ msgstr "Indlæs gemt præambel"
+
+#~ msgid "Apply and save current preamble"
+#~ msgstr "Tilknyt og gem aktuel præambel"
+
+#~ msgid "Same shortcut for Writer, Draw & Impress"
+#~ msgstr "Samme genvej for Writer, Draw og Impress"
+
+#~ msgid "PNG compatibility with Word 2000"
+#~ msgstr "PNG-kompatibilitet med Word 2000"
+
+#~ msgid "Improve compatibility of Writer PNG equations with Word 2000"
+#~ msgstr "Forbedring af kompatibilitet med Word 2000 for PNG-formler i Writer"
+
+#, fuzzy
+#~ msgid "Caption"
+#~ msgstr "Valgmuligheder"
+
+#~ msgid "Can't find the batch script "
+#~ msgstr "Kan ikke finde batchskriptet"
+
+#~ msgid "Can't find the shell script "
+#~ msgstr "Kan ikke finde shellskriptet"
+
+#, fuzzy
+#~ msgid "Please check your configuration..."
+#~ msgstr "Kontroller venligst din systemkonfiguration..."
+
+#, fuzzy
+#~ msgid "Define system paths"
+#~ msgstr "Systemstier"
+
+#, fuzzy
+#~ msgid "Define shortcuts"
+#~ msgstr "Formel genvej"
